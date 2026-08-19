@@ -1,22 +1,18 @@
 {
-  "version": "0.6.0",
-  "build": 600,
+  "version": "0.6.1",
+  "build": 601,
   "channel": "stable",
   "minSupported": "0.6.0",
   "required": true,
-  "title": "ArcanaClash 0.6 — Alianças",
+  "title": "ArcanaClash 0.6.1 — Correção de Interface",
   "notes": [
-    "Confronto 2v2 crossplay com quatro jogadores",
-    "Raid cooperativa para 2 a 4 jogadores",
-    "Nexus e três rotas compartilhados por equipe",
-    "Mãos, mana e Baús privados por jogador",
-    "Reconexão automática de convidados",
-    "Jornada Solo, Blitz, Caos, Sobrevivência, Raid Solo e Draft",
-    "Atualizações pelo próprio app no Android",
-    "Builds Android e iOS validadas automaticamente"
+    "Corrige a inicialização da interface no Android",
+    "Restaura os botões e a navegação da tela inicial",
+    "Mantém a assinatura Android definitiva para atualizações sobre 0.6.0",
+    "Preserva Confronto 2v2, Raid Coop e os demais modos"
   ],
   "android": {
-    "apkUrl": "https://github.com/thzinnnn/ArcaneClash_updates/releases/download/v0.6.0/ArcanaClash.apk",
+    "apkUrl": "https://github.com/thzinnnn/ArcaneClash_updates/releases/download/v0.6.1/ArcanaClash.apk",
     "playUrl": ""
   },
   "ios": {
