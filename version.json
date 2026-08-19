@@ -1,18 +1,20 @@
 {
-  "version": "0.6.1",
-  "build": 601,
+  "version": "0.6.2",
+  "build": 602,
   "channel": "stable",
   "minSupported": "0.6.0",
   "required": true,
-  "title": "ArcanaClash 0.6.1 — Correção de Interface",
+  "title": "ArcanaClash 0.6.2 — Leitura de Campo",
   "notes": [
-    "Corrige a inicialização da interface no Android",
-    "Restaura os botões e a navegação da tela inicial",
-    "Mantém a assinatura Android definitiva para atualizações sobre 0.6.0",
-    "Preserva Confronto 2v2, Raid Coop e os demais modos"
+    "Toque em qualquer criatura das rotas para abrir seus detalhes completos",
+    "Efeitos com alvo agora mostram a criatura, a prévia do resultado e pedem confirmação",
+    "Crescimento Súbito agora explica claramente +1 ATQ e +3 de vida",
+    "Corrige textos gigantes, cortes e sobreposições nas cartas em telas de celular",
+    "Melhora a leitura das opções de Baú, cartas da mão e criaturas em campo",
+    "O inspector também funciona em Confronto 2v2 e Raid Coop"
   ],
   "android": {
-    "apkUrl": "https://github.com/thzinnnn/ArcaneClash_updates/releases/download/v0.6.1/ArcanaClash.apk",
+    "apkUrl": "https://github.com/thzinnnn/ArcaneClash_updates/releases/download/v0.6.2/ArcanaClash.apk",
     "playUrl": ""
   },
   "ios": {
