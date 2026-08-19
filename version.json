@@ -1,0 +1,20 @@
+{
+  "version": "0.0.0",
+  "build": 0,
+  "channel": "bootstrap",
+  "minSupported": "0.0.0",
+  "required": false,
+  "title": "Canal de atualizações em preparação",
+  "notes": [
+    "Nenhuma atualização pública foi publicada ainda."
+  ],
+  "android": {
+    "apkUrl": "",
+    "playUrl": ""
+  },
+  "ios": {
+    "appStoreUrl": "",
+    "testFlightUrl": ""
+  },
+  "webUrl": ""
+}
