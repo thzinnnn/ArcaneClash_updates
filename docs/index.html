@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#080b18">
+  <title>ArcanaClash</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="modes.css">
+  <link rel="stylesheet" href="ui-fixes.css">
+</head>
+<body>
+  <main id="app">
+    <header class="topbar">
+      <section class="player"><div class="avatar" id="meAvatar">✦</div><div><b>VOCÊ</b><span id="meHero">—</span></div><strong id="meHp">—</strong></section>
+      <section class="round"><b id="roundText">ARCANA CLASH</b><span id="turnText">CROSSPLAY</span></section>
+      <section class="player enemy"><strong id="enemyHp">—</strong><div><b id="enemyLabel">RIVAL</b><span id="enemyHero">—</span></div><div class="avatar" id="enemyAvatar">✧</div></section>
+    </header>
+    <section id="modeStrip" class="modeStrip">⚔️ DUEL</section>
+    <section id="eventBar">Escolha um modo para começar.</section>
+    <section id="board" class="board"></section>
+    <section id="selectionBar" class="selection hidden"><span id="selectionText"></span><button id="cancelSelection">Cancelar</button></section>
+    <footer class="gameFooter">
+      <div class="resources"><span id="mana">💎 —</span><span id="reserve">📚 —</span><span id="enemyHand">🃏 Rival —</span><span id="timerBadge" class="hidden">⏱ —</span><button id="classAbility" class="hidden">✨ HABILIDADE</button><button id="endTurn" disabled>ENCERRAR</button></div>
+      <div id="hand" class="hand"></div>
+    </footer>
+  </main>
+
+  <div id="toast"></div>
+
+  <section id="home" class="screen">
+    <div class="panel homePanel">
+      <div class="homeTop"><div><div class="logo">ARCANA<br><em>CLASH</em></div><p class="eyebrow">MOBILE · CROSSPLAY</p></div><button id="checkUpdate" class="versionPill">v<span id="appVersion">0.7.0</span><small>VERIFICAR</small></button></div>
+      <p class="lead">Escolha como lutar. Evolua seu Arcano, domine classes e transforme cada eliminação em novas possibilidades.</p>
+      <div id="modeGrid" class="modeCatalog"></div>
+      <div class="homeActions"><button id="openRules" class="ghost">COMO JOGAR</button><button id="openAbout" class="ghost">NOVIDADES</button></div>
+    </div>
+  </section>
+
+  <section id="modeSetup" class="screen hidden"><div class="panel modeSetupPanel">
+    <button id="backModes" class="backBtn">‹</button><div id="setupIcon" class="setupIcon">⚔️</div><p id="setupSubtitle" class="eyebrow">1V1</p><h2 id="setupTitle">Duelo</h2><p id="setupDescription" class="lead"></p>
+    <div id="difficultyBox" class="setupBlock hidden"><b>DIFICULDADE</b><div id="difficultyGrid" class="segmented"><button data-diff="easy">Fácil</button><button data-diff="normal" class="active">Normal</button><button data-diff="hard">Difícil</button><button data-diff="nightmare">Pesadelo</button></div></div>
+    <div id="onlineActions" class="setupBlock hidden"><b>MULTIPLAYER</b><div class="buttons"><button id="setupCreate" class="primary">CRIAR SALA</button><button id="setupJoin" class="ghost">ENTRAR COM CÓDIGO</button></div></div>
+    <div id="soloActions" class="setupBlock hidden"><button id="startSolo" class="primary giant">INICIAR PARTIDA</button></div>
+    <div id="betaMessage" class="status hidden"></div>
+  </div></section>
+
+  <section id="roomScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">SALA CRIADA</p><h2>Envie este código</h2><div id="roomCode" class="roomCode">------</div><p id="roomStatus" class="status">Preparando conexão...</p><div class="buttons"><button id="shareRoom" class="primary">Compartilhar</button><button id="copyRoom" class="ghost">Copiar</button><button id="leaveRoom" class="ghost">Cancelar</button></div></div></section>
+
+  <section id="joinScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">ENTRAR NA SALA</p><h2>Código do convite</h2><input id="roomInput" inputmode="numeric" maxlength="6" placeholder="000000"><p id="joinStatus" class="status">Digite os 6 números.</p><div class="buttons"><button id="joinRoom" class="primary">Conectar</button><button id="backJoin" class="ghost">Voltar</button></div></div></section>
+
+  <section id="heroScreen" class="screen hidden"><div class="panel"><p class="eyebrow">ESCOLHA SEU CAMPEÃO</p><h2>Campeão + Classe Arcana</h2><div id="heroGrid" class="heroGrid"></div><p id="heroStatus" class="status">Escolha um campeão. Sua Classe Arcana é configurada em Meu Arcano.</p></div></section>
+
+  <section id="chestScreen" class="screen hidden"><div id="chestPanel" class="panel chestPanel"><div id="chestGlow"></div><div id="chestIcon" class="chestIcon">🎁</div><p id="chestRarity" class="eyebrow">BAÚ COMUM</p><h2>Escolha uma carta</h2><p class="lead small">Duas opções de poder semelhante, mas funções diferentes.</p><div id="chestChoices" class="chestChoices"></div><button id="reroll" class="ghost">↻ REEMBARALHAR</button></div></section>
+
+  <section id="updateScreen" class="screen hidden"><div class="panel compact updatePanel"><div class="updateIcon">⬇️</div><p class="eyebrow">ATUALIZAÇÃO DISPONÍVEL</p><h2 id="updateTitle">Nova versão</h2><div class="versionCompare"><span>v<span id="oldVersion">—</span></span><b>→</b><span class="newVersion">v<span id="newVersion">—</span></span></div><div id="updateNotes" class="updateNotes"></div><p id="updateHint" class="status"></p><div class="buttons"><button id="doUpdate" class="primary">ATUALIZAR</button><button id="skipUpdate" class="ghost">AGORA NÃO</button></div></div></section>
+
+  <section id="rulesScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">REGRAS</p><h2>Rápido de aprender, difícil de dominar</h2><div class="rules"><p><b>🎁 Baú:</b> todo turno começa com 2 opções; escolha 1. Depois de dois Baús Comuns seguidos, a Jornada garante melhoria para reduzir azar.</p><p><b>🏹 Espólio:</b> ao eliminar uma criatura inimiga válida, escolha 1 entre 2 cartas de recompensa.</p><p><b>🧙 Classe Arcana:</b> nos modos Solo, sua classe dá uma passiva e uma habilidade com recarga.</p><p><b>⚔️ Rotas:</b> criaturas lutam na rota em que foram colocadas.</p><p><b>👆 Inspecionar:</b> toque em qualquer criatura nas rotas para abrir seus detalhes, efeitos e status atuais.</p><p><b>🎯 Alvos:</b> ao usar um efeito com alvo, toque na criatura destacada, confira a prévia e confirme.</p><p><b>💎 Mana:</b> cresce com a partida e limita suas jogadas.</p><p><b>🏺 Relíquias:</b> na Jornada, rodadas especiais oferecem Relíquias que modificam sua estratégia.</p><p><b>🏆 Vitória:</b> reduza a vida do herói rival a zero.</p></div><button id="closeRules" class="primary">Entendi</button></div></section>
+
+  <section id="aboutScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">ARCANACLASH 0.7.0</p><h2>Ascensão dos Arcanos</h2><div class="rules"><p>🎁 Espólio 1-de-2 por eliminações.</p><p>🧙 8 Classes Arcanas com passivas e habilidades.</p><p>👤 Perfil, visual, nível de conta e maestria de classe.</p><p>📚 Coleção persistente e conquistas.</p><p>⚖️ Fácil, Normal, Difícil e Pesadelo.</p><p>🛡️ Proteção contra sequência ruim de Baús.</p><p>🏺 Relíquias especiais na Jornada.</p><p>👹 Chefe com fases mais distintas e dificuldade rebalanceada.</p><p>🔎 Inspector de cartas e seleção de alvos preservados.</p><p>🤝 PvP continua competitivo sem bônus de Classe Arcana nesta versão para evitar desync.</p></div><button id="closeAbout" class="primary">Voltar</button></div></section>
+
+  <section id="gameover" class="screen hidden"><div class="panel compact"><p class="eyebrow" id="gameoverMode">FIM DO DUELO</p><div id="resultTitle" class="result">VITÓRIA</div><p id="resultText" class="lead"></p><div id="runStats" class="runStats"></div><div class="buttons"><button id="rematch" class="primary">JOGAR DE NOVO</button><button id="returnHome" class="ghost">MODOS</button></div></div></section>
+
+  <button id="createRoom" type="button" hidden aria-hidden="true" tabindex="-1"></button>
+  <button id="openJoin" type="button" hidden aria-hidden="true" tabindex="-1"></button>
+
+  <script src="vendor/peerjs.min.js"></script>
+  <script src="app.min.js"></script>
+  <script src="party.min.js"></script>
+  <script src="inspector.min.js"></script>
+  <script src="web.min.js"></script>
+</body>
+</html>
