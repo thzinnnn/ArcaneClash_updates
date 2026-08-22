@@ -1,16 +1,16 @@
 {
-  "version": "0.9.3",
-  "build": 903,
+  "version": "0.9.4",
+  "build": 904,
   "channel": "web",
-  "minSupported": "0.9.3",
+  "minSupported": "0.9.4",
   "required": true,
-  "title": "ArcanaClash Web 0.9.3 — Mapa da Ascensão",
+  "title": "ArcanaClash Web 0.9.4 — Combate Renascido",
   "notes": [
-    "Novo lobby com o Mapa da Ascensão e nove destinos jogáveis",
-    "Remake de 172 cartas, raridades visíveis e cartas secretas de classe",
-    "Forja de decks, Mercado Arcano, missões, temporada e economia",
-    "Conta Arcana e cloud save preservados",
-    "Este endereço antigo será substituído pelo site Web permanente"
+    "Campos de batalha imersivos para os nove destinos",
+    "Rotas com terreno, nomes, marcos e atmosferas próprias",
+    "Melhor leitura de posições, alvos e criaturas no campo",
+    "Layout renovado para PC e celular",
+    "Migração segura a partir de versões Web antigas"
   ],
   "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=legacy-update",
   "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=legacy-update",

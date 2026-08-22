@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="theme-color" content="#080b18">
-  <title>ArcanaClash 0.9.3 - Mapa da Ascensão</title>
+  <title>ArcanaClash 0.9.4 - Combate Renascido</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="modes.css">
   <link rel="stylesheet" href="ui-fixes.css">
@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="lobby.css?v=093">
   <link rel="stylesheet" href="arcane-market.css?v=093">
   <link rel="stylesheet" href="world-map-093.css?v=093">
+  <link rel="stylesheet" href="combat-reborn-094.css?v=094">
 </head>
 <body>
   <main id="app">
@@ -39,7 +40,7 @@
 
   <section id="home" class="screen">
     <div class="panel homePanel">
-      <div class="homeTop"><div><div class="logo">ARCANA<br><em>CLASH</em></div><p class="eyebrow">MOBILE · CROSSPLAY</p></div><button id="checkUpdate" class="versionPill">v<span id="appVersion">0.9.3</span><small>VERIFICAR</small></button></div>
+      <div class="homeTop"><div><div class="logo">ARCANA<br><em>CLASH</em></div><p class="eyebrow">MOBILE · CROSSPLAY</p></div><button id="checkUpdate" class="versionPill">v<span id="appVersion">0.9.4</span><small>VERIFICAR</small></button></div>
       <p class="lead">Escolha como lutar. Evolua seu Arcano, domine classes e transforme cada eliminação em novas possibilidades.</p>
       <div id="modeGrid" class="modeCatalog"></div>
       <div class="homeActions"><button id="openRules" class="ghost">COMO JOGAR</button><button id="openAbout" class="ghost">NOVIDADES</button></div>
@@ -66,7 +67,7 @@
 
   <section id="rulesScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">REGRAS</p><h2>Rápido de aprender, difícil de dominar</h2><div class="rules"><p><b>🎁 Baú:</b> todo turno começa com 2 opções; escolha 1. Depois de dois Baús Comuns seguidos, a Jornada garante melhoria para reduzir azar.</p><p><b>🏹 Espólio:</b> ao eliminar uma criatura inimiga válida, escolha 1 entre 2 cartas de recompensa.</p><p><b>🧙 Classe Arcana:</b> nos modos Solo, sua classe dá uma passiva e uma habilidade com recarga.</p><p><b>⚔️ Rotas:</b> criaturas lutam na rota em que foram colocadas.</p><p><b>👆 Inspecionar:</b> toque em qualquer criatura nas rotas para abrir seus detalhes, efeitos e status atuais.</p><p><b>🎯 Alvos:</b> ao usar um efeito com alvo, toque na criatura destacada, confira a prévia e confirme.</p><p><b>💎 Mana:</b> cresce com a partida e limita suas jogadas.</p><p><b>🏺 Relíquias:</b> na Jornada, rodadas especiais oferecem Relíquias que modificam sua estratégia.</p><p><b>🏆 Vitória:</b> reduza a vida do herói rival a zero.</p></div><button id="closeRules" class="primary">Entendi</button></div></section>
 
-  <section id="aboutScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">ARCANACLASH 0.9.3 WEB</p><h2>Mapa da Ascensão</h2><div class="rules"><p>🗺️ Nove destinos navegáveis no lobby.</p><p>🌊 Mapa com regiões, rotas, ilhas e atmosfera.</p><p>🎨 Paleta mais viva sem perder a leitura.</p><p>📍 Cada modo possui território e história próprios.</p><p>📱 Jornada vertical adaptada para celular.</p><p>⚔️ Seleção do mapa integrada ao botão Jogar.</p></div><button id="closeAbout" class="primary">Voltar</button></div></section>
+  <section id="aboutScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">ARCANACLASH 0.9.4 WEB</p><h2>Combate Renascido</h2><div class="rules"><p>🏰 Campos de batalha próprios para os nove destinos.</p><p>🛤️ Rotas integradas ao terreno, com nomes e marcos únicos.</p><p>🌫️ Profundidade, névoa, iluminação e atmosfera sem poluição visual.</p><p>🎯 Posições e alvos válidos muito mais claros.</p><p>✨ Entrada, impacto e presença das criaturas renovadas.</p><p>📱 Campo reconstruído para PC e celular.</p></div><button id="closeAbout" class="primary">Voltar</button></div></section>
 
   <section id="gameover" class="screen hidden"><div class="panel compact"><p class="eyebrow" id="gameoverMode">FIM DO DUELO</p><div id="resultTitle" class="result">VITÓRIA</div><p id="resultText" class="lead"></p><div id="runStats" class="runStats"></div><div class="buttons"><button id="rematch" class="primary">JOGAR DE NOVO</button><button id="returnHome" class="ghost">MODOS</button></div></div></section>
 
@@ -75,15 +76,16 @@
 
   <script src="vendor/peerjs.min.js"></script>
   <script src="evolution-pack.js?v=092"></script>
-  <script src="app.min.js?v=093h1"></script>
+  <script src="app.min.js?v=094"></script>
   <script src="armory-expansion.js?v=092"></script>
   <script src="card-remake-092.js?v=092"></script>
   <script src="secret-cards.js?v=092"></script>
   <script src="rarity-signals.js?v=092"></script>
   <script src="party.min.js?v=092"></script>
   <script src="inspector.min.js?v=092"></script>
-  <script src="web.min.js?v=093h1"></script>
-  <script src="lobby.js?v=093"></script>
+  <script src="web.min.js?v=094"></script>
+  <script src="lobby.js?v=094"></script>
   <script src="arcane-market.js?v=093"></script>
+  <script src="combat-reborn-094.js?v=094"></script>
 </body>
 </html>

@@ -1,18 +1,17 @@
 {
-  "publishedAt": "2026-08-22T17:30:00-03:00",
+  "publishedAt": "2026-08-22T22:30:00-03:00",
   "source": "ArcanaClash Web",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "channel": "web",
-  "title": "Mapa da Ascensão",
+  "title": "Combate Renascido",
   "notes": [
-    "O lobby recebeu um mapa navegavel com nove destinos",
-    "Cada destino seleciona e abre um modo de jogo real",
-    "Regioes agora possuem nomes, historias curtas, cores e atmosferas proprias",
-    "Oceanos, ilhas, rotas, nevoa e bussola aumentam a imersao",
-    "A paleta recebeu azul, violeta, dourado, verde e coral de forma equilibrada",
-    "Cartoes de perfil, temporada, missoes e recursos ganharam materiais distintos",
-    "O mapa se transforma em uma jornada vertical responsiva no celular",
-    "A versao preserva o remake das 172 cartas e o Mercado Arcano da 0.9.2",
-    "Conta Arcana, cloud save, decks, missoes, economia e painel ADM permanecem integrados"
+    "As tres rotas agora formam um campo de batalha integrado ao cenario",
+    "Os nove destinos possuem terreno, atmosfera e iluminacao proprios",
+    "Cada rota recebeu nome e marco visual ligados a sua regiao",
+    "Posicoes vazias, rotas disponiveis e alvos validos ficaram mais claros",
+    "Criaturas ganharam entrada, impacto, sombra e profundidade no terreno",
+    "O campo foi reconstruido para PC, celular e modo desempenho",
+    "Desfazer, historico de acoes e confirmacoes perigosas nao foram adicionados",
+    "Lobby, mapa, cartas, decks, economia, Conta Arcana e cloud save foram preservados"
   ]
 }
