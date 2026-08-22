@@ -47,6 +47,7 @@ const UPDATE_HISTORY=[
 let selectedMode=localStorage.getItem(MODE_KEY)||'solo';
 let identity=null;
 let isAdmin=false;
+let securityState=null;
 let modalType='';
 let lastRenderSignature='';
 
@@ -157,7 +158,7 @@ function lobbyMarkup(){
   const activeDeck=p.classDecks?.[activeClassId],deckCount=activeDeck?.cards?.length||30;
   const catalog=globalThis.__ARCANA?.cards||[],classPool=catalog.filter(card=>globalThis.ArcanaEvolution?.allowedForClass?.(card,activeClassId)).length;
   const accountState=identity?'online':'local';
-  const adminFeature=isAdmin?`<button class="arcFeature" data-action="admin" style="--feature-tone:#ff728b"><span class="arcFeatureIcon">🛡️</span><b>Administração</b><small>Economia, missões e diagnóstico</small><span class="arcFeatureBadge">ADM</span></button>`:'';
+  const adminFeature=isAdmin?`<button class="arcFeature" data-action="admin" style="--feature-tone:#ff728b"><span class="arcFeatureIcon">🛡️</span><b>Administração</b><small>${securityState?.adminReady?'MFA ativo · operações auditadas':'MFA necessário para operar'}</small><span class="arcFeatureBadge">ADM</span></button>`:'';
   return `<div class="arcLobby">
     <header class="arcLobbyTop">
       <div class="arcIdentity">
@@ -286,7 +287,7 @@ function runAction(action){
 function refreshLobby(force=false){
   const root=byId('arcLobbyRoot');if(!root)return;
   const p=profile(),s=strategy();
-  const signature=JSON.stringify([selectedMode,p.name,p.level,p.classId,p.discovered?.length,p.social?.friends?.length,p.stats?.matches,p.stats?.wins,s.doctrine,s.rankedPoints,s.seasonXp,s.seasonLevel,s.coins,s.essence,s.market?.owned?.length,s.market?.equipped,s.missions?.items?.map(x=>[x.id,x.progress,x.claimed]),identity?.id,isAdmin]);
+  const signature=JSON.stringify([selectedMode,p.name,p.level,p.classId,p.discovered?.length,p.social?.friends?.length,p.stats?.matches,p.stats?.wins,s.doctrine,s.rankedPoints,s.seasonXp,s.seasonLevel,s.coins,s.essence,s.market?.owned?.length,s.market?.equipped,s.missions?.items?.map(x=>[x.id,x.progress,x.claimed]),identity?.id,isAdmin,securityState?.adminReady]);
   if(!force&&signature===lastRenderSignature)return;
   lastRenderSignature=signature;
   root.innerHTML=lobbyMarkup();bindLobby();
@@ -357,14 +358,38 @@ function renderSettings(){
 
 function renderAdmin(){
   if(!isAdmin)return toast('Esta conta não possui permissão administrativa.');
-  const s=strategy(),market=s.market||{};
-  modalShell('Administração','CONTA VALIDADA PELO SERVIDOR',`<p class="arcModalLead">Esta sessão possui a função <b>admin</b> em metadados protegidos da Conta Arcana. As ferramentas abaixo alteram seu ambiente de administração e entram no cloud save.</p><div class="arcAdminIdentity"><span>🛡️</span><div><small>CONTA ADMINISTRADORA</small><b>${escapeHtml(identity?.email||'Conta Arcana')}</b><code>${escapeHtml(identity?.id||'ID indisponível')}</code></div><button id="arcAdminCopyId">COPIAR ID</button></div><div class="arcAdminSection"><div><small>ECONOMIA DE TESTE</small><h3>Conceder recursos</h3></div><label>OURO<input id="arcAdminCoins" type="number" min="0" max="100000" value="1000"></label><label>ESSÊNCIA<input id="arcAdminEssence" type="number" min="0" max="100000" value="250"></label><button id="arcAdminGrant" class="arcModalButton primary">CONCEDER</button></div><div class="arcModalGrid"><div class="arcModalTile"><b>Carteira atual</b><small>${Number(s.coins||0)} Ouro · ${Number(s.essence||0)} Essências</small></div><div class="arcModalTile"><b>Mercado</b><small>${Number(market.owned?.length||3)} cosméticos liberados.</small></div><button id="arcAdminUnlock" class="arcModalButton">LIBERAR TODOS OS COSMÉTICOS</button><button id="arcAdminMissions" class="arcModalButton">RENOVAR MISSÕES</button><button id="arcAdminSync" class="arcModalButton primary">SINCRONIZAR AGORA</button><button id="arcAdminExport" class="arcModalButton">EXPORTAR SAVE LOCAL</button></div>`);
+  if(!securityState?.adminReady){
+    modalShell('Administração bloqueada','MFA OBRIGATÓRIO',`<div class="arcAdminLock"><span>🔐</span><h3>Confirme sua identidade para continuar</h3><p>O papel ADM foi localizado no banco, mas nenhuma operação administrativa será aceita sem um código do seu aplicativo autenticador. Isso protege todas as contas mesmo se uma sessão comum for roubada.</p><button id="arcAdminOpenMfa" class="arcModalButton primary">ABRIR CONTA ARCANA E VERIFICAR</button></div>`);
+    byId('arcAdminOpenMfa').onclick=()=>{closeModal();globalThis.ArcanaOnline?.open?.()};
+    return;
+  }
+  const trusted=securityState?.trusted||{};
+  modalShell('Administração segura','BANCO PRIVADO · MFA · AUDITORIA',`<p class="arcModalLead">As alterações abaixo acontecem no servidor, exigem MFA e registram administrador, alvo, motivo e valores anteriores. O painel não altera mais dinheiro pelo navegador.</p><div class="arcAdminIdentity"><span>🛡️</span><div><small>CONTA ADMINISTRADORA VERIFICADA</small><b>${escapeHtml(identity?.email||'Conta Arcana')}</b><code>${escapeHtml(identity?.id||'ID indisponível')}</code></div><button id="arcAdminCopyId">COPIAR MEU ID</button></div><div class="arcAdminTrusted"><span><small>OURO CONFIÁVEL</small><b>${Number(trusted.coins||0)}</b></span><span><small>ESSÊNCIA CONFIÁVEL</small><b>${Number(trusted.essence||0)}</b></span><span><small>SESSÃO</small><b>${escapeHtml(String(securityState?.aal||'aal2').toUpperCase())}</b></span></div><div class="arcAdminForm"><label class="wide">ID DA CONTA ALVO<input id="arcAdminTarget" maxlength="36" spellcheck="false" value="${escapeHtml(identity?.id||'')}"></label><label>AJUSTE DE OURO<input id="arcAdminCoins" type="number" min="-100000" max="100000" step="1" value="0"></label><label>AJUSTE DE ESSÊNCIA<input id="arcAdminEssence" type="number" min="-100000" max="100000" step="1" value="0"></label><label class="wide">MOTIVO OBRIGATÓRIO<input id="arcAdminReason" maxlength="200" placeholder="Ex.: correção de recompensa não recebida"></label><button id="arcAdminGrant" class="arcModalButton primary wide">APLICAR NO SERVIDOR</button><p id="arcAdminStatus" class="arcAdminStatus wide">Limite por operação: ±100.000. Valores nunca ficam negativos.</p></div><section class="arcAdminAudit"><header><div><small>REGISTRO IMUTÁVEL PARA JOGADORES</small><h3>Últimas operações</h3></div><button id="arcAdminReloadAudit" class="arcModalButton">ATUALIZAR</button></header><div id="arcAdminAuditRows"><p class="arcAdminStatus">Carregando auditoria...</p></div></section>`);
   byId('arcAdminCopyId').onclick=async()=>{try{await navigator.clipboard.writeText(identity?.id||'');toast('ID da Conta Arcana copiado.')}catch{toast('Não foi possível copiar o ID.')}};
-  byId('arcAdminGrant').onclick=()=>{const coins=Math.max(0,Math.min(100000,Number(byId('arcAdminCoins').value)||0)),essence=Math.max(0,Math.min(100000,Number(byId('arcAdminEssence').value)||0));globalThis.ArcanaStrategy?.grant?.({coins,essence});toast(`Concedidos ${coins} Ouro e ${essence} Essências.`);renderAdmin()};
-  byId('arcAdminUnlock').onclick=()=>{globalThis.ArcanaMarket?.unlockAll?.();toast('Todos os cosméticos foram liberados.');renderAdmin()};
-  byId('arcAdminMissions').onclick=()=>{globalThis.ArcanaStrategy?.resetMissions?.();toast('Missões renovadas para teste.');renderAdmin()};
-  byId('arcAdminSync').onclick=()=>globalThis.ArcanaOnline?.sync?.(false);
-  byId('arcAdminExport').onclick=()=>{const data=JSON.stringify({profile:profile(),strategy:strategy(),exportedAt:new Date().toISOString()},null,2);const blob=new Blob([data],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='arcana-save.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+  const errorText=code=>({mfa_required:'O MFA desta sessão expirou. Verifique novamente na Conta Arcana.',forbidden:'O servidor recusou a permissão ADM.',invalid_request:'Confira o ID, os valores e informe um motivo com pelo menos 8 caracteres.',user_not_found:'Nenhuma conta foi encontrada com esse ID.'}[code]||'A operação foi recusada pelo servidor.');
+  const loadAudit=async()=>{
+    const rows=byId('arcAdminAuditRows');if(!rows)return;
+    rows.innerHTML='<p class="arcAdminStatus">Carregando auditoria...</p>';
+    try{
+      const entries=await globalThis.ArcanaOnline.adminAudit(25);
+      rows.innerHTML=entries.length?entries.map(entry=>`<article class="arcAuditRow"><div><b>${escapeHtml(entry.action||'operação')}</b><time>${escapeHtml(new Date(entry.createdAt).toLocaleString('pt-BR'))}</time></div><code>${escapeHtml(entry.targetUserId||'alvo removido')}</code><p>${escapeHtml(entry.reason||'Sem motivo')}</p><small>Ouro: ${Number(entry.before?.coins||0)} → ${Number(entry.after?.coins||0)} · Essência: ${Number(entry.before?.essence||0)} → ${Number(entry.after?.essence||0)}</small></article>`).join(''):'<p class="arcAdminStatus">Nenhuma operação administrativa registrada.</p>';
+    }catch(error){rows.innerHTML=`<p class="arcAdminStatus error">${escapeHtml(errorText(error.code))}</p>`}
+  };
+  byId('arcAdminReloadAudit').onclick=loadAudit;
+  byId('arcAdminGrant').onclick=async()=>{
+    const button=byId('arcAdminGrant'),message=byId('arcAdminStatus');
+    const targetUserId=byId('arcAdminTarget').value.trim(),coinsDelta=Math.trunc(Number(byId('arcAdminCoins').value)||0),essenceDelta=Math.trunc(Number(byId('arcAdminEssence').value)||0),reason=byId('arcAdminReason').value.trim();
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(targetUserId)||Math.abs(coinsDelta)>100000||Math.abs(essenceDelta)>100000||(!coinsDelta&&!essenceDelta)||reason.length<8){message.className='arcAdminStatus wide error';message.textContent=errorText('invalid_request');return}
+    button.disabled=true;message.className='arcAdminStatus wide';message.textContent='Aplicando e registrando auditoria...';
+    try{
+      const result=await globalThis.ArcanaOnline.adminAdjust({targetUserId,coinsDelta,essenceDelta,reason});
+      securityState=await globalThis.ArcanaOnline.context();
+      message.className='arcAdminStatus wide ok';message.textContent=`Operação concluída. Saldo confiável: ${Number(result.trusted?.coins||0)} Ouro e ${Number(result.trusted?.essence||0)} Essências.`;
+      byId('arcAdminCoins').value='0';byId('arcAdminEssence').value='0';byId('arcAdminReason').value='';
+      await loadAudit();
+    }catch(error){message.className='arcAdminStatus wide error';message.textContent=errorText(error.code)}finally{button.disabled=false}
+  };
+  loadAudit();
 }
 
 function showNews(){
@@ -408,15 +433,13 @@ function installConfirmTurn(){
 }
 
 async function refreshIdentity(){
-  const previousId=identity?.id||null,previousAdmin=isAdmin;
-  const localAdminTest=/^(localhost|127\.0\.0\.1)$/.test(location.hostname)&&new URLSearchParams(location.search).get('admin-test')==='1';
+  const previousId=identity?.id||null,previousAdmin=isAdmin,previousReady=securityState?.adminReady;
   try{
     identity=await globalThis.ArcanaOnline?.user?.()||null;
-    const app=identity?.app_metadata||{};
-    isAdmin=localAdminTest||app.role==='admin'||app.is_admin===true||Array.isArray(app.roles)&&app.roles.includes('admin');
-    if(localAdminTest&&!identity)identity={id:'local-admin-test',email:'admin@teste.local',app_metadata:{role:'admin'}};
-  }catch{identity=null;isAdmin=false}
-  if(previousId!==(identity?.id||null)||previousAdmin!==isAdmin)refreshLobby(true);
+    securityState=identity?await globalThis.ArcanaOnline?.context?.()||null:null;
+    isAdmin=securityState?.role==='admin';
+  }catch{identity=null;securityState=null;isAdmin=false}
+  if(previousId!==(identity?.id||null)||previousAdmin!==isAdmin||previousReady!==securityState?.adminReady)refreshLobby(true);
 }
 
 function install(){
@@ -432,6 +455,7 @@ function install(){
   window.addEventListener('arcana:profile',()=>refreshLobby(true));
   window.addEventListener('arcana:economy',()=>refreshLobby(true));
   window.addEventListener('arcana:identity',refreshIdentity);
+  window.addEventListener('arcana:security',refreshIdentity);
   window.addEventListener('arcana:match',()=>refreshLobby(true));
   window.addEventListener('storage',()=>refreshLobby(true));
   setTimeout(refreshIdentity,250);

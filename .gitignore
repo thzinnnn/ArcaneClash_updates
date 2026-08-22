@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+.supabase/
+supabase/.branches/
+supabase/.temp/
+*.pem
+*.p12
+*.key
+*.secret
+service-role*
+

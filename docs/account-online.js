@@ -4,36 +4,438 @@ const PROFILE_KEY='arcana_profile_v2';
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const SESSION_KEY='arcana_supabase_session_v1';
 const LOCAL_SYNC_KEY='arcana_cloud_known_revision_v1';
-let knownRevision=Number(localStorage.getItem(LOCAL_SYNC_KEY)||0),syncTimer=null,syncing=false,lastSnapshot='';
-const parse=(v,f=null)=>{try{return JSON.parse(v)}catch{return f}};
+const SECURITY_VERSION='rls-rpc-v2';
+const EMPTY_SECURITY={role:'player',aal:'aal1',adminReady:false,cloudAuthority:'unavailable'};
+
+let knownRevision=Number(localStorage.getItem(LOCAL_SYNC_KEY)||0);
+let syncTimer=null;
+let syncing=false;
+let lastSnapshot='';
+let legacyChecked=false;
+let conflictPending=false;
+let securityContext={...EMPTY_SECURITY};
+let trustedProgress=null;
+let remoteAccount=null;
+
+const parse=(value,fallback=null)=>{try{return JSON.parse(value)}catch{return fallback}};
 const snapshot=()=>JSON.stringify({profile:parse(localStorage.getItem(PROFILE_KEY),{}),strategy:parse(localStorage.getItem(STRATEGY_KEY),{})});
-const localSave=()=>({...parse(snapshot(),{}),updatedAt:new Date().toISOString()});
-function getSession(){return parse(sessionStorage.getItem(SESSION_KEY))||parse(localStorage.getItem(SESSION_KEY))}
-function setSession(s,remember=false){localStorage.setItem('arcana_remember_account',remember?'1':'0');localStorage.removeItem(SESSION_KEY);sessionStorage.removeItem(SESSION_KEY);(remember?localStorage:sessionStorage).setItem(SESSION_KEY,JSON.stringify(s))}
-function clearSession(){localStorage.removeItem(SESSION_KEY);sessionStorage.removeItem(SESSION_KEY);localStorage.removeItem('arcana_remember_account')}
-async function sb(path,{method='GET',body,token}={}){const headers={apikey:SB_KEY,'Content-Type':'application/json'};if(token)headers.Authorization=`Bearer ${token}`;const r=await fetch(`${SB_URL}${path}`,{method,headers,body:body?JSON.stringify(body):undefined});let data={};try{data=await r.json()}catch{}if(!r.ok){const e=new Error(data.msg||data.message||data.error_description||data.error||`HTTP ${r.status}`);e.status=r.status;e.data=data;throw e}return data}
-async function refreshIfNeeded(){let s=getSession();if(!s)return null;if(s.expires_at&&Date.now()/1000<s.expires_at-60)return s;if(!s.refresh_token){clearSession();return null}try{const n=await sb('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:{refresh_token:s.refresh_token}});s={...n,expires_at:Math.floor(Date.now()/1000)+(n.expires_in||3600)};setSession(s,localStorage.getItem('arcana_remember_account')==='1');return s}catch{clearSession();return null}}
-async function currentUser(){const s=await refreshIfNeeded();if(!s)return null;return await sb('/auth/v1/user',{token:s.access_token})}
-async function signIn(email,password,remember){const d=await sb('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password}});d.expires_at=Math.floor(Date.now()/1000)+(d.expires_in||3600);setSession(d,remember);return d}
-async function signUp(email,password,displayName,remember){const d=await sb('/auth/v1/signup',{method:'POST',body:{email,password,data:{display_name:displayName||email.split('@')[0]}}});if(d.access_token){d.expires_at=Math.floor(Date.now()/1000)+(d.expires_in||3600);setSession(d,remember)}return d}
-async function signOut(){const s=getSession();try{if(s?.access_token)await sb('/auth/v1/logout',{method:'POST',token:s.access_token})}catch{}clearSession();knownRevision=0;localStorage.removeItem(LOCAL_SYNC_KEY);renderButton();mini('LOCAL');window.dispatchEvent(new CustomEvent('arcana:identity',{detail:null}))}
-function cloudFromUser(u){return u?.user_metadata?.arcana_save||null}
-async function writeCloud(payload,baseRevision=knownRevision){const s=await refreshIfNeeded();if(!s)throw new Error('not_logged');const user=await sb('/auth/v1/user',{token:s.access_token});const remote=cloudFromUser(user),remoteRevision=Number(remote?.revision||0);if(remoteRevision!==Number(baseRevision||0)){const e=new Error('revision_conflict');e.code='revision_conflict';e.remote=remote;throw e}const next={...payload,revision:remoteRevision+1,updatedAt:new Date().toISOString(),schema:1};await sb('/auth/v1/user',{method:'PUT',token:s.access_token,body:{data:{arcana_save:next}}});knownRevision=next.revision;localStorage.setItem(LOCAL_SYNC_KEY,String(knownRevision));lastSnapshot=snapshot();return next}
-async function syncNow(silent=false){if(syncing)return;const s=await refreshIfNeeded();if(!s)return;syncing=true;if(!silent)mini('SALVANDO...');try{await writeCloud(localSave());mini('SINCRONIZADO');status('☁ SINCRONIZADO','ok')}catch(e){if(e.code==='revision_conflict'){mini('CONFLITO');showConflict(e.remote)}else{mini('OFFLINE');if(!silent)status('Nuvem indisponível. O save local foi mantido.','error')}}finally{syncing=false}}
-function scheduleSync(){if(!getSession())return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>syncNow(true),1200)}
-function applyCloud(c){if(!c)return;localStorage.setItem(PROFILE_KEY,JSON.stringify(c.profile||{}));localStorage.setItem(STRATEGY_KEY,JSON.stringify(c.strategy||{}));knownRevision=Number(c.revision||0);localStorage.setItem(LOCAL_SYNC_KEY,String(knownRevision));lastSnapshot=snapshot();location.reload()}
-function status(text,state=''){const e=document.getElementById('arcAccountStatus');if(e){e.textContent=text;e.dataset.state=state}}
-function mini(text){let e=document.getElementById('arcCloudMini');if(!e){e=document.createElement('div');e.id='arcCloudMini';document.body.appendChild(e)}e.textContent=`☁ ${text}`}
-function showConflict(remote){openPanel();const c=document.getElementById('arcConflict');if(!c)return;c.classList.remove('hidden');c.querySelector('#arcUseCloud').onclick=()=>applyCloud(remote);c.querySelector('#arcUseLocal').onclick=async()=>{knownRevision=Number(remote?.revision||0);localStorage.setItem(LOCAL_SYNC_KEY,String(knownRevision));c.classList.add('hidden');await syncNow(false)};c.querySelector('#arcLater').onclick=()=>c.classList.add('hidden')}
-function renderButton(){const b=document.getElementById('arcAccountMenuBtn');if(!b)return;const s=getSession();b.classList.toggle('logged',!!s);b.textContent=s?'CONTA ARCANA':'☁ CONTA ARCANA'}
-function build(){if(document.getElementById('arcAccountOnline'))return;const css=document.createElement('link');css.rel='stylesheet';css.href='./account-online.css?v=2';document.head.appendChild(css);const root=document.createElement('section');root.id='arcAccountOnline';root.className='arcAccountOnline hidden';root.innerHTML=`<div class="arcAccountBackdrop"></div><div class="arcAccountPanel"><div class="arcAccountHead"><div><small>ARCANA CLASH ONLINE</small><h2>☁ Conta Arcana</h2></div><button class="arcAccountClose">×</button></div><div id="arcAccountGuest"><p class="arcAccountLead">Entre para levar seu progresso para qualquer PC ou celular. O save local continua como segurança.</p><label class="arcAccountField"><span>NOME</span><input id="arcDisplayName" maxlength="24" placeholder="Seu nome no jogo"></label><label class="arcAccountField"><span>E-MAIL</span><input id="arcEmail" type="email" autocomplete="email" placeholder="voce@email.com"></label><label class="arcAccountField"><span>SENHA</span><input id="arcPassword" type="password" autocomplete="current-password" minlength="8" placeholder="8 ou mais caracteres"></label><label style="display:flex;gap:9px;align-items:center;margin-top:13px;font-size:.82rem"><input id="arcRemember" type="checkbox"> Lembrar neste dispositivo</label><div id="arcAccountStatus" class="arcAccountStatus">Use Entrar ou Criar conta.</div><div class="arcAccountActions"><button id="arcLogin" class="arcAccountPrimary">ENTRAR</button><button id="arcSignup" class="arcAccountSecondary">CRIAR CONTA</button></div></div><div id="arcAccountLogged" class="hidden"><div class="arcAccountProfile"><div class="arcAccountProfileIcon">☁</div><div><small>CONECTADO</small><strong id="arcAccountEmail"></strong></div></div><div class="arcAccountCloud">SAVE ONLINE ATIVO</div><div class="arcAccountActions"><button id="arcSync" class="arcAccountPrimary">SINCRONIZAR</button><button id="arcLogout" class="arcAccountDanger">SAIR DA CONTA</button></div></div><div id="arcConflict" class="arcConflict hidden"><b>CONFLITO DE SAVE</b><p>O save deste aparelho e o da nuvem são diferentes. Escolha qual deve continuar.</p><button id="arcUseCloud" class="arcAccountPrimary">USAR SAVE DA NUVEM</button><button id="arcUseLocal" class="arcAccountSecondary">USAR ESTE APARELHO</button><button id="arcLater" class="arcAccountSecondary">DECIDIR DEPOIS</button></div></div>`;document.body.appendChild(root);root.querySelector('.arcAccountBackdrop').onclick=closePanel;root.querySelector('.arcAccountClose').onclick=closePanel;root.querySelector('#arcLogin').onclick=loginUi;root.querySelector('#arcSignup').onclick=signupUi;root.querySelector('#arcSync').onclick=()=>syncNow(false);root.querySelector('#arcLogout').onclick=async()=>{await signOut();closePanel();renderUi()}}
-function openPanel(){build();document.getElementById('arcAccountOnline').classList.remove('hidden');renderUi()}
+const localSave=()=>({...parse(snapshot(),{}),schema:2});
+const requestId=()=>{
+  if(globalThis.crypto?.randomUUID)return globalThis.crypto.randomUUID();
+  const bytes=new Uint8Array(16);
+  if(globalThis.crypto?.getRandomValues)globalThis.crypto.getRandomValues(bytes);
+  else for(let index=0;index<bytes.length;index++)bytes[index]=Math.floor(Math.random()*256);
+  bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;
+  const hex=[...bytes].map(value=>value.toString(16).padStart(2,'0')).join('');
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+};
+
+function migrateLegacySession(){
+  const legacy=parse(localStorage.getItem(SESSION_KEY));
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem('arcana_remember_account');
+  if(legacy?.access_token&&legacy?.refresh_token&&!sessionStorage.getItem(SESSION_KEY)){
+    sessionStorage.setItem(SESSION_KEY,JSON.stringify(legacy));
+  }
+}
+
+function getSession(){
+  const session=parse(sessionStorage.getItem(SESSION_KEY));
+  return session?.access_token&&session?.refresh_token?session:null;
+}
+
+function setSession(session){
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem('arcana_remember_account');
+  sessionStorage.removeItem(SESSION_KEY);
+  if(session?.access_token&&session?.refresh_token)sessionStorage.setItem(SESSION_KEY,JSON.stringify(session));
+}
+
+function clearSession(){
+  localStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem('arcana_remember_account');
+}
+
+async function sb(path,{method='GET',body,token}={}){
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),12000);
+  const headers={apikey:SB_KEY,Accept:'application/json','Content-Type':'application/json','X-Client-Info':`ArcanaClash/${SECURITY_VERSION}`};
+  if(token)headers.Authorization=`Bearer ${token}`;
+  try{
+    const response=await fetch(`${SB_URL}${path}`,{
+      method,
+      headers,
+      body:body===undefined?undefined:JSON.stringify(body),
+      cache:'no-store',
+      credentials:'omit',
+      referrerPolicy:'no-referrer',
+      signal:controller.signal
+    });
+    let data={};
+    try{data=await response.json()}catch{}
+    if(!response.ok){
+      const error=new Error('request_failed');
+      error.status=response.status;
+      error.code=data.code||data.error_code||'';
+      throw error;
+    }
+    return data;
+  }finally{clearTimeout(timeout)}
+}
+
+async function refreshIfNeeded(){
+  let session=getSession();
+  if(!session)return null;
+  if(session.expires_at&&Date.now()/1000<session.expires_at-90)return session;
+  try{
+    const next=await sb('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:{refresh_token:session.refresh_token}});
+    session={...session,...next,expires_at:Math.floor(Date.now()/1000)+(next.expires_in||3600)};
+    setSession(session);
+    return session;
+  }catch{
+    clearSession();
+    conflictPending=false;securityContext={...EMPTY_SECURITY};trustedProgress=null;remoteAccount=null;
+    return null;
+  }
+}
+
+async function currentUser(){
+  const session=await refreshIfNeeded();
+  if(!session)return null;
+  return sb('/auth/v1/user',{token:session.access_token});
+}
+
+async function rpc(name,params={}){
+  const session=await refreshIfNeeded();
+  if(!session)throw Object.assign(new Error('not_logged'),{code:'not_logged'});
+  try{return await sb(`/rest/v1/rpc/${name}`,{method:'POST',token:session.access_token,body:params})}
+  catch(error){
+    if([404,405,428].includes(error.status))error.code='server_protection_missing';
+    throw error;
+  }
+}
+
+function normalizeAccount(data){
+  remoteAccount=data&&typeof data==='object'?data:null;
+  securityContext={...EMPTY_SECURITY,...(remoteAccount?.security||{})};
+  trustedProgress=remoteAccount?.trusted||null;
+  knownRevision=Number(remoteAccount?.revision||0);
+  localStorage.setItem(LOCAL_SYNC_KEY,String(knownRevision));
+  return remoteAccount;
+}
+
+async function loadAccount(migrate=true){
+  let data;
+  if(migrate&&!legacyChecked){
+    data=await rpc('arcana_migrate_legacy_save');
+    legacyChecked=true;
+  }else data=await rpc('arcana_load_account');
+  return normalizeAccount(data);
+}
+
+async function signIn(email,password){
+  const data=await sb('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password}});
+  data.expires_at=Math.floor(Date.now()/1000)+(data.expires_in||3600);
+  setSession(data);legacyChecked=false;
+  return data;
+}
+
+async function signUp(email,password,displayName){
+  const data=await sb('/auth/v1/signup',{method:'POST',body:{email,password,data:{display_name:displayName||email.split('@')[0]}}});
+  if(data.access_token){data.expires_at=Math.floor(Date.now()/1000)+(data.expires_in||3600);setSession(data)}
+  legacyChecked=false;
+  return data;
+}
+
+async function signOut(){
+  const session=getSession();
+  try{if(session?.access_token)await sb('/auth/v1/logout',{method:'POST',token:session.access_token})}catch{}
+  clearSession();knownRevision=0;legacyChecked=false;conflictPending=false;securityContext={...EMPTY_SECURITY};trustedProgress=null;remoteAccount=null;
+  localStorage.removeItem(LOCAL_SYNC_KEY);renderButton();mini('LOCAL');
+  window.dispatchEvent(new CustomEvent('arcana:identity',{detail:null}));
+  window.dispatchEvent(new CustomEvent('arcana:security',{detail:{...securityContext}}));
+}
+
+async function writeCloud(payload,baseRevision=knownRevision){
+  const result=await rpc('arcana_save_cloud',{
+    p_payload:payload,
+    p_base_revision:Number(baseRevision||0),
+    p_request_id:requestId()
+  });
+  if(!result?.ok){
+    const error=Object.assign(new Error(result?.code||'cloud_rejected'),{code:result?.code||'cloud_rejected',retryAfterMs:result?.retryAfterMs});
+    if(error.code==='revision_conflict'){
+      const latest=await loadAccount(false);
+      error.remote=latest?.save?{...latest.save,revision:Number(latest.revision||0)}:null;
+    }
+    throw error;
+  }
+  knownRevision=Number(result.revision||0);
+  localStorage.setItem(LOCAL_SYNC_KEY,String(knownRevision));
+  lastSnapshot=snapshot();
+  return result;
+}
+
+async function syncNow(silent=false){
+  if(syncing||conflictPending)return;
+  const session=await refreshIfNeeded();
+  if(!session)return;
+  syncing=true;if(!silent)mini('SALVANDO...');
+  try{
+    await writeCloud(localSave());
+    mini(securityContext.adminReady?'ADMIN · PROTEGIDO':'PROTEGIDO');
+    status('☁ SAVE PRIVADO SINCRONIZADO','ok');
+  }catch(error){
+    if(error.code==='revision_conflict'){
+      mini('CONFLITO');showConflict(error.remote);
+    }else if(error.code==='rate_limited'){
+      mini('AGUARDANDO');
+      setTimeout(()=>syncNow(true),Math.max(2000,Number(error.retryAfterMs)||2000));
+    }else if(error.code==='server_protection_missing'){
+      mini('PROTEÇÃO PENDENTE');
+      if(!silent)status('A proteção do banco ainda não foi ativada. O save local foi preservado e nada foi enviado.','error');
+    }else{
+      mini('OFFLINE');
+      if(!silent)status('Não foi possível acessar o cofre online. O save local foi mantido.','error');
+    }
+  }finally{syncing=false}
+}
+
+function scheduleSync(){
+  if(!getSession()||conflictPending)return;
+  clearTimeout(syncTimer);
+  syncTimer=setTimeout(()=>syncNow(true),3200);
+}
+
+function applyCloud(cloud){
+  if(!cloud)return;
+  conflictPending=false;
+  localStorage.setItem(PROFILE_KEY,JSON.stringify(cloud.profile||{}));
+  localStorage.setItem(STRATEGY_KEY,JSON.stringify(cloud.strategy||{}));
+  knownRevision=Number(cloud.revision||0);
+  localStorage.setItem(LOCAL_SYNC_KEY,String(knownRevision));
+  lastSnapshot=snapshot();
+  location.reload();
+}
+
+function status(text,state=''){
+  const element=document.getElementById('arcAccountStatus');
+  if(element){element.textContent=text;element.dataset.state=state}
+}
+
+function mini(text){
+  let element=document.getElementById('arcCloudMini');
+  if(!element){element=document.createElement('div');element.id='arcCloudMini';document.body.appendChild(element)}
+  element.textContent=`☁ ${text}`;
+}
+
+function showConflict(remote){
+  openPanel();
+  const conflict=document.getElementById('arcConflict');
+  if(!conflict)return;
+  conflictPending=true;
+  conflict.classList.remove('hidden');
+  conflict.querySelector('#arcUseCloud').onclick=()=>applyCloud(remote);
+  conflict.querySelector('#arcUseLocal').onclick=async()=>{
+    knownRevision=Number(remote?.revision||0);
+    localStorage.setItem(LOCAL_SYNC_KEY,String(knownRevision));
+    conflictPending=false;conflict.classList.add('hidden');await syncNow(false);
+  };
+  conflict.querySelector('#arcLater').onclick=closePanel;
+}
+
+function renderButton(){
+  const button=document.getElementById('arcAccountMenuBtn');
+  if(!button)return;
+  const session=getSession();
+  button.classList.toggle('logged',!!session);
+  button.textContent=session?'CONTA ARCANA':'☁ CONTA ARCANA';
+}
+
+function build(){
+  if(document.getElementById('arcAccountOnline'))return;
+  const css=document.createElement('link');css.rel='stylesheet';css.href='./account-online.css?v=security2';document.head.appendChild(css);
+  const root=document.createElement('section');
+  root.id='arcAccountOnline';root.className='arcAccountOnline hidden';
+  root.innerHTML=`<div class="arcAccountBackdrop"></div><div class="arcAccountPanel"><div class="arcAccountHead"><div><small>ARCANA CLASH ONLINE · COFRE V2</small><h2>☁ Conta Arcana</h2></div><button class="arcAccountClose" aria-label="Fechar">×</button></div><div id="arcAccountGuest"><p class="arcAccountLead">Entre para usar um save isolado por conta. Tokens e permissões ADM nunca entram no save.</p><label class="arcAccountField"><span>NOME</span><input id="arcDisplayName" maxlength="24" autocomplete="nickname" placeholder="Seu nome no jogo"></label><label class="arcAccountField"><span>E-MAIL</span><input id="arcEmail" type="email" maxlength="254" autocomplete="email" placeholder="voce@email.com"></label><label class="arcAccountField"><span>SENHA</span><input id="arcPassword" type="password" autocomplete="current-password" minlength="12" maxlength="128" placeholder="12+ caracteres fortes"></label><p class="arcPasswordHint">Use maiúscula, minúscula, número e símbolo. A sessão termina ao fechar o navegador.</p><div id="arcAccountStatus" class="arcAccountStatus">Use Entrar ou Criar conta.</div><div class="arcAccountActions"><button id="arcLogin" class="arcAccountPrimary">ENTRAR</button><button id="arcSignup" class="arcAccountSecondary">CRIAR CONTA</button></div></div><div id="arcAccountLogged" class="hidden"><div class="arcAccountProfile"><div class="arcAccountProfileIcon">☁</div><div><small>CONECTADO</small><strong id="arcAccountEmail"></strong></div></div><div id="arcAccountRole" class="arcAccountRole"></div><div id="arcAccountSecurity" class="arcAccountSecurity"></div><div id="arcMfaBox" class="arcMfaBox hidden"></div><div class="arcAccountCloud">SAVE PRIVADO · RLS · REVISÃO PROTEGIDA</div><div class="arcAccountActions"><button id="arcSync" class="arcAccountPrimary">SINCRONIZAR</button><button id="arcLogout" class="arcAccountDanger">SAIR DA CONTA</button></div></div><div id="arcConflict" class="arcConflict hidden"><b>CONFLITO DE SAVE</b><p>O save deste aparelho e o da nuvem são diferentes. Escolha qual deve continuar.</p><button id="arcUseCloud" class="arcAccountPrimary">USAR SAVE DA NUVEM</button><button id="arcUseLocal" class="arcAccountSecondary">USAR ESTE APARELHO</button><button id="arcLater" class="arcAccountSecondary">DECIDIR DEPOIS</button></div></div>`;
+  document.body.appendChild(root);
+  root.querySelector('.arcAccountBackdrop').onclick=closePanel;
+  root.querySelector('.arcAccountClose').onclick=closePanel;
+  root.querySelector('#arcLogin').onclick=loginUi;
+  root.querySelector('#arcSignup').onclick=signupUi;
+  root.querySelector('#arcSync').onclick=()=>syncNow(false);
+  root.querySelector('#arcLogout').onclick=async()=>{await signOut();closePanel();renderUi()};
+}
+
+function openPanel(){build();document.getElementById('arcAccountOnline').classList.remove('hidden');if(conflictPending)document.getElementById('arcConflict')?.classList.remove('hidden');renderUi()}
 function closePanel(){document.getElementById('arcAccountOnline')?.classList.add('hidden')}
-async function loginUi(){const email=document.getElementById('arcEmail').value.trim(),password=document.getElementById('arcPassword').value,remember=document.getElementById('arcRemember').checked;if(!email||!password)return status('Preencha e-mail e senha.','error');status('Entrando...');try{await signIn(email,password,remember);await afterAuth();status('Login realizado.','ok');renderUi()}catch(e){status(e.status===400?'E-mail ou senha incorretos.':e.message,'error')}}
-async function signupUi(){const email=document.getElementById('arcEmail').value.trim(),password=document.getElementById('arcPassword').value,name=document.getElementById('arcDisplayName').value.trim(),remember=document.getElementById('arcRemember').checked;if(!email||password.length<8)return status('Use um e-mail válido e senha com pelo menos 8 caracteres.','error');status('Criando conta...');try{const d=await signUp(email,password,name,remember);if(!d.access_token){status('Conta criada. Confirme o e-mail recebido e depois entre.','ok');return}await afterAuth();status('Conta criada e conectada.','ok');renderUi()}catch(e){status(e.message,'error')}}
-async function afterAuth(){const u=await currentUser(),cloud=cloudFromUser(u),local=localSave();if(!cloud){knownRevision=0;await writeCloud(local,0);mini('SINCRONIZADO');return}knownRevision=Number(cloud.revision||0);localStorage.setItem(LOCAL_SYNC_KEY,String(knownRevision));const localSnap=JSON.stringify({profile:local.profile,strategy:local.strategy}),cloudSnap=JSON.stringify({profile:cloud.profile||{},strategy:cloud.strategy||{}});if(localSnap!==cloudSnap)showConflict(cloud);else{lastSnapshot=snapshot();mini('SINCRONIZADO')}}
-async function renderUi(){build();const guest=document.getElementById('arcAccountGuest'),logged=document.getElementById('arcAccountLogged'),s=await refreshIfNeeded();guest.classList.toggle('hidden',!!s);logged.classList.toggle('hidden',!s);if(s){try{const u=await currentUser(),app=u?.app_metadata||{},admin=app.role==='admin'||app.is_admin===true||Array.isArray(app.roles)&&app.roles.includes('admin');document.getElementById('arcAccountEmail').textContent=u?.email||'Conta Arcana';let role=document.getElementById('arcAccountRole');if(!role){role=document.createElement('div');role.id='arcAccountRole';document.querySelector('#arcAccountLogged .arcAccountProfile')?.after(role)}role.className=admin?'arcAccountRole admin':'arcAccountRole';role.innerHTML=`<b>${admin?'🛡️ CONTA ADMINISTRADORA':'✦ CONTA DE JOGADOR'}</b><small>${admin?'Painel ADM liberado no lobby.':'O acesso ADM exige autorização protegida do servidor.'}</small>`;mini(admin?'ADMIN ONLINE':'ONLINE');window.dispatchEvent(new CustomEvent('arcana:identity',{detail:u}))}catch{mini('OFFLINE')}}else mini('LOCAL');renderButton()}
-function installButton(){const actions=document.querySelector('.homeActions');if(!actions||document.getElementById('arcAccountMenuBtn'))return;const b=document.createElement('button');b.id='arcAccountMenuBtn';b.className='ghost arcAccountMenuBtn';b.onclick=openPanel;actions.prepend(b);renderButton()}
-function install(){build();installButton();renderUi();lastSnapshot=snapshot();window.addEventListener('arcana:profile',scheduleSync);window.addEventListener('online',()=>syncNow(true));setInterval(()=>{installButton();if(getSession()&&snapshot()!==lastSnapshot)scheduleSync()},3000)}
+
+function validEmail(email){return email.length<=254&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
+function strongPassword(password){return password.length>=12&&password.length<=128&&/[a-z]/.test(password)&&/[A-Z]/.test(password)&&/\d/.test(password)&&/[^A-Za-z0-9]/.test(password)}
+function safeName(name){return name.replace(/[\u0000-\u001f\u007f<>]/g,'').trim().slice(0,24)}
+
+async function loginUi(){
+  const email=document.getElementById('arcEmail').value.trim().toLowerCase();
+  const password=document.getElementById('arcPassword').value;
+  if(!validEmail(email)||!password)return status('Confira o e-mail e a senha.','error');
+  status('Entrando...');
+  try{await signIn(email,password);await afterAuth();status('Login seguro realizado.','ok');renderUi()}
+  catch{status('Não foi possível entrar. Confira os dados ou aguarde antes de tentar novamente.','error')}
+  finally{document.getElementById('arcPassword').value=''}
+}
+
+async function signupUi(){
+  const email=document.getElementById('arcEmail').value.trim().toLowerCase();
+  const password=document.getElementById('arcPassword').value;
+  const name=safeName(document.getElementById('arcDisplayName').value);
+  if(!validEmail(email))return status('Use um e-mail válido.','error');
+  if(!strongPassword(password))return status('A senha precisa ter 12+ caracteres, maiúscula, minúscula, número e símbolo.','error');
+  status('Criando conta protegida...');
+  try{
+    const data=await signUp(email,password,name);
+    document.getElementById('arcPassword').value='';
+    if(!data.access_token){status('Conta criada. Confirme o e-mail recebido e depois entre.','ok');return}
+    await afterAuth();status('Conta criada e conectada.','ok');renderUi();
+  }catch{status('Não foi possível criar a conta. O e-mail pode já estar em uso ou o limite de tentativas foi atingido.','error')}
+  finally{document.getElementById('arcPassword').value=''}
+}
+
+async function afterAuth(){
+  const account=await loadAccount(true);
+  const cloud=account?.save?{...account.save,revision:Number(account.revision||0)}:null;
+  const local=localSave();
+  if(!cloud){
+    conflictPending=false;knownRevision=0;await writeCloud(local,0);mini('PROTEGIDO');return;
+  }
+  const localSnap=JSON.stringify({profile:local.profile,strategy:local.strategy});
+  const cloudSnap=JSON.stringify({profile:cloud.profile||{},strategy:cloud.strategy||{}});
+  if(localSnap!==cloudSnap)showConflict(cloud);
+  else{conflictPending=false;lastSnapshot=snapshot();mini(securityContext.adminReady?'ADMIN · PROTEGIDO':'PROTEGIDO')}
+}
+
+function showMfaCode(factorId,lead='Digite o código atual do seu aplicativo autenticador.'){
+  const box=document.getElementById('arcMfaBox');if(!box)return;
+  box.classList.remove('hidden');
+  box.innerHTML=`<b>🛡️ VERIFICAÇÃO EM DUAS ETAPAS</b><p>${lead}</p><label><span>CÓDIGO DE 6 DÍGITOS</span><input id="arcMfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"></label><button id="arcMfaVerify" class="arcAccountPrimary">VERIFICAR CÓDIGO</button><small id="arcMfaStatus"></small>`;
+  box.querySelector('#arcMfaCode').oninput=event=>event.target.value=event.target.value.replace(/\D/g,'').slice(0,6);
+  box.querySelector('#arcMfaVerify').onclick=()=>verifyMfa(factorId,box.querySelector('#arcMfaCode').value);
+  box.querySelector('#arcMfaCode').focus();
+}
+
+function showMfaEnrollment(enrollment){
+  const box=document.getElementById('arcMfaBox');if(!box)return;
+  const factorId=enrollment?.id,totp=enrollment?.totp||{};
+  box.classList.remove('hidden');
+  box.innerHTML='<b>🛡️ ATIVAR AUTENTICADOR</b><p>Escaneie o QR no Google Authenticator, Microsoft Authenticator ou app compatível. Depois digite o código.</p><img id="arcMfaQr" alt="QR code do autenticador"><code id="arcMfaSecret"></code><label><span>CÓDIGO DE 6 DÍGITOS</span><input id="arcMfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"></label><button id="arcMfaVerify" class="arcAccountPrimary">ATIVAR E VERIFICAR</button><small id="arcMfaStatus">Não compartilhe o QR nem a chave.</small>';
+  const qr=box.querySelector('#arcMfaQr');
+  if(typeof totp.qr_code==='string'&&totp.qr_code.startsWith('data:image/'))qr.src=totp.qr_code;else qr.remove();
+  box.querySelector('#arcMfaSecret').textContent=totp.secret||'';
+  box.querySelector('#arcMfaCode').oninput=event=>event.target.value=event.target.value.replace(/\D/g,'').slice(0,6);
+  box.querySelector('#arcMfaVerify').onclick=()=>verifyMfa(factorId,box.querySelector('#arcMfaCode').value);
+}
+
+async function beginMfa(){
+  const box=document.getElementById('arcMfaBox');
+  if(box){box.classList.remove('hidden');box.textContent='Preparando autenticação forte...'}
+  try{
+    const session=await refreshIfNeeded(),user=await currentUser();
+    const factors=Array.isArray(user?.factors)?user.factors:[];
+    const verified=factors.find(factor=>factor.factor_type==='totp'&&factor.status==='verified');
+    if(verified)return showMfaCode(verified.id);
+    const pending=factors.find(factor=>factor.factor_type==='totp'&&factor.status!=='verified');
+    if(pending)try{await sb(`/auth/v1/factors/${pending.id}`,{method:'DELETE',token:session.access_token})}catch{}
+    const enrollment=await sb('/auth/v1/factors',{method:'POST',token:session.access_token,body:{factor_type:'totp',friendly_name:'ArcanaClash ADM'}});
+    showMfaEnrollment(enrollment);
+  }catch{if(box)box.textContent='Não foi possível iniciar o MFA agora. Tente novamente em instantes.'}
+}
+
+async function verifyMfa(factorId,code){
+  const box=document.getElementById('arcMfaBox'),message=box?.querySelector('#arcMfaStatus');
+  if(!factorId||!/^[0-9]{6}$/.test(code)){if(message)message.textContent='Digite os 6 números.';return}
+  if(message)message.textContent='Verificando...';
+  try{
+    const session=await refreshIfNeeded();
+    const challenge=await sb(`/auth/v1/factors/${factorId}/challenge`,{method:'POST',token:session.access_token,body:{}});
+    const verified=await sb(`/auth/v1/factors/${factorId}/verify`,{method:'POST',token:session.access_token,body:{challenge_id:challenge.id,code}});
+    const next={...session,...verified,expires_at:Math.floor(Date.now()/1000)+(verified.expires_in||3600)};
+    setSession(next);await loadAccount(false);
+    if(message)message.textContent='MFA confirmado. Operações ADM liberadas nesta sessão.';
+    window.dispatchEvent(new CustomEvent('arcana:security',{detail:{...securityContext}}));
+    setTimeout(renderUi,350);
+  }catch{if(message)message.textContent='Código inválido ou expirado. Gere outro código e tente novamente.'}
+}
+
+async function renderUi(){
+  build();
+  const guest=document.getElementById('arcAccountGuest'),logged=document.getElementById('arcAccountLogged'),session=await refreshIfNeeded();
+  guest.classList.toggle('hidden',!!session);logged.classList.toggle('hidden',!session);
+  if(!session){mini('LOCAL');renderButton();return}
+  try{
+    const user=await currentUser();
+    document.getElementById('arcAccountEmail').textContent=user?.email||'Conta Arcana';
+    let account;
+    try{account=await loadAccount(true)}catch(error){
+      securityContext={...EMPTY_SECURITY};trustedProgress=null;remoteAccount=null;
+      if(error.code==='server_protection_missing')mini('PROTEÇÃO PENDENTE');else mini('OFFLINE');
+    }
+    const role=document.getElementById('arcAccountRole'),security=document.getElementById('arcAccountSecurity');
+    if(securityContext.role==='admin'){
+      role.className=securityContext.adminReady?'arcAccountRole admin ready':'arcAccountRole admin locked';
+      role.innerHTML=`<b>${securityContext.adminReady?'🛡️ ADM PROTEGIDO':'🔒 ADM BLOQUEADO'}</b><small>${securityContext.adminReady?'Papel validado no banco e MFA ativo nesta sessão.':'Sua função ADM foi reconhecida, mas operações exigem autenticação em duas etapas.'}</small>${securityContext.adminReady?'':'<button id="arcEnableMfa">ATIVAR / VERIFICAR MFA</button>'}`;
+      role.querySelector('#arcEnableMfa')?.addEventListener('click',beginMfa);
+      mini(securityContext.adminReady?'ADMIN · PROTEGIDO':'ADMIN · MFA');
+    }else if(account){
+      role.className='arcAccountRole ready';
+      role.innerHTML='<b>✦ CONTA DE JOGADOR PROTEGIDA</b><small>Seu save está isolado por RLS. Esta conta não possui privilégios administrativos.</small>';
+      mini('PROTEGIDO');
+    }else{
+      role.className='arcAccountRole locked';
+      role.innerHTML='<b>⚠ PROTEÇÃO DO SERVIDOR PENDENTE</b><small>O login existe, mas o cofre RLS ainda não foi instalado. Nenhum save será enviado de modo inseguro.</small>';
+    }
+    security.innerHTML=`<span><b>${account?'RLS ATIVA':'RLS PENDENTE'}</b><small>Isolamento entre contas</small></span><span><b>${securityContext.aal?.toUpperCase()||'AAL1'}</b><small>Nível da sessão</small></span><span><b>${account?.integrity==='legacy_unverified'?'LEGADO':'PRIVADO'}</b><small>Save não competitivo</small></span>`;
+    window.dispatchEvent(new CustomEvent('arcana:identity',{detail:user}));
+    window.dispatchEvent(new CustomEvent('arcana:security',{detail:{...securityContext,trusted:trustedProgress}}));
+  }catch{mini('OFFLINE')}
+  renderButton();
+}
+
+async function getSecurityContext(force=false){
+  if(force||securityContext.cloudAuthority==='unavailable')try{await loadAccount(true)}catch{}
+  return {...securityContext,trusted:trustedProgress};
+}
+
+async function adminAdjust({targetUserId,coinsDelta=0,essenceDelta=0,reason=''}){
+  const result=await rpc('arcana_admin_adjust_progress',{
+    p_target_user_id:targetUserId,
+    p_coins_delta:Number(coinsDelta||0),
+    p_essence_delta:Number(essenceDelta||0),
+    p_reason:String(reason||'').trim(),
+    p_request_id:requestId()
+  });
+  if(!result?.ok)throw Object.assign(new Error(result?.code||'admin_rejected'),{code:result?.code||'admin_rejected'});
+  if(targetUserId===(await currentUser())?.id)trustedProgress=result.trusted||trustedProgress;
+  return result;
+}
+
+async function adminAudit(limit=25){
+  const result=await rpc('arcana_admin_recent_audit',{p_limit:Math.max(1,Math.min(100,Number(limit)||25))});
+  if(!result?.ok)throw Object.assign(new Error(result?.code||'admin_rejected'),{code:result?.code||'admin_rejected'});
+  return result.entries||[];
+}
+
+function installButton(){
+  const actions=document.querySelector('.homeActions');
+  if(!actions||document.getElementById('arcAccountMenuBtn'))return;
+  const button=document.createElement('button');button.id='arcAccountMenuBtn';button.className='ghost arcAccountMenuBtn';button.onclick=openPanel;actions.prepend(button);renderButton();
+}
+
+function install(){
+  migrateLegacySession();build();installButton();renderUi();lastSnapshot=snapshot();
+  window.addEventListener('arcana:profile',scheduleSync);
+  window.addEventListener('online',()=>syncNow(true));
+  setInterval(()=>{installButton();if(getSession()&&snapshot()!==lastSnapshot)scheduleSync()},3000);
+}
+
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install,{once:true}):install();
-globalThis.ArcanaOnline={open:openPanel,sync:syncNow,user:currentUser,signOut,isAdmin:async()=>{const u=await currentUser(),app=u?.app_metadata||{};return app.role==='admin'||app.is_admin===true||Array.isArray(app.roles)&&app.roles.includes('admin')}};
+globalThis.ArcanaOnline={open:openPanel,sync:syncNow,user:currentUser,signOut,context:getSecurityContext,trusted:()=>trustedProgress,isAdmin:async()=>{const context=await getSecurityContext();return context.role==='admin'},beginMfa,adminAdjust,adminAudit};
