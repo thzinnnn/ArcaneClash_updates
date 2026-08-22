@@ -1,6 +1,7 @@
 (()=>{
 const EVOLUTION_VERSION='0.9.0-classbound';
 const PROFILE_KEY='arcana_profile_v2';
+const FORGE_GUIDE_KEY='arcana_forge_guide_seen_v1';
 const DECK_SIZE=30;
 const MAX_COPIES=3;
 
@@ -196,6 +197,7 @@ function openDeckBuilder(classId=currentClass()){
   const saved=savedDeck(classId),cards=validateDeckNames(saved?.cards,classId,catalog)||autoDeckNames(classId,catalog).map(name=>catalog.find(card=>card.name===name)).filter(Boolean);
   forgeState={classId,name:saved?.name||`${CLASS_RULES[classId].name} Essencial`,names:cards.map(card=>card.name),filter:'all',search:''};
   renderForge();
+  if(!localStorage.getItem(FORGE_GUIDE_KEY))requestAnimationFrame(showForgeGuide);
 }
 
 function deckCounts(){return forgeState.names.reduce((map,name)=>(map[name]=(map[name]||0)+1,map),{})}
@@ -209,14 +211,31 @@ function forgeCard(card,counts,discovered){
   return `<article class="arcForgeCard ${count?'selected':''} ${known?'discovered':''}" style="--card-tone:${CLASS_RULES[forgeState.classId].color}"><div class="arcForgeCost">${card.cost}</div><div class="arcForgeIcon">${card.icon||'✦'}</div><div class="arcForgeCardText"><small>${owner} · ${FACTION_NAMES[card.fac]||card.fac}</small><b>${escapeHtml(card.name)}</b><p>${escapeHtml(card.text||'')}</p></div><div class="arcForgeCount"><button data-deck-remove="${escapeHtml(card.name)}" ${!count?'disabled':''}>−</button><strong>${count}</strong><button data-deck-add="${escapeHtml(card.name)}" ${count>=MAX_COPIES||forgeState.names.length>=DECK_SIZE?'disabled':''}>+</button></div></article>`;
 }
 
+function closeForgeGuide(){
+  document.getElementById('arcForgeGuide')?.classList.add('hidden');
+  localStorage.setItem(FORGE_GUIDE_KEY,'1');
+}
+
+function showForgeGuide(){
+  let guide=document.getElementById('arcForgeGuide');
+  if(!guide){guide=document.createElement('section');guide.id='arcForgeGuide';guide.className='arcForgeGuide';document.body.appendChild(guide)}
+  guide.innerHTML=`<div class="arcForgeGuidePanel" role="dialog" aria-modal="true" aria-label="Como funciona a Forja de Deck"><header><div><small>GUIA RÁPIDO DA FORJA</small><h2>Como montar seu deck</h2></div><button id="arcForgeGuideClose" aria-label="Fechar">×</button></header><p class="arcForgeGuideLead">Seu deck define quais cartas estarão disponíveis desde o começo. Você pode usar o deck automático ou personalizar tudo.</p><div class="arcForgeGuideSteps"><article><span>1</span><div><b>Escolha uma classe</b><p>Você recebe as cartas <strong>Exclusivas</strong> daquela classe e todas as cartas <strong>Neutras</strong>.</p></div></article><article><span>2</span><div><b>Monte 30 cartas iniciais</b><p>Use <strong>+</strong> para adicionar e <strong>−</strong> para remover. O limite é de 3 cópias iguais.</p></div></article><article><span>3</span><div><b>Ajuste a consistência</b><p>1 cópia é situacional; 2 aparecem às vezes; 3 tornam a carta parte central do plano.</p></div></article><article><span>4</span><div><b>Salve e equipe</b><p>O deck equipado será usado nas próximas partidas e acompanha o Perfil Arcano no cloud save.</p></div></article></div><div class="arcForgeGuideBattle"><div><b>30</b><span>CARTAS INICIAIS</span></div><i>→</i><div><b>4</b><span>MÃO INICIAL</span></div><strong>+</strong><div><b>26</b><span>NA RESERVA</span></div><em>Baús e Espólios adicionam mais cartas durante a partida — 30 não é o limite total de cartas jogadas.</em></div><footer><button id="arcForgeGuideAuto">USAR DECK AUTOMÁTICO</button><button id="arcForgeGuideDone" class="primary">ENTENDI · IR PARA A FORJA</button></footer></div>`;
+  guide.classList.remove('hidden');
+  document.getElementById('arcForgeGuideClose').onclick=closeForgeGuide;
+  document.getElementById('arcForgeGuideDone').onclick=closeForgeGuide;
+  document.getElementById('arcForgeGuideAuto').onclick=()=>{closeForgeGuide();document.getElementById('arcAutoDeck')?.click();notify('Deck automático pronto. Agora clique em Salvar e Equipar.')};
+  guide.onclick=event=>{if(event.target===guide)closeForgeGuide()};
+}
+
 function renderForge(){
   const catalog=getCatalog(),rule=CLASS_RULES[forgeState.classId],p=profile(),counts=deckCounts(),allowed=catalog.filter(card=>allowedForClass(card,forgeState.classId));
   const filtered=allowed.filter(card=>(forgeState.filter==='all'||card.type===forgeState.filter)&&(!forgeState.search||textOf(card).includes(forgeState.search)));
   const bins=curve(),complete=forgeState.names.length===DECK_SIZE;
   let root=document.getElementById('arcDeckForge');if(!root){root=document.createElement('section');root.id='arcDeckForge';root.className='arcDeckForge';document.body.appendChild(root)}
-  root.innerHTML=`<div class="arcForgeShell" style="--class-tone:${rule.color}"><header class="arcForgeHead"><div><small>FORJA DE DECK · v${EVOLUTION_VERSION.split('-')[0]}</small><h2>${rule.icon} ${rule.name}</h2><p>${escapeHtml(rule.identity)}</p></div><button id="arcForgeClose">×</button></header><div class="arcForgeToolbar"><label>CLASSE<select id="arcForgeClass">${Object.entries(CLASS_RULES).map(([id,item])=>`<option value="${id}" ${id===forgeState.classId?'selected':''}>${item.icon} ${item.name}</option>`).join('')}</select></label><label>NOME DO DECK<input id="arcForgeName" maxlength="28" value="${escapeHtml(forgeState.name)}"></label><div class="arcForgeRules"><b>${forgeState.names.length}/${DECK_SIZE}</b><span>Máx. ${MAX_COPIES} cópias · somente ${rule.school} + Neutras</span></div></div><div class="arcForgeMain"><aside class="arcDeckSummary"><div class="arcDeckSeal">${rule.icon}</div><small>IDENTIDADE</small><h3>${rule.school}</h3><p>${rule.identity}</p><div class="arcCurve"><small>CURVA DE MANA</small>${bins.map((value,index)=>`<div><span>${index===5?'5+':index}</span><i><em style="height:${Math.max(5,value/Math.max(...bins,1)*100)}%"></em></i><b>${value}</b></div>`).join('')}</div><div class="arcDeckActions"><button id="arcAutoDeck">AUTO-MONTAR</button><button id="arcClearDeck">LIMPAR</button><button id="arcSaveDeck" class="primary" ${!complete?'disabled':''}>${complete?'SALVAR E EQUIPAR':`FALTAM ${DECK_SIZE-forgeState.names.length}`}</button></div></aside><main class="arcForgeCollection"><div class="arcForgeFilters"><button data-forge-filter="all" class="${forgeState.filter==='all'?'active':''}">TODAS</button><button data-forge-filter="unit" class="${forgeState.filter==='unit'?'active':''}">CRIATURAS</button><button data-forge-filter="spell" class="${forgeState.filter==='spell'?'active':''}">FEITIÇOS</button><button data-forge-filter="relic" class="${forgeState.filter==='relic'?'active':''}">RELÍQUIAS</button><input id="arcForgeSearch" placeholder="Buscar carta" value="${escapeHtml(forgeState.search)}"></div><div class="arcForgeCards">${filtered.map(card=>forgeCard(card,counts,p.discovered||[])).join('')}</div></main></div></div>`;
+  root.innerHTML=`<div class="arcForgeShell" style="--class-tone:${rule.color}"><header class="arcForgeHead"><div><small>FORJA DE DECK · v${EVOLUTION_VERSION.split('-')[0]}</small><h2>${rule.icon} ${rule.name}</h2><p>${escapeHtml(rule.identity)}</p></div><div class="arcForgeHeadActions"><button id="arcForgeHelp" aria-label="Como funciona a Forja"><span>?</span> COMO FUNCIONA</button><button id="arcForgeClose" aria-label="Fechar">×</button></div></header><div class="arcForgeToolbar"><label>CLASSE<select id="arcForgeClass">${Object.entries(CLASS_RULES).map(([id,item])=>`<option value="${id}" ${id===forgeState.classId?'selected':''}>${item.icon} ${item.name}</option>`).join('')}</select></label><label>NOME DO DECK<input id="arcForgeName" maxlength="28" value="${escapeHtml(forgeState.name)}"></label><div class="arcForgeRules"><b>${forgeState.names.length}/${DECK_SIZE}</b><span>30 cartas iniciais · máx. ${MAX_COPIES} cópias · ${rule.school} + Neutras</span></div></div><div class="arcForgeMain"><aside class="arcDeckSummary"><div class="arcDeckSeal">${rule.icon}</div><small>IDENTIDADE</small><h3>${rule.school}</h3><p>${rule.identity}</p><div class="arcCurve"><small>CURVA DE MANA</small>${bins.map((value,index)=>`<div><span>${index===5?'5+':index}</span><i><em style="height:${Math.max(5,value/Math.max(...bins,1)*100)}%"></em></i><b>${value}</b></div>`).join('')}</div><div class="arcDeckActions"><button id="arcAutoDeck">AUTO-MONTAR</button><button id="arcClearDeck">LIMPAR</button><button id="arcSaveDeck" class="primary" ${!complete?'disabled':''}>${complete?'SALVAR E EQUIPAR':`FALTAM ${DECK_SIZE-forgeState.names.length}`}</button></div></aside><main class="arcForgeCollection"><div class="arcForgeFilters"><button data-forge-filter="all" class="${forgeState.filter==='all'?'active':''}">TODAS</button><button data-forge-filter="unit" class="${forgeState.filter==='unit'?'active':''}">CRIATURAS</button><button data-forge-filter="spell" class="${forgeState.filter==='spell'?'active':''}">FEITIÇOS</button><button data-forge-filter="relic" class="${forgeState.filter==='relic'?'active':''}">RELÍQUIAS</button><input id="arcForgeSearch" placeholder="Buscar carta" value="${escapeHtml(forgeState.search)}"></div><div class="arcForgeCards">${filtered.map(card=>forgeCard(card,counts,p.discovered||[])).join('')}</div></main></div></div>`;
   root.classList.remove('hidden');
   document.getElementById('arcForgeClose').onclick=()=>root.classList.add('hidden');
+  document.getElementById('arcForgeHelp').onclick=showForgeGuide;
   document.getElementById('arcForgeClass').onchange=event=>openDeckBuilder(event.target.value);
   document.getElementById('arcForgeName').onchange=event=>forgeState.name=event.target.value.trim()||`${rule.name} Essencial`;
   document.getElementById('arcForgeSearch').oninput=event=>{forgeState.search=event.target.value.trim().toLowerCase();renderForge()};
@@ -266,10 +285,10 @@ function syncBattleUi(){
 
 function install(){
   setInterval(syncBattleUi,350);
-  document.addEventListener('keydown',event=>{if(event.key==='Escape'){document.getElementById('arcDeckForge')?.classList.add('hidden');document.getElementById('arcMulligan')?.classList.add('hidden')}});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'){const guide=document.getElementById('arcForgeGuide');if(guide&&!guide.classList.contains('hidden')){closeForgeGuide();return}document.getElementById('arcDeckForge')?.classList.add('hidden');document.getElementById('arcMulligan')?.classList.add('hidden')}});
 }
 
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install,{once:true}):install();
 
-globalThis.ArcanaEvolution={version:EVOLUTION_VERSION,rules:CLASS_RULES,cardClasses,allowedForClass,autoDeckNames,buildDeck,openingHand,draftOptions,relicOptions,openDeckBuilder,syncBattleUi};
+globalThis.ArcanaEvolution={version:EVOLUTION_VERSION,rules:CLASS_RULES,cardClasses,allowedForClass,autoDeckNames,buildDeck,openingHand,draftOptions,relicOptions,openDeckBuilder,openGuide:showForgeGuide,syncBattleUi};
 })();
