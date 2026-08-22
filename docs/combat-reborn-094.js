@@ -15,6 +15,8 @@
   const FALLBACK=MAPS.solo;
   const unitMemory=new Map();
   let scheduled=false;
+  let surrendering=false;
+  let surrenderFocus=null;
 
   function modeId(){
     return globalThis.__ARCANA?.state?.()?.mode||localStorage.getItem(MODE_KEY)||'solo';
@@ -36,6 +38,68 @@
     }
   }
 
+  function closeSurrender(){
+    const modal=document.getElementById('arcSurrenderConfirm');
+    if(!modal||modal.classList.contains('hidden'))return;
+    modal.classList.add('hidden');
+    document.body.classList.remove('arcSurrenderOpen');
+    surrenderFocus?.isConnected&&surrenderFocus.focus();
+    surrenderFocus=null;
+  }
+
+  function openSurrender(){
+    const modal=document.getElementById('arcSurrenderConfirm');
+    const gameover=document.getElementById('gameover');
+    if(!document.body.classList.contains('arcBattleActive')||!modal||!gameover?.classList.contains('hidden'))return;
+    surrenderFocus=document.activeElement;
+    modal.classList.remove('hidden');
+    document.body.classList.add('arcSurrenderOpen');
+    requestAnimationFrame(()=>document.getElementById('arcSurrenderStay')?.focus());
+  }
+
+  function confirmSurrender(){
+    if(surrendering)return;
+    surrendering=true;
+    const state=globalThis.__ARCANA?.state?.();
+    closeSurrender();
+    window.dispatchEvent(new CustomEvent('arcana:match',{detail:{
+      win:false,
+      surrendered:true,
+      mode:modeId(),
+      survivalWave:state?.wave||1,
+      classId:state?.me?.classId
+    }}));
+    document.getElementById('returnHome')?.click();
+    setTimeout(()=>{surrendering=false;schedule()},120);
+  }
+
+  function ensureSurrenderControls(){
+    const modeStrip=document.getElementById('modeStrip');
+    if(modeStrip){
+      let leave=document.getElementById('arcLeaveMatch');
+      if(!leave){
+        leave=document.createElement('button');
+        leave.id='arcLeaveMatch';leave.type='button';leave.setAttribute('aria-label','Sair da partida');
+        leave.innerHTML='<span aria-hidden="true">↩</span><b>SAIR</b>';
+        document.body.appendChild(leave);
+      }
+      if(leave.parentElement!==document.body)document.body.appendChild(leave);
+      const stripBounds=modeStrip.getBoundingClientRect();
+      leave.style.setProperty('--arc-leave-top',`${stripBounds.top+stripBounds.height/2}px`);
+      leave.style.setProperty('--arc-leave-right',`${Math.max(8,innerWidth-stripBounds.right+8)}px`);
+      leave.dataset.surrenderControl='ready';
+      leave.onclick=event=>{event.preventDefault();event.stopPropagation();openSurrender()};
+    }
+    if(document.getElementById('arcSurrenderConfirm'))return;
+    const modal=document.createElement('section');
+    modal.id='arcSurrenderConfirm';modal.className='hidden';modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-labelledby','arcSurrenderTitle');
+    modal.innerHTML='<button class="arcSurrenderBackdrop" type="button" aria-label="Continuar partida"></button><div class="arcSurrenderPanel"><div class="arcSurrenderIcon" aria-hidden="true">⚑</div><small>DESISTIR DA BATALHA</small><h2 id="arcSurrenderTitle">Tem certeza que deseja desistir?</h2><p>Esta partida contará como derrota e você voltará ao Lobby Arcano.</p><div class="arcSurrenderActions"><button id="arcSurrenderStay" type="button">CONTINUAR PARTIDA</button><button id="arcSurrenderLeave" type="button">DESISTIR E SAIR</button></div></div>';
+    modal.querySelector('.arcSurrenderBackdrop').addEventListener('click',closeSurrender);
+    modal.querySelector('#arcSurrenderStay').addEventListener('click',closeSurrender);
+    modal.querySelector('#arcSurrenderLeave').addEventListener('click',confirmSurrender);
+    document.body.appendChild(modal);
+  }
+
   function decorateUnits(){
     const nextMemory=new Map();
     document.querySelectorAll('#board .unit').forEach(unit=>{
@@ -55,9 +119,14 @@
     const board=document.getElementById('board');
     if(!board)return;
     ensureScene();
-    const active=board.querySelector('.lane')!=null;
+    ensureSurrenderControls();
+    const home=document.getElementById('home');
+    const gameover=document.getElementById('gameover');
+    const active=board.querySelector('.lane')!=null&&home?.classList.contains('hidden')&&gameover?.classList.contains('hidden');
     document.body.classList.toggle('arcBattleActive',active);
-    if(!active)return;
+    const leave=document.getElementById('arcLeaveMatch');
+    if(leave)leave.hidden=!active;
+    if(!active){closeSurrender();return}
     const map=MAPS[modeId()]||FALLBACK;
     document.body.dataset.battleMap=map.id;
     board.dataset.region=map.name;
@@ -93,13 +162,18 @@
   }
 
   function install(){
-    ensureScene();schedule();
+    ensureScene();ensureSurrenderControls();schedule();
     const board=document.getElementById('board');
     if(board)new MutationObserver(schedule).observe(board,{childList:true});
+    const modeStrip=document.getElementById('modeStrip');
+    if(modeStrip)new MutationObserver(schedule).observe(modeStrip,{childList:true});
     ['home','modeSetup','heroScreen','gameover'].forEach(id=>{
       const screen=document.getElementById(id);if(screen)new MutationObserver(schedule).observe(screen,{attributes:true,attributeFilter:['class']});
     });
     window.addEventListener('arcana:match',schedule);
+    document.addEventListener('keydown',event=>{
+      if(event.key==='Escape'&&!document.getElementById('arcSurrenderConfirm')?.classList.contains('hidden'))closeSurrender();
+    });
     setInterval(schedule,700);
   }
 

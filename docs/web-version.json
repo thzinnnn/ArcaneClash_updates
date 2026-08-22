@@ -1,5 +1,5 @@
 {
-  "publishedAt": "2026-08-22T22:30:00-03:00",
+  "publishedAt": "2026-08-22T17:12:59-03:00",
   "source": "ArcanaClash Web",
   "version": "0.9.4",
   "channel": "web",
@@ -11,6 +11,7 @@
     "Posicoes vazias, rotas disponiveis e alvos validos ficaram mais claros",
     "Criaturas ganharam entrada, impacto, sombra e profundidade no terreno",
     "O campo foi reconstruido para PC, celular e modo desempenho",
+    "Botao Sair adicionado a partida com confirmacao; desistir conta como derrota e retorna ao lobby",
     "Desfazer, historico de acoes e confirmacoes perigosas nao foram adicionados",
     "Lobby, mapa, cartas, decks, economia, Conta Arcana e cloud save foram preservados"
   ]
