@@ -1,9 +1,12 @@
 {
-  "publishedAt": "2026-08-22T03:10:00-03:00",
+  "publishedAt": "2026-08-22T03:45:00-03:00",
   "source": "ArcanaClash Web",
-  "version": "0.9.1-armory",
+  "version": "0.9.1-rarity",
   "channel": "web",
   "notes": [
+    "Sinalizacao visual de raridade com moldura, cor, simbolo e nome em todas as cartas",
+    "Legenda de raridades adicionada a Forja de Deck",
+    "Raridade visivel na mao, mulligan, Baus, campo, Inspector e multiplayer",
     "98 cartas novas elevam o Arsenal de 74 para 172 cartas",
     "Cada classe possui 20 exclusivas e compartilha 12 Neutras",
     "Todas as classes agora escolhem 30 cartas entre 32 opcoes legais",
