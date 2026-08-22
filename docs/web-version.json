@@ -1,16 +1,16 @@
 {
-  "publishedAt": "2026-08-22T00:08:00-03:00",
+  "publishedAt": "2026-08-22T02:00:00-03:00",
   "source": "ArcanaClash Web",
-  "version": "0.7.2-online",
+  "version": "0.8.0-lobby",
   "channel": "web",
   "notes": [
-    "Conta Arcana online com e-mail e senha",
-    "Cloud save entre computadores e celulares",
-    "Save local mantido como fallback",
-    "Detecção de conflito entre save local e nuvem",
-    "Centro Estratégico com doutrinas",
-    "Missões diárias e semanais",
-    "Temporada com 30 níveis e recompensas",
-    "Ranking local, títulos e conquistas"
+    "Lobby completo substitui a antiga home simples",
+    "Todos os modos de jogo integrados ao botao Jogar",
+    "Perfil e Conta Arcana com cloud save preservados",
+    "Loadouts reais de Classe Arcana e Doutrina",
+    "Amigos salvos no perfil e desafios por sala PvP",
+    "Missoes, temporada, recompensas, colecao e ranking no lobby",
+    "Configuracoes de som, visual, desempenho e acessibilidade",
+    "Acesso ADM exibido apenas com permissao segura da conta"
   ]
 }
