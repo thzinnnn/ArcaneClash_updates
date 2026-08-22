@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="strategy-pack.css?v=091-armory">
   <link rel="stylesheet" href="account-online.css?v=091-armory">
   <link rel="stylesheet" href="evolution-pack.css?v=091-rarity">
-  <link rel="stylesheet" href="rarity-signals.css?v=091-rarity">
+  <link rel="stylesheet" href="rarity-signals.css?v=091-secret">
   <link rel="stylesheet" href="lobby.css?v=091-rarity">
 </head>
 <body>
@@ -63,7 +63,7 @@
 
   <section id="rulesScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">REGRAS</p><h2>Rápido de aprender, difícil de dominar</h2><div class="rules"><p><b>🎁 Baú:</b> todo turno começa com 2 opções; escolha 1. Depois de dois Baús Comuns seguidos, a Jornada garante melhoria para reduzir azar.</p><p><b>🏹 Espólio:</b> ao eliminar uma criatura inimiga válida, escolha 1 entre 2 cartas de recompensa.</p><p><b>🧙 Classe Arcana:</b> nos modos Solo, sua classe dá uma passiva e uma habilidade com recarga.</p><p><b>⚔️ Rotas:</b> criaturas lutam na rota em que foram colocadas.</p><p><b>👆 Inspecionar:</b> toque em qualquer criatura nas rotas para abrir seus detalhes, efeitos e status atuais.</p><p><b>🎯 Alvos:</b> ao usar um efeito com alvo, toque na criatura destacada, confira a prévia e confirme.</p><p><b>💎 Mana:</b> cresce com a partida e limita suas jogadas.</p><p><b>🏺 Relíquias:</b> na Jornada, rodadas especiais oferecem Relíquias que modificam sua estratégia.</p><p><b>🏆 Vitória:</b> reduza a vida do herói rival a zero.</p></div><button id="closeRules" class="primary">Entendi</button></div></section>
 
-  <section id="aboutScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">ARCANACLASH 0.9.1 WEB</p><h2>Expansão do Arsenal</h2><div class="rules"><p>🃏 172 cartas no catálogo.</p><p>🧙 20 exclusivas e 12 Neutras para cada classe.</p><p>💎 Raridades e arquétipos estratégicos na Forja.</p><p>◆ Moldura, símbolo e nome sinalizam a raridade em todas as telas.</p><p>🎁 Catálogo integrado a decks, Baús, Espólios e Relíquias.</p></div><button id="closeAbout" class="primary">Voltar</button></div></section>
+  <section id="aboutScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">ARCANACLASH 0.9.1 WEB</p><h2>Expansão do Arsenal</h2><div class="rules"><p>🃏 172 cartas no catálogo.</p><p>🧙 20 exclusivas e 12 Neutras para cada classe.</p><p>🔒 8 cartas secretas ultrarraras escondidas fora do catálogo.</p><p>💎 Raridades e arquétipos estratégicos na Forja.</p><p>◆ Moldura, símbolo e nome sinalizam a raridade em todas as telas.</p><p>🎁 Catálogo integrado a decks, Baús, Espólios e Relíquias.</p></div><button id="closeAbout" class="primary">Voltar</button></div></section>
 
   <section id="gameover" class="screen hidden"><div class="panel compact"><p class="eyebrow" id="gameoverMode">FIM DO DUELO</p><div id="resultTitle" class="result">VITÓRIA</div><p id="resultText" class="lead"></p><div id="runStats" class="runStats"></div><div class="buttons"><button id="rematch" class="primary">JOGAR DE NOVO</button><button id="returnHome" class="ghost">MODOS</button></div></div></section>
 
@@ -73,11 +73,12 @@
   <script src="vendor/peerjs.min.js"></script>
   <script src="evolution-pack.js?v=091-rarity"></script>
   <script src="app.min.js?v=091-rarity"></script>
-  <script src="armory-expansion.js?v=091-rarity"></script>
-  <script src="rarity-signals.js?v=091-rarity"></script>
+  <script src="armory-expansion.js?v=091-secret"></script>
+  <script src="secret-cards.js?v=091-secret"></script>
+  <script src="rarity-signals.js?v=091-secret"></script>
   <script src="party.min.js?v=091-rarity"></script>
   <script src="inspector.min.js?v=091-rarity"></script>
   <script src="web.min.js?v=091-armory"></script>
-  <script src="lobby.js?v=091-rarity"></script>
+  <script src="lobby.js?v=091-secret"></script>
 </body>
 </html>

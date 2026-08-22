@@ -1,9 +1,12 @@
 {
-  "publishedAt": "2026-08-22T03:45:00-03:00",
+  "publishedAt": "2026-08-22T04:10:00-03:00",
   "source": "ArcanaClash Web",
-  "version": "0.9.1-rarity",
+  "version": "0.9.1-secrets",
   "channel": "web",
   "notes": [
+    "Uma carta secreta ultrarrara foi criada para cada uma das 8 classes",
+    "Cartas secretas nao aparecem no catalogo, na Forja ou em decks iniciais",
+    "A unica forma de encontra-las e uma rolagem excepcional em Baus ou Espolios",
     "Sinalizacao visual de raridade com moldura, cor, simbolo e nome em todas as cartas",
     "Legenda de raridades adicionada a Forja de Deck",
     "Raridade visivel na mao, mulligan, Baus, campo, Inspector e multiplayer",
