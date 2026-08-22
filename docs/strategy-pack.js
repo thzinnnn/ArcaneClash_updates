@@ -1,6 +1,6 @@
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const PROFILE_KEY='arcana_profile_v2';
-const PACK_VERSION='0.9.1-armory';
+const PACK_VERSION='0.9.2-economy';
 const SEASON_DAYS=30;
 const SEASON_EPOCH=new Date('2026-08-01T00:00:00Z').getTime();
 const DAY=86400000;
@@ -76,6 +76,7 @@ let state=load();
 function save(){
   state.seasonLevel=Math.max(1,Math.min(30,1+Math.floor((state.seasonXp||0)/180)));
   localStorage.setItem(STRATEGY_KEY,JSON.stringify(state));
+  window.dispatchEvent(new CustomEvent('arcana:economy',{detail:{coins:Number(state.coins||0),essence:Number(state.essence||0)}}));
   renderHub();
 }
 function addReward({xp=0,coins=0,essence=0}={}){
@@ -83,6 +84,13 @@ function addReward({xp=0,coins=0,essence=0}={}){
   state.coins=(state.coins||0)+coins;
   state.essence=(state.essence||0)+essence;
 }
+function spend(currency,amount){
+  if(!['coins','essence'].includes(currency)||!Number.isFinite(amount)||amount<=0)return false;
+  if(Number(state[currency]||0)<amount)return false;
+  state[currency]=Number(state[currency]||0)-amount;save();return true;
+}
+function grant(reward={}){addReward(reward);save();return state}
+function resetMissions(){state.missions={dailyKey:'',weeklyKey:'',items:[]};ensureMissions(state);save();return state.missions}
 function rank(){
   let r=RANKS[0];
   for(const x of RANKS)if(state.rankedPoints>=x.min)r=x;
@@ -300,4 +308,4 @@ function install(){
   if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install,{once:true}):install();
-globalThis.ArcanaStrategy={open:openHub,state:()=>state,version:PACK_VERSION};
+globalThis.ArcanaStrategy={open:openHub,state:()=>state,save,spend,grant,resetMissions,version:PACK_VERSION};

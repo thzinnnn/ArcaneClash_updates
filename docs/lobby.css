@@ -280,6 +280,8 @@ body.arcHighContrast{--lobby-muted:#c8d5ee;--lobby-border:rgba(171,204,255,.38)}
 body.arcLargeUi .arcLobby{font-size:1.12em}body.arcLargeUi .card{min-width:190px}
 body.arcCompactCards .gameFooter .card{min-width:132px!important;transform:scale(.94);transform-origin:bottom center}
 
+.arcAdminIdentity{display:grid;grid-template-columns:auto 1fr auto;gap:13px;align-items:center;padding:15px;margin:14px 0;border:1px solid #ff728b44;border-radius:17px;background:linear-gradient(135deg,#2a1323,#10172c)}.arcAdminIdentity>span{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:#ff728b1f;font-size:24px}.arcAdminIdentity small,.arcAdminIdentity b,.arcAdminIdentity code{display:block}.arcAdminIdentity small{color:#ff9eaf;font-size:9px;font-weight:900;letter-spacing:.15em}.arcAdminIdentity b{margin:3px 0}.arcAdminIdentity code{max-width:340px;overflow:hidden;text-overflow:ellipsis;color:#8fa2c8;font-size:10px}.arcAdminIdentity button{border:1px solid #ff8aa14d;border-radius:11px;background:#21152a;color:#ffdce3;padding:9px;font-size:9px;font-weight:900}.arcAdminSection{display:grid;grid-template-columns:1fr repeat(2,minmax(100px,150px)) auto;gap:10px;align-items:end;margin:14px 0;padding:14px;border:1px solid #7c9ad12b;border-radius:17px;background:#0b1225}.arcAdminSection h3{margin:3px 0}.arcAdminSection small{color:#6f86ad;font-size:9px;font-weight:900;letter-spacing:.14em}.arcAdminSection label{display:grid;gap:5px;color:#8fa3c6;font-size:9px;font-weight:900}.arcAdminSection input{min-width:0;border:1px solid #829bd03d;border-radius:10px;background:#080e1d;color:white;padding:10px}.arcAdminSection .arcModalButton{margin:0}
+
 @media(max-width:1100px){
   .arcLobbyGrid{grid-template-columns:1fr}.arcLobbySide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.arcProfileCard,.arcProgressCard,.arcMissionCard{min-width:0}.arcModeList{grid-template-columns:repeat(3,1fr)}
 }
@@ -291,6 +293,7 @@ body.arcCompactCards .gameFooter .card{min-width:132px!important;transform:scale
   .arcModeShelf{padding:12px}.arcModeList{display:flex;overflow-x:auto;padding-bottom:4px;scroll-snap-type:x mandatory;scrollbar-width:none}.arcModeList::-webkit-scrollbar{display:none}.arcModeChoice{min-width:108px;scroll-snap-align:start}
   .arcFeatureGrid{grid-template-columns:repeat(2,1fr)}.arcFeature{min-height:112px;padding:15px}.arcLobbySide{grid-template-columns:1fr}.arcStats{grid-template-columns:repeat(3,1fr)}.arcLobbyFooter{display:none}
   .arcModalGrid{grid-template-columns:1fr}.arcLoadoutCurrent{grid-template-columns:1fr}.arcLoadoutRow{grid-template-columns:1fr}.arcLoadoutRow .arcFriendActions{justify-content:flex-start}.arcFriendRow{align-items:flex-start;flex-wrap:wrap}.arcFriendName{padding-top:4px}.arcFriendActions{width:100%;padding-left:51px}
+  .arcAdminIdentity{grid-template-columns:auto 1fr}.arcAdminIdentity button{grid-column:1/3}.arcAdminSection{grid-template-columns:1fr 1fr}.arcAdminSection>div{grid-column:1/3}.arcAdminSection .arcModalButton{grid-column:1/3}
 }
 
 @media(max-width:390px){

@@ -2,89 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-  <meta name="theme-color" content="#080b18">
-  <title>ArcanaClash 0.9.1 - Expansão do Arsenal</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="modes.css">
-  <link rel="stylesheet" href="ui-fixes.css">
-  <link rel="stylesheet" href="desktop.css">
-  <link rel="stylesheet" href="strategy-pack.css?v=091-armory">
-  <link rel="stylesheet" href="account-online.css?v=091-armory">
-  <link rel="stylesheet" href="evolution-pack.css?v=091-rarity">
-  <link rel="stylesheet" href="rarity-signals.css?v=091-secret">
-  <link rel="stylesheet" href="lobby.css?v=091-rarity">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="refresh" content="0;url=./index.html">
+  <title>ArcanaClash 0.9.2</title>
+  <style>html,body{height:100%;margin:0}body{display:grid;place-items:center;background:#070b18;color:#eef6ff;font:700 16px system-ui;text-align:center}a{color:#66e6ff}</style>
 </head>
-<body>
-  <main id="app">
-    <header class="topbar">
-      <section class="player"><div class="avatar" id="meAvatar">✦</div><div><b>VOCÊ</b><span id="meHero">—</span></div><strong id="meHp">—</strong></section>
-      <section class="round"><b id="roundText">ARCANA CLASH</b><span id="turnText">ONLINE · STRATEGY</span></section>
-      <section class="player enemy"><strong id="enemyHp">—</strong><div><b id="enemyLabel">RIVAL</b><span id="enemyHero">—</span></div><div class="avatar" id="enemyAvatar">✧</div></section>
-    </header>
-    <section id="modeStrip" class="modeStrip">⚔️ DUEL</section>
-    <section id="eventBar">Escolha um modo para começar.</section>
-    <section id="board" class="board"></section>
-    <section id="selectionBar" class="selection hidden"><span id="selectionText"></span><button id="cancelSelection">Cancelar</button></section>
-    <footer class="gameFooter">
-      <div class="resources"><span id="mana">💎 —</span><span id="reserve">📚 —</span><span id="enemyHand">🃏 Rival —</span><span id="timerBadge" class="hidden">⏱ —</span><button id="classAbility" class="hidden">✨ HABILIDADE</button><button id="endTurn" disabled>ENCERRAR</button></div>
-      <div id="hand" class="hand"></div>
-    </footer>
-  </main>
-
-  <div id="toast"></div>
-
-  <section id="home" class="screen">
-    <div class="panel homePanel">
-      <div class="homeTop"><div><div class="logo">ARCANA<br><em>CLASH</em></div><p class="eyebrow">ONLINE · STRATEGY · CLOUD SAVE</p></div><button id="checkUpdate" class="versionPill">v<span id="appVersion">0.9.1</span><small>ONLINE</small></button></div>
-      <p class="lead">Monte seu plano, evolua sua conta e leve o mesmo progresso para qualquer dispositivo.</p>
-      <div id="modeGrid" class="modeCatalog"></div>
-      <div class="homeActions"><button id="openRules" class="ghost">COMO JOGAR</button><button id="openAbout" class="ghost">NOVIDADES</button></div>
-    </div>
-  </section>
-
-  <section id="modeSetup" class="screen hidden"><div class="panel modeSetupPanel">
-    <button id="backModes" class="backBtn">‹</button><div id="setupIcon" class="setupIcon">⚔️</div><p id="setupSubtitle" class="eyebrow">1V1</p><h2 id="setupTitle">Duelo</h2><p id="setupDescription" class="lead"></p>
-    <div id="difficultyBox" class="setupBlock hidden"><b>DIFICULDADE</b><div id="difficultyGrid" class="segmented"><button data-diff="easy">Fácil</button><button data-diff="normal" class="active">Normal</button><button data-diff="hard">Difícil</button><button data-diff="nightmare">Pesadelo</button></div></div>
-    <div id="onlineActions" class="setupBlock hidden"><b>MULTIPLAYER</b><div class="buttons"><button id="setupCreate" class="primary">CRIAR SALA</button><button id="setupJoin" class="ghost">ENTRAR COM CÓDIGO</button></div></div>
-    <div id="soloActions" class="setupBlock hidden"><button id="startSolo" class="primary giant">INICIAR PARTIDA</button></div>
-    <div id="betaMessage" class="status hidden"></div>
-  </div></section>
-
-  <section id="roomScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">SALA CRIADA</p><h2>Envie este código</h2><div id="roomCode" class="roomCode">------</div><p id="roomStatus" class="status">Preparando conexão...</p><div class="buttons"><button id="shareRoom" class="primary">Compartilhar</button><button id="copyRoom" class="ghost">Copiar</button><button id="leaveRoom" class="ghost">Cancelar</button></div></div></section>
-
-  <section id="joinScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">ENTRAR NA SALA</p><h2>Código do convite</h2><input id="roomInput" inputmode="numeric" maxlength="6" placeholder="000000"><p id="joinStatus" class="status">Digite os 6 números.</p><div class="buttons"><button id="joinRoom" class="primary">Conectar</button><button id="backJoin" class="ghost">Voltar</button></div></div></section>
-
-  <section id="heroScreen" class="screen hidden"><div class="panel"><p class="eyebrow">ESCOLHA SEU CAMPEÃO</p><h2>Campeão + Classe Arcana</h2><div id="heroGrid" class="heroGrid"></div><p id="heroStatus" class="status">Escolha um campeão. Sua Classe Arcana é configurada em Meu Arcano.</p></div></section>
-
-  <section id="chestScreen" class="screen hidden"><div id="chestPanel" class="panel chestPanel"><div id="chestGlow"></div><div id="chestIcon" class="chestIcon">🎁</div><p id="chestRarity" class="eyebrow">BAÚ COMUM</p><h2>Escolha uma carta</h2><p class="lead small">Duas opções de poder semelhante, mas funções diferentes.</p><div id="chestChoices" class="chestChoices"></div><button id="reroll" class="ghost">↻ REEMBARALHAR</button></div></section>
-
-  <section id="updateScreen" class="screen hidden"><div class="panel compact updatePanel"><div class="updateIcon">⬇️</div><p class="eyebrow">ATUALIZAÇÃO DISPONÍVEL</p><h2 id="updateTitle">Nova versão</h2><div class="versionCompare"><span>v<span id="oldVersion">—</span></span><b>→</b><span class="newVersion">v<span id="newVersion">—</span></span></div><div id="updateNotes" class="updateNotes"></div><p id="updateHint" class="status"></p><div class="buttons"><button id="doUpdate" class="primary">ATUALIZAR</button><button id="skipUpdate" class="ghost">AGORA NÃO</button></div></div></section>
-
-  <section id="rulesScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">REGRAS</p><h2>Mais estratégia, menos sorte</h2><div class="rules"><p><b>♟ Doutrina:</b> escolha um plano de jogo antes de lutar.</p><p><b>🎁 Baú:</b> escolha entre opções e use reembaralhamentos com cuidado.</p><p><b>🏹 Espólio:</b> eliminações geram escolhas adicionais.</p><p><b>⚔️ Rotas:</b> posicionamento nas três rotas altera seus combates.</p><p><b>💎 Mana:</b> decidir quando gastar ou guardar recursos é parte do plano.</p><p><b>🏺 Relíquias:</b> mudam sua estratégia ao longo da Jornada.</p><p><b>🏆 Vitória:</b> reduza a vida do herói rival a zero.</p></div><button id="closeRules" class="primary">Entendi</button></div></section>
-
-  <section id="aboutScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">ARCANACLASH 0.9.1 WEB</p><h2>Expansão do Arsenal</h2><div class="rules"><p>🃏 172 cartas no catálogo.</p><p>🧙 20 exclusivas e 12 Neutras para cada classe.</p><p>🔒 8 cartas secretas ultrarraras escondidas fora do catálogo.</p><p>💎 Raridades e arquétipos estratégicos na Forja.</p><p>◆ Moldura, símbolo e nome sinalizam a raridade em todas as telas.</p><p>🎁 Catálogo integrado a decks, Baús, Espólios e Relíquias.</p></div><button id="closeAbout" class="primary">Voltar</button></div></section>
-
-  <section id="gameover" class="screen hidden"><div class="panel compact"><p class="eyebrow" id="gameoverMode">FIM DO DUELO</p><div id="resultTitle" class="result">VITÓRIA</div><p id="resultText" class="lead"></p><div id="runStats" class="runStats"></div><div class="buttons"><button id="rematch" class="primary">JOGAR DE NOVO</button><button id="returnHome" class="ghost">MODOS</button></div></div></section>
-
-  <button id="createRoom" type="button" hidden aria-hidden="true" tabindex="-1"></button>
-  <button id="openJoin" type="button" hidden aria-hidden="true" tabindex="-1"></button>
-
-  <script src="vendor/peerjs.min.js"></script>
-  <script src="evolution-pack.js?v=091-rarity"></script>
-  <script src="app.min.js?v=091-rarity"></script>
-  <script src="armory-expansion.js?v=091-secret"></script>
-  <script src="secret-cards.js?v=091-secret"></script>
-  <script src="rarity-signals.js?v=091-secret"></script>
-  <script src="party.min.js?v=091-rarity"></script>
-  <script src="inspector.min.js?v=091-rarity"></script>
-  <script src="web.min.js?v=091-armory"></script>
-  <script src="lobby.js?v=091-secret"></script>
-  <script>
-    window.addEventListener('DOMContentLoaded',()=>{
-      const v=document.getElementById('appVersion'); if(v)v.textContent='0.9.1';
-      const about=document.querySelector('#aboutScreen .eyebrow'); if(about)about.textContent='ARCANACLASH 0.9.1 WEB';
-    });
-  </script>
-</body>
+<body><p>O ArcanaClash foi atualizado.<br><a href="./index.html">Abrir a versão 0.9.2</a></p><script>location.replace('./index.html'+location.search+location.hash)</script></body>
 </html>

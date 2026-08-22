@@ -1,5 +1,5 @@
 (()=>{
-const EVOLUTION_VERSION='0.9.1-armory';
+const EVOLUTION_VERSION='0.9.2-remake';
 const PROFILE_KEY='arcana_profile_v2';
 const FORGE_GUIDE_KEY='arcana_forge_guide_seen_v2';
 const DECK_SIZE=30;
