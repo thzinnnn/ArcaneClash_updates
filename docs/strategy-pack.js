@@ -1,6 +1,6 @@
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const PROFILE_KEY='arcana_profile_v2';
-const PACK_VERSION='0.8.0-lobby';
+const PACK_VERSION='0.9.0-classbound';
 const SEASON_DAYS=30;
 const SEASON_EPOCH=new Date('2026-08-01T00:00:00Z').getTime();
 const DAY=86400000;
@@ -217,7 +217,7 @@ function ensureButton(){
   const actions=document.querySelector('.homeActions');
   if(!actions||document.getElementById('strategyHubBtn'))return;
   const b=document.createElement('button');b.id='strategyHubBtn';b.className='ghost';b.textContent='♟ ESTRATÉGIA & TEMPORADA';b.onclick=openHub;actions.prepend(b);
-  const v=document.getElementById('appVersion');if(v)v.textContent='0.8.0';
+  const v=document.getElementById('appVersion');if(v)v.textContent='0.9.0';
 }
 function buildHub(){
   if(document.getElementById('strategyHub'))return;

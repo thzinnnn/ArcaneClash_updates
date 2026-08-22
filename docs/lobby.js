@@ -1,4 +1,4 @@
-const LOBBY_VERSION='0.8.0';
+const LOBBY_VERSION='0.9.0';
 const PROFILE_KEY='arcana_profile_v2';
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const SETTINGS_KEY='arcana_lobby_settings_v1';
@@ -12,7 +12,7 @@ const CLASSES={
   druid:{icon:'🌿',name:'Druida'},
   cryomancer:{icon:'❄️',name:'Criomante'},
   assassin:{icon:'🗡️',name:'Assassino'},
-  artificer:{icon:'⚙️',name:'Artífice'},
+  summoner:{icon:'🌀',name:'Invocador'},
   chronomancer:{icon:'⏳',name:'Cronomante'}
 };
 const DOCTRINES={
@@ -115,6 +115,7 @@ function lobbyMarkup(){
   const p=profile(),s=strategy(),mode=activeMode(),rank=rankFor(Number(s.rankedPoints||0));
   const stats=p.stats||{},seasonXp=Number(s.seasonXp||0),seasonLevel=Number(s.seasonLevel||Math.max(1,1+Math.floor(seasonXp/180))),seasonPct=Math.round((seasonXp%180)/180*100);
   const friends=p.social?.friends?.length||0,collection=p.discovered?.length||0;
+  const activeDeck=p.classDecks?.[p.classId],deckCount=activeDeck?.cards?.length||30,deckName=activeDeck?.name||'Deck automático';
   const accountState=identity?'online':'local';
   const adminFeature=isAdmin?`<button class="arcFeature" data-action="admin" style="--feature-tone:#ff728b"><span class="arcFeatureIcon">🛡️</span><b>Administração</b><small>Acesso protegido da sua conta</small><span class="arcFeatureBadge">ADM</span></button>`:'';
   return `<div class="arcLobby">
@@ -132,7 +133,7 @@ function lobbyMarkup(){
           <p class="arcPlayEyebrow">${escapeHtml(mode.subtitle||'MODO SELECIONADO')} · ${escapeHtml(mode.players||'')}</p>
           <h1>${mode.icon||'✦'} ${escapeHtml(mode.name||'Jornada')}</h1>
           <p class="arcPlayDescription">${escapeHtml(mode.description||'Prepare seu Arcano e comece uma nova partida.')}</p>
-          <div class="arcPlayMeta"><span>${CLASSES[p.classId]?.icon||'✦'} ${escapeHtml(CLASSES[p.classId]?.name||'Classe Arcana')}</span><span>${DOCTRINES[s.doctrine]?.icon||'⚖️'} ${escapeHtml(DOCTRINES[s.doctrine]?.name||'Equilíbrio')}</span><span>${mode.online?'CROSSPLAY ONLINE':'PROGRESSO SALVO'}</span></div>
+          <div class="arcPlayMeta"><span>${CLASSES[p.classId]?.icon||'✦'} ${escapeHtml(CLASSES[p.classId]?.name||'Classe Arcana')}</span><span>${DOCTRINES[s.doctrine]?.icon||'⚖️'} ${escapeHtml(DOCTRINES[s.doctrine]?.name||'Equilíbrio')}</span><span>${mode.online?'CROSSPLAY ONLINE':`${deckCount}/30 · DECK DE CLASSE`}</span></div>
           <div class="arcPlayActions"><button class="arcPlayPrimary" data-action="play">JOGAR AGORA</button><button class="arcPlaySecondary" data-action="rules">COMO JOGAR</button></div>
         </section>
         <section class="arcLobbyCard arcModeShelf">
@@ -140,7 +141,7 @@ function lobbyMarkup(){
           <div class="arcModeList">${renderModeChoices()}</div>
         </section>
         <section class="arcFeatureGrid">
-          <button class="arcFeature" data-action="decks" style="--feature-tone:#63e7ff"><span class="arcFeatureIcon">▤</span><b>Coleção & Decks</b><small>${collection} cartas · loadouts táticos</small></button>
+          <button class="arcFeature" data-action="decks" style="--feature-tone:#63e7ff"><span class="arcFeatureIcon">▤</span><b>Forja de Deck</b><small>${escapeHtml(deckName)} · ${deckCount}/30 cartas</small><span class="arcFeatureBadge">NOVO</span></button>
           <button class="arcFeature" data-action="missions" style="--feature-tone:#9f80ff"><span class="arcFeatureIcon">📜</span><b>Missões</b><small>Diárias e semanais</small></button>
           <button class="arcFeature" data-action="season" style="--feature-tone:#ffd36b"><span class="arcFeatureIcon">🏆</span><b>Temporada</b><small>Nível ${seasonLevel} · recompensas</small></button>
           <button class="arcFeature" data-action="friends" style="--feature-tone:#72e79f"><span class="arcFeatureIcon">♟</span><b>Amigos</b><small>${friends} ${friends===1?'amigo salvo':'amigos salvos'}</small></button>
@@ -231,7 +232,10 @@ function runAction(action){
   else if(action==='missions')strategyTab('missions');
   else if(action==='season')strategyTab('season');
   else if(action==='ranking')strategyTab('profile');
-  else if(action==='decks')openModal('decks');
+  else if(action==='decks'){
+    if(globalThis.ArcanaEvolution?.openDeckBuilder)globalThis.ArcanaEvolution.openDeckBuilder();
+    else openModal('decks');
+  }
   else if(action==='friends')openModal('friends');
   else if(action==='settings')openModal('settings');
   else if(action==='admin')openModal('admin');
@@ -322,8 +326,8 @@ function showNews(){
   requestAnimationFrame(()=>{
     const eyebrow=document.querySelector('#aboutScreen .eyebrow'),title=document.querySelector('#aboutScreen h2'),rules=document.querySelector('#aboutScreen .rules');
     if(eyebrow)eyebrow.textContent=`ARCANACLASH ${LOBBY_VERSION} WEB`;
-    if(title)title.textContent='O Lobby Arcano chegou';
-    if(rules)rules.innerHTML='<p><b>✦ Lobby completo:</b> a home agora reúne todos os sistemas do jogo.</p><p><b>⚔ Modos integrados:</b> escolha e inicie qualquer modo sem sair do lobby.</p><p><b>▤ Loadouts:</b> salve combinações reais de Classe Arcana + Doutrina.</p><p><b>♟ Amigos:</b> lista salva no perfil e desafios por sala PvP.</p><p><b>⚙ Configurações:</b> som, acessibilidade, desempenho e controles.</p><p><b>☁ Conta Arcana:</b> login e cloud save preservados.</p><p><b>🏆 Progressão:</b> missões, temporada, recompensas, ranking e coleção no mesmo hub.</p><p><b>🛡 ADM:</b> aparece somente quando a conta recebe permissão segura do servidor.</p>';
+    if(title)title.textContent='Ascensão das Classes';
+    if(rules)rules.innerHTML='<p><b>🧙 Classes de verdade:</b> cada classe agora usa apenas suas cartas exclusivas e as Neutras.</p><p><b>▤ Forja de Deck:</b> monte e salve um baralho real de 30 cartas, com até 3 cópias.</p><p><b>🎁 Baús coerentes:</b> Baús, Espólios e Relíquias respeitam sua classe durante toda a partida.</p><p><b>🌐 Classe online:</b> Duelo, Confronto e Raid agora carregam a classe escolhida por cada jogador.</p><p><b>♻ Mulligan:</b> troque até duas cartas da mão inicial antes da primeira rodada.</p><p><b>⚔ Plano de batalha:</b> curva de mana e mão inicial são montadas para reduzir partidas perdidas só por azar.</p><p><b>🖥 Lobby expandido:</b> o hub agora ocupa corretamente telas grandes e continua responsivo no celular.</p><p><b>☁ Cloud save:</b> seus decks de classe fazem parte do Perfil Arcano sincronizável.</p><p><b>🏆 Sistemas preservados:</b> modos, missões, temporada, ranking, amigos, configurações e ADM continuam integrados.</p>';
   });
 }
 

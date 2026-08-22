@@ -38,11 +38,12 @@ body.arcLobbyActive #app{display:none!important}
 body.arcLobbyActive #arcCloudMini{display:none!important}
 #modeSetup #backModes{display:none!important}
 .arcReturnLobby{position:absolute;top:14px;left:14px;z-index:3;min-height:42px;padding:0 13px;border:1px solid rgba(137,165,224,.25);border-radius:13px;background:#0b1127;color:#dce7fb;font-weight:900;letter-spacing:.08em;cursor:pointer}
+#arcLobbyRoot{width:100%;min-width:0}
 
 .arcLobby{
   position:relative;
   z-index:1;
-  width:min(1500px,100%);
+  width:min(1720px,100%);
   min-height:100dvh;
   margin:0 auto;
   padding:max(16px,env(safe-area-inset-top)) clamp(14px,2.2vw,34px) max(22px,env(safe-area-inset-bottom));
@@ -88,7 +89,7 @@ body.arcLobbyActive #arcCloudMini{display:none!important}
 
 .arcLobbyGrid{
   display:grid;
-  grid-template-columns:minmax(0,1.55fr) minmax(300px,.72fr);
+  grid-template-columns:minmax(0,1.72fr) minmax(320px,.68fr);
   gap:clamp(18px,2vw,28px);
   padding-top:clamp(22px,3vw,38px);
 }
@@ -104,7 +105,7 @@ body.arcLobbyActive #arcCloudMini{display:none!important}
 
 .arcPlayCard{
   position:relative;
-  min-height:355px;
+  min-height:390px;
   padding:clamp(24px,4vw,54px);
   display:flex;
   flex-direction:column;
@@ -281,7 +282,7 @@ body.arcCompactCards .gameFooter .card{min-width:132px!important;transform:scale
   .arcLobby{padding-left:11px;padding-right:11px;padding-bottom:84px}
   .arcLobbyTop{grid-template-columns:1fr auto;gap:8px;padding-bottom:12px}.arcLobbyBrand{display:none}.arcCloudButton{display:none}.arcIdentityText strong{max-width:120px}.arcIconButton{width:44px;min-height:44px}.arcIdentityButton{min-height:44px}
   .arcLobbyGrid{padding-top:14px}.arcPlayCard{min-height:350px;padding:24px 20px}.arcPlayCard::after{right:12px;top:28%;font-size:9rem}.arcPlayDescription{max-width:92%}.arcPlayActions{align-items:stretch}.arcPlayPrimary{min-width:0;flex:1}.arcPlaySecondary{padding:0 13px}
-  .arcModeShelf{padding:12px}.arcModeList{display:flex;overflow-x:auto;padding-bottom:4px;scroll-snap-type:x mandatory}.arcModeChoice{min-width:108px;scroll-snap-align:start}
+  .arcModeShelf{padding:12px}.arcModeList{display:flex;overflow-x:auto;padding-bottom:4px;scroll-snap-type:x mandatory;scrollbar-width:none}.arcModeList::-webkit-scrollbar{display:none}.arcModeChoice{min-width:108px;scroll-snap-align:start}
   .arcFeatureGrid{grid-template-columns:repeat(2,1fr)}.arcFeature{min-height:112px;padding:15px}.arcLobbySide{grid-template-columns:1fr}.arcStats{grid-template-columns:repeat(3,1fr)}.arcLobbyFooter{display:none}
   .arcModalGrid{grid-template-columns:1fr}.arcLoadoutCurrent{grid-template-columns:1fr}.arcLoadoutRow{grid-template-columns:1fr}.arcLoadoutRow .arcFriendActions{justify-content:flex-start}.arcFriendRow{align-items:flex-start;flex-wrap:wrap}.arcFriendName{padding-top:4px}.arcFriendActions{width:100%;padding-left:51px}
 }

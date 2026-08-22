@@ -1,16 +1,17 @@
 {
-  "publishedAt": "2026-08-22T02:00:00-03:00",
+  "publishedAt": "2026-08-22T04:30:00-03:00",
   "source": "ArcanaClash Web",
-  "version": "0.8.0-lobby",
+  "version": "0.9.0-classbound",
   "channel": "web",
   "notes": [
-    "Lobby completo substitui a antiga home simples",
-    "Todos os modos de jogo integrados ao botao Jogar",
-    "Perfil e Conta Arcana com cloud save preservados",
-    "Loadouts reais de Classe Arcana e Doutrina",
-    "Amigos salvos no perfil e desafios por sala PvP",
-    "Missoes, temporada, recompensas, colecao e ranking no lobby",
-    "Configuracoes de som, visual, desempenho e acessibilidade",
-    "Acesso ADM exibido apenas com permissao segura da conta"
+    "Classes agora usam exclusivamente suas cartas e cartas Neutras",
+    "Forja de Deck completa com 30 cartas e limite de 3 copias",
+    "Baralhos por classe fazem parte do Perfil Arcano e do cloud save",
+    "Baús, Espólios e Relíquias respeitam a identidade da classe",
+    "Duelo, Confronto e Raid agora transportam a classe escolhida pela sala online",
+    "Mulligan inicial permite trocar ate duas cartas",
+    "Curva de mana e mao inicial foram rebalanceadas para reduzir azar",
+    "Lobby expandido para aproveitar telas grandes e manter o mobile responsivo",
+    "Modos, amigos, missoes, temporada, ranking, configuracoes e ADM preservados"
   ]
 }
