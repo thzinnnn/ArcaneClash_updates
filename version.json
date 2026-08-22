@@ -1,25 +1,25 @@
 {
-  "version": "0.6.2",
-  "build": 602,
-  "channel": "stable",
-  "minSupported": "0.6.0",
+  "version": "0.9.3",
+  "build": 903,
+  "channel": "web",
+  "minSupported": "0.9.3",
   "required": true,
-  "title": "ArcanaClash 0.6.2 — Leitura de Campo",
+  "title": "ArcanaClash Web 0.9.3 — Mapa da Ascensão",
   "notes": [
-    "Toque em qualquer criatura das rotas para abrir seus detalhes completos",
-    "Efeitos com alvo agora mostram a criatura, a prévia do resultado e pedem confirmação",
-    "Crescimento Súbito agora explica claramente +1 ATQ e +3 de vida",
-    "Corrige textos gigantes, cortes e sobreposições nas cartas em telas de celular",
-    "Melhora a leitura das opções de Baú, cartas da mão e criaturas em campo",
-    "O inspector também funciona em Confronto 2v2 e Raid Coop"
+    "Novo lobby com o Mapa da Ascensão e nove destinos jogáveis",
+    "Remake de 172 cartas, raridades visíveis e cartas secretas de classe",
+    "Forja de decks, Mercado Arcano, missões, temporada e economia",
+    "Conta Arcana e cloud save preservados",
+    "Este endereço antigo será substituído pelo site Web permanente"
   ],
+  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=legacy-update",
+  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=legacy-update",
   "android": {
-    "apkUrl": "https://github.com/thzinnnn/ArcaneClash_updates/releases/download/v0.6.2/ArcanaClash.apk",
+    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=legacy-update",
     "playUrl": ""
   },
   "ios": {
     "appStoreUrl": "",
     "testFlightUrl": ""
-  },
-  "webUrl": ""
+  }
 }
