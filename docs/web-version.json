@@ -1,5 +1,14 @@
-﻿{
-    "publishedAt":  "2026-08-20T02:07:37.5090436Z",
-    "source":  "ArcanaClash Web",
-    "version":  "0.7.0"
+{
+  "publishedAt": "2026-08-21T23:12:00-03:00",
+  "source": "ArcanaClash Web",
+  "version": "0.7.1-strategy",
+  "channel": "web",
+  "notes": [
+    "Centro Estratégico com doutrinas de jogo",
+    "Missões diárias e semanais",
+    "Temporada com 30 níveis e recompensas",
+    "Ranking local e títulos",
+    "Conquistas e economia local",
+    "Cache offline após a primeira abertura"
+  ]
 }
