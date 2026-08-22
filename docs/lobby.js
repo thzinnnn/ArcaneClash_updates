@@ -1,4 +1,4 @@
-const LOBBY_VERSION='0.9.0';
+const LOBBY_VERSION='0.9.1';
 const PROFILE_KEY='arcana_profile_v2';
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const SETTINGS_KEY='arcana_lobby_settings_v1';
@@ -23,7 +23,8 @@ const DOCTRINES={
 };
 const DEFAULT_SETTINGS={sound:true,volume:32,vibration:true,reducedMotion:false,performance:false,largeUi:false,highContrast:false,compactCards:false,confirmTurn:false};
 const UPDATE_HISTORY=[
-  {version:'0.9.0',date:'22 AGO 2026',title:'Ascensão das Classes',tag:'ATUAL',tone:'#63e7ff',notes:['Classes passaram a controlar decks, Baús, Espólios e Relíquias.','Forja de Deck com 30 cartas, limite de 3 cópias e cloud save.','Mulligan, mão inicial rebalanceada e identidade de classe online.','Micro-updates: Histórico de Updates e guia interativo da Forja adicionados ao lobby.']},
+  {version:'0.9.1',date:'22 AGO 2026',title:'Expansão do Arsenal',tag:'ATUAL',tone:'#ffbd66',notes:['98 cartas novas elevaram o catálogo de 74 para 172.','Cada classe agora possui 20 exclusivas e compartilha 12 Neutras: 32 opções legais por classe.','Raridades e arquétipos estratégicos foram adicionados à Forja.','Novas cartas funcionam em decks, Baús, Espólios, Relíquias e modos online.']},
+  {version:'0.9.0',date:'22 AGO 2026',title:'Ascensão das Classes',tag:'CLASSES',tone:'#63e7ff',notes:['Classes passaram a controlar decks, Baús, Espólios e Relíquias.','Forja de Deck com 30 cartas, limite de 3 cópias e cloud save.','Mulligan, mão inicial rebalanceada e identidade de classe online.','Micro-updates: Histórico de Updates e guia interativo da Forja adicionados ao lobby.']},
   {version:'0.8.0',date:'22 AGO 2026',title:'Lobby Arcano',tag:'LOBBY',tone:'#9f80ff',notes:['A antiga home foi substituída por um lobby completo.','Modos, perfil, amigos, missões, temporada, ranking e configurações foram integrados.','Conta Arcana, cloud save e acesso ADM foram preservados.']},
   {version:'0.7.2',date:'21 AGO 2026',title:'Strategy + Conta Arcana',tag:'ONLINE',tone:'#72e79f',notes:['Login, cadastro, sincronização e resolução de conflitos de save.','Doutrinas, missões, temporada, recompensas, ranking e títulos.','Primeira versão Web pública com sistemas persistentes.']},
   {version:'0.7.0',date:'20 AGO 2026',title:'Ascensão dos Arcanos',tag:'FUNDAÇÃO',tone:'#ffd36b',notes:['Oito Classes Arcanas, perfil, coleção e conquistas.','Espólio por eliminações, Relíquias e proteção contra azar nos Baús.','Jornada, dificuldades, chefe em fases e Inspector de cartas.']}
@@ -119,9 +120,11 @@ function missionPreview(state){
 
 function lobbyMarkup(){
   const p=profile(),s=strategy(),mode=activeMode(),rank=rankFor(Number(s.rankedPoints||0));
+  const activeClassId=p.classId||'vanguard';
   const stats=p.stats||{},seasonXp=Number(s.seasonXp||0),seasonLevel=Number(s.seasonLevel||Math.max(1,1+Math.floor(seasonXp/180))),seasonPct=Math.round((seasonXp%180)/180*100);
   const friends=p.social?.friends?.length||0,collection=p.discovered?.length||0;
-  const activeDeck=p.classDecks?.[p.classId],deckCount=activeDeck?.cards?.length||30,deckName=activeDeck?.name||'Deck automático';
+  const activeDeck=p.classDecks?.[activeClassId],deckCount=activeDeck?.cards?.length||30;
+  const catalog=globalThis.__ARCANA?.cards||[],classPool=catalog.filter(card=>globalThis.ArcanaEvolution?.allowedForClass?.(card,activeClassId)).length;
   const accountState=identity?'online':'local';
   const adminFeature=isAdmin?`<button class="arcFeature" data-action="admin" style="--feature-tone:#ff728b"><span class="arcFeatureIcon">🛡️</span><b>Administração</b><small>Acesso protegido da sua conta</small><span class="arcFeatureBadge">ADM</span></button>`:'';
   return `<div class="arcLobby">
@@ -139,7 +142,7 @@ function lobbyMarkup(){
           <p class="arcPlayEyebrow">${escapeHtml(mode.subtitle||'MODO SELECIONADO')} · ${escapeHtml(mode.players||'')}</p>
           <h1>${mode.icon||'✦'} ${escapeHtml(mode.name||'Jornada')}</h1>
           <p class="arcPlayDescription">${escapeHtml(mode.description||'Prepare seu Arcano e comece uma nova partida.')}</p>
-          <div class="arcPlayMeta"><span>${CLASSES[p.classId]?.icon||'✦'} ${escapeHtml(CLASSES[p.classId]?.name||'Classe Arcana')}</span><span>${DOCTRINES[s.doctrine]?.icon||'⚖️'} ${escapeHtml(DOCTRINES[s.doctrine]?.name||'Equilíbrio')}</span><span>${mode.online?'CROSSPLAY ONLINE':`${deckCount}/30 · DECK DE CLASSE`}</span></div>
+          <div class="arcPlayMeta"><span>${CLASSES[activeClassId]?.icon||'✦'} ${escapeHtml(CLASSES[activeClassId]?.name||'Classe Arcana')}</span><span>${DOCTRINES[s.doctrine]?.icon||'⚖️'} ${escapeHtml(DOCTRINES[s.doctrine]?.name||'Equilíbrio')}</span><span>${mode.online?'CROSSPLAY ONLINE':`${deckCount}/30 · DECK DE CLASSE`}</span></div>
           <div class="arcPlayActions"><button class="arcPlayPrimary" data-action="play">JOGAR AGORA</button><button class="arcPlaySecondary" data-action="rules">COMO JOGAR</button></div>
         </section>
         <section class="arcLobbyCard arcModeShelf">
@@ -147,7 +150,7 @@ function lobbyMarkup(){
           <div class="arcModeList">${renderModeChoices()}</div>
         </section>
         <section class="arcFeatureGrid">
-          <button class="arcFeature" data-action="decks" style="--feature-tone:#63e7ff"><span class="arcFeatureIcon">▤</span><b>Forja de Deck</b><small>${escapeHtml(deckName)} · ${deckCount}/30 cartas</small><span class="arcFeatureBadge">NOVO</span></button>
+          <button class="arcFeature" data-action="decks" style="--feature-tone:#63e7ff"><span class="arcFeatureIcon">▤</span><b>Forja de Deck</b><small>${deckCount}/30 no deck · ${classPool||32} opções da classe</small><span class="arcFeatureBadge">+98</span></button>
           <button class="arcFeature" data-action="missions" style="--feature-tone:#9f80ff"><span class="arcFeatureIcon">📜</span><b>Missões</b><small>Diárias e semanais</small></button>
           <button class="arcFeature" data-action="season" style="--feature-tone:#ffd36b"><span class="arcFeatureIcon">🏆</span><b>Temporada</b><small>Nível ${seasonLevel} · recompensas</small></button>
           <button class="arcFeature" data-action="friends" style="--feature-tone:#72e79f"><span class="arcFeatureIcon">♟</span><b>Amigos</b><small>${friends} ${friends===1?'amigo salvo':'amigos salvos'}</small></button>
@@ -300,8 +303,9 @@ function doctrineOptions(selected){return Object.entries(DOCTRINES).map(([id,ite
 
 function renderDecks(){
   const p=profile(),{current,saved}=normalizeLoadouts(p);
+  const catalog=globalThis.__ARCANA?.cards||[],legal=catalog.filter(card=>globalThis.ArcanaEvolution?.allowedForClass?.(card,current.classId)).length;
   const rows=saved.map((loadout,index)=>loadout?`<div class="arcLoadoutRow"><input class="arcLoadoutName" data-loadout-name="${index}" maxlength="24" value="${escapeHtml(loadout.name||`Loadout ${index+1}`)}"><div class="arcLoadoutInfo"><b>${CLASSES[loadout.classId]?.icon||'✦'} ${escapeHtml(CLASSES[loadout.classId]?.name||'Classe Arcana')}</b><small>${DOCTRINES[loadout.doctrine]?.icon||'⚖️'} Doutrina ${escapeHtml(DOCTRINES[loadout.doctrine]?.name||'Equilíbrio')}</small></div><div class="arcFriendActions"><button data-equip-loadout="${index}">EQUIPAR</button><button class="danger" data-delete-loadout="${index}">APAGAR</button></div></div>`:`<div class="arcLoadoutRow"><div class="arcLoadoutInfo"><b>Espaço ${index+1}</b><small>Nenhum loadout salvo.</small></div><span></span><div class="arcFriendActions"><button data-save-loadout="${index}">SALVAR ATUAL</button></div></div>`).join('');
-  const modal=modalShell('Coleção & Decks','LOADOUTS QUE ALTERAM A PARTIDA',`<p class="arcModalLead">Cada loadout combina uma Classe Arcana com uma Doutrina. A classe define passiva e habilidade; a doutrina reorganiza a Reserva e aplica o bônus tático no começo da partida.</p><div class="arcLoadoutCurrent"><label>CLASSE<select id="arcCurrentClass">${classOptions(current.classId)}</select></label><label>DOUTRINA<select id="arcCurrentDoctrine">${doctrineOptions(current.doctrine)}</select></label><button id="arcApplyCurrent" class="arcModalButton primary">EQUIPAR</button></div><div class="arcLoadoutList">${rows}</div><div class="arcCollectionSummary"><div><b>${Number(p.discovered?.length||0)} cartas descobertas</b><small>A coleção completa continua ligada ao perfil original do jogo.</small></div><button id="arcOpenCollection" class="arcModalButton">ABRIR COLEÇÃO</button></div>`);
+  const modal=modalShell('Coleção & Decks','LOADOUTS QUE ALTERAM A PARTIDA',`<p class="arcModalLead">Cada loadout combina uma Classe Arcana com uma Doutrina. A classe define passiva e habilidade; a doutrina reorganiza a Reserva e aplica o bônus tático no começo da partida.</p><div class="arcLoadoutCurrent"><label>CLASSE<select id="arcCurrentClass">${classOptions(current.classId)}</select></label><label>DOUTRINA<select id="arcCurrentDoctrine">${doctrineOptions(current.doctrine)}</select></label><button id="arcApplyCurrent" class="arcModalButton primary">EQUIPAR</button></div><div class="arcLoadoutList">${rows}</div><div class="arcCollectionSummary"><div><b>${catalog.length} cartas no Arsenal · ${legal} válidas para esta classe</b><small>${Number(p.discovered?.length||0)} descobertas no Perfil Arcano. Cada classe possui 20 exclusivas e 12 Neutras.</small></div><button id="arcOpenCollection" class="arcModalButton">ABRIR COLEÇÃO</button></div>`);
   const equip=(classId,doctrine)=>{const next=profile();next.classId=classId;saveProfile(next);const state=strategy();state.doctrine=doctrine;saveStrategy(state);toast('Loadout equipado para a próxima partida.')};
   byId('arcApplyCurrent').onclick=()=>{equip(byId('arcCurrentClass').value,byId('arcCurrentDoctrine').value);renderDecks()};
   byId('arcOpenCollection').onclick=()=>{closeModal();coreProfileButton('collection')};
@@ -333,14 +337,14 @@ function showNews(){
   requestAnimationFrame(()=>{
     const eyebrow=document.querySelector('#aboutScreen .eyebrow'),title=document.querySelector('#aboutScreen h2'),rules=document.querySelector('#aboutScreen .rules');
     if(eyebrow)eyebrow.textContent=`ARCANACLASH ${LOBBY_VERSION} WEB`;
-    if(title)title.textContent='Ascensão das Classes';
-    if(rules)rules.innerHTML='<p><b>🧙 Classes de verdade:</b> cada classe agora usa apenas suas cartas exclusivas e as Neutras.</p><p><b>▤ Forja de Deck:</b> monte e salve um baralho real de 30 cartas, com até 3 cópias.</p><p><b>🎁 Baús coerentes:</b> Baús, Espólios e Relíquias respeitam sua classe durante toda a partida.</p><p><b>🌐 Classe online:</b> Duelo, Confronto e Raid agora carregam a classe escolhida por cada jogador.</p><p><b>♻ Mulligan:</b> troque até duas cartas da mão inicial antes da primeira rodada.</p><p><b>⚔ Plano de batalha:</b> curva de mana e mão inicial são montadas para reduzir partidas perdidas só por azar.</p><p><b>🖥 Lobby expandido:</b> o hub agora ocupa corretamente telas grandes e continua responsivo no celular.</p><p><b>☁ Cloud save:</b> seus decks de classe fazem parte do Perfil Arcano sincronizável.</p><p><b>🏆 Sistemas preservados:</b> modos, missões, temporada, ranking, amigos, configurações e ADM continuam integrados.</p>';
+    if(title)title.textContent='Expansão do Arsenal';
+    if(rules)rules.innerHTML='<p><b>🃏 172 cartas:</b> 98 cartas novas ampliam criaturas, feitiços e Relíquias.</p><p><b>🧙 Equilíbrio entre classes:</b> todas possuem 20 exclusivas e compartilham 12 Neutras.</p><p><b>▤ Escolhas reais:</b> cada classe monta 30 cartas a partir de 32 opções legais.</p><p><b>💎 Raridades:</b> Comum, Rara, Épica e Lendária agora aparecem claramente na Forja.</p><p><b>♟ Arquétipos:</b> filtre Agressão, Controle, Defesa, Combo, Enxame, Sustentação e outros planos.</p><p><b>🎁 Integração completa:</b> as novas cartas entram em decks, Baús, Espólios e Relíquias.</p><p><b>🌐 Compatibilidade:</b> o catálogo expandido também alimenta os modos online.</p><p><b>☁ Cloud save:</b> decks antigos continuam válidos e os novos permanecem sincronizáveis.</p>';
   });
 }
 
 function renderUpdateHistory(){
   const entries=UPDATE_HISTORY.map((release,index)=>`<article class="arcUpdateEntry ${index===0?'current':''}" style="--update-tone:${release.tone}"><div class="arcUpdateRail"><i></i></div><div class="arcUpdateCard"><header><div><small>${escapeHtml(release.date)}</small><h3>v${escapeHtml(release.version)} · ${escapeHtml(release.title)}</h3></div><span>${escapeHtml(release.tag)}</span></header><ul>${release.notes.map(note=>`<li>${escapeHtml(note)}</li>`).join('')}</ul></div></article>`).join('');
-  modalShell('Histórico de Updates','A JORNADA ATÉ A VERSÃO 1.0',`<p class="arcModalLead">Aqui ficam registradas as mudanças reais de cada versão pública. As próximas atualizações 0.9.x serão adicionadas nesta linha do tempo até o grande lançamento 1.0.</p><div class="arcUpdateTimeline">${entries}</div><div class="arcUpdateFuture"><span>PRÓXIMO MARCO</span><b>0.9.1 · Combate Renovado</b><small>Ritmo, clareza, decisões táticas e balanceamento.</small></div>`);
+  modalShell('Histórico de Updates','A JORNADA ATÉ A VERSÃO 1.0',`<p class="arcModalLead">Aqui ficam registradas as mudanças reais de cada versão pública. As próximas atualizações 0.9.x serão adicionadas nesta linha do tempo até o grande lançamento 1.0.</p><div class="arcUpdateTimeline">${entries}</div><div class="arcUpdateFuture"><span>PRÓXIMO MARCO</span><b>0.9.2 · Combate Renovado</b><small>Ritmo, clareza, decisões táticas e balanceamento.</small></div>`);
 }
 
 function applySettings(value=settings()){
