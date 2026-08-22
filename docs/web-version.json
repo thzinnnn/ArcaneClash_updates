@@ -1,9 +1,10 @@
 {
-  "publishedAt": "2026-08-22T04:30:00-03:00",
+  "publishedAt": "2026-08-22T01:41:29-03:00",
   "source": "ArcanaClash Web",
   "version": "0.9.0-classbound",
   "channel": "web",
   "notes": [
+    "Micro-update: historico completo de updates adicionado ao lobby",
     "Classes agora usam exclusivamente suas cartas e cartas Neutras",
     "Forja de Deck completa com 30 cartas e limite de 3 copias",
     "Baralhos por classe fazem parte do Perfil Arcano e do cloud save",

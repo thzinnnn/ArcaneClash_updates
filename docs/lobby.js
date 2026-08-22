@@ -22,6 +22,12 @@ const DOCTRINES={
   tempo:{icon:'⚡',name:'Tempo'}
 };
 const DEFAULT_SETTINGS={sound:true,volume:32,vibration:true,reducedMotion:false,performance:false,largeUi:false,highContrast:false,compactCards:false,confirmTurn:false};
+const UPDATE_HISTORY=[
+  {version:'0.9.0',date:'22 AGO 2026',title:'Ascensão das Classes',tag:'ATUAL',tone:'#63e7ff',notes:['Classes passaram a controlar decks, Baús, Espólios e Relíquias.','Forja de Deck com 30 cartas, limite de 3 cópias e cloud save.','Mulligan, mão inicial rebalanceada e identidade de classe online.','Micro-update: Histórico de Updates adicionado ao lobby.']},
+  {version:'0.8.0',date:'22 AGO 2026',title:'Lobby Arcano',tag:'LOBBY',tone:'#9f80ff',notes:['A antiga home foi substituída por um lobby completo.','Modos, perfil, amigos, missões, temporada, ranking e configurações foram integrados.','Conta Arcana, cloud save e acesso ADM foram preservados.']},
+  {version:'0.7.2',date:'21 AGO 2026',title:'Strategy + Conta Arcana',tag:'ONLINE',tone:'#72e79f',notes:['Login, cadastro, sincronização e resolução de conflitos de save.','Doutrinas, missões, temporada, recompensas, ranking e títulos.','Primeira versão Web pública com sistemas persistentes.']},
+  {version:'0.7.0',date:'20 AGO 2026',title:'Ascensão dos Arcanos',tag:'FUNDAÇÃO',tone:'#ffd36b',notes:['Oito Classes Arcanas, perfil, coleção e conquistas.','Espólio por eliminações, Relíquias e proteção contra azar nos Baús.','Jornada, dificuldades, chefe em fases e Inspector de cartas.']}
+];
 
 let selectedMode=localStorage.getItem(MODE_KEY)||'solo';
 let identity=null;
@@ -147,7 +153,7 @@ function lobbyMarkup(){
           <button class="arcFeature" data-action="friends" style="--feature-tone:#72e79f"><span class="arcFeatureIcon">♟</span><b>Amigos</b><small>${friends} ${friends===1?'amigo salvo':'amigos salvos'}</small></button>
           <button class="arcFeature" data-action="ranking" style="--feature-tone:#ff76bd"><span class="arcFeatureIcon">${rank[0]}</span><b>Ranking</b><small>${rank[1]} · ${Number(s.rankedPoints||0)} RP</small></button>
           <button class="arcFeature" data-action="account" style="--feature-tone:#75a7ff"><span class="arcFeatureIcon">☁</span><b>Conta Arcana</b><small>${identity?'Conectada e sincronizável':'Entre para usar cloud save'}</small></button>
-          <button class="arcFeature" data-action="news" style="--feature-tone:#ffbd66"><span class="arcFeatureIcon">✦</span><b>Novidades</b><small>O que mudou na v${LOBBY_VERSION}</small><span class="arcFeatureBadge">NOVO</span></button>
+          <button class="arcFeature" data-action="history" style="--feature-tone:#ffbd66"><span class="arcFeatureIcon">↺</span><b>Histórico de Updates</b><small>Da v0.7.0 à versão atual</small><span class="arcFeatureBadge">NOVO</span></button>
           <button class="arcFeature" data-action="settings" style="--feature-tone:#a8b7d4"><span class="arcFeatureIcon">⚙</span><b>Configurações</b><small>Som, visual e jogabilidade</small></button>
           ${adminFeature}
         </section>
@@ -171,7 +177,7 @@ function lobbyMarkup(){
         </section>
       </aside>
     </div>
-    <footer class="arcLobbyFooter"><span>ARCANACLASH WEB v${LOBBY_VERSION} · CLOUD SAVE OPCIONAL</span><nav><button data-action="rules">Regras</button><button data-action="news">Notas da versão</button><button data-action="settings">Acessibilidade</button></nav></footer>
+    <footer class="arcLobbyFooter"><span>ARCANACLASH WEB v${LOBBY_VERSION} · CLOUD SAVE OPCIONAL</span><nav><button data-action="rules">Regras</button><button data-action="news">Notas da versão</button><button data-action="history">Histórico</button><button data-action="settings">Acessibilidade</button></nav></footer>
   </div>`;
 }
 
@@ -241,6 +247,7 @@ function runAction(action){
   else if(action==='admin')openModal('admin');
   else if(action==='rules')byId('openRules')?.click();
   else if(action==='news')showNews();
+  else if(action==='history')renderUpdateHistory();
 }
 
 function refreshLobby(force=false){
@@ -329,6 +336,11 @@ function showNews(){
     if(title)title.textContent='Ascensão das Classes';
     if(rules)rules.innerHTML='<p><b>🧙 Classes de verdade:</b> cada classe agora usa apenas suas cartas exclusivas e as Neutras.</p><p><b>▤ Forja de Deck:</b> monte e salve um baralho real de 30 cartas, com até 3 cópias.</p><p><b>🎁 Baús coerentes:</b> Baús, Espólios e Relíquias respeitam sua classe durante toda a partida.</p><p><b>🌐 Classe online:</b> Duelo, Confronto e Raid agora carregam a classe escolhida por cada jogador.</p><p><b>♻ Mulligan:</b> troque até duas cartas da mão inicial antes da primeira rodada.</p><p><b>⚔ Plano de batalha:</b> curva de mana e mão inicial são montadas para reduzir partidas perdidas só por azar.</p><p><b>🖥 Lobby expandido:</b> o hub agora ocupa corretamente telas grandes e continua responsivo no celular.</p><p><b>☁ Cloud save:</b> seus decks de classe fazem parte do Perfil Arcano sincronizável.</p><p><b>🏆 Sistemas preservados:</b> modos, missões, temporada, ranking, amigos, configurações e ADM continuam integrados.</p>';
   });
+}
+
+function renderUpdateHistory(){
+  const entries=UPDATE_HISTORY.map((release,index)=>`<article class="arcUpdateEntry ${index===0?'current':''}" style="--update-tone:${release.tone}"><div class="arcUpdateRail"><i></i></div><div class="arcUpdateCard"><header><div><small>${escapeHtml(release.date)}</small><h3>v${escapeHtml(release.version)} · ${escapeHtml(release.title)}</h3></div><span>${escapeHtml(release.tag)}</span></header><ul>${release.notes.map(note=>`<li>${escapeHtml(note)}</li>`).join('')}</ul></div></article>`).join('');
+  modalShell('Histórico de Updates','A JORNADA ATÉ A VERSÃO 1.0',`<p class="arcModalLead">Aqui ficam registradas as mudanças reais de cada versão pública. As próximas atualizações 0.9.x serão adicionadas nesta linha do tempo até o grande lançamento 1.0.</p><div class="arcUpdateTimeline">${entries}</div><div class="arcUpdateFuture"><span>PRÓXIMO MARCO</span><b>0.9.1 · Combate Renovado</b><small>Ritmo, clareza, decisões táticas e balanceamento.</small></div>`);
 }
 
 function applySettings(value=settings()){

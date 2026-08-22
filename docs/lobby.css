@@ -245,6 +245,12 @@ body.arcLobbyActive #arcCloudMini{display:none!important}
 .arcModalClose{width:40px;height:40px;border:1px solid rgba(134,161,218,.2);border-radius:12px;background:#0b1024;color:#c8d5ec;font-size:1.3rem;cursor:pointer}
 .arcLobbyModalBody{padding:20px}
 .arcModalLead{margin:0 0 18px;color:#9eafcd;line-height:1.55;font-size:.83rem}
+.arcUpdateTimeline{display:flex;flex-direction:column}
+.arcUpdateEntry{position:relative;display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;padding-bottom:13px}
+.arcUpdateRail{position:relative;display:flex;justify-content:center}.arcUpdateRail::after{content:"";position:absolute;top:19px;bottom:-13px;width:2px;background:linear-gradient(var(--update-tone),rgba(113,139,196,.12))}.arcUpdateEntry:last-child .arcUpdateRail::after{display:none}.arcUpdateRail i{position:relative;z-index:1;width:13px;height:13px;margin-top:15px;border:3px solid #0c1229;border-radius:50%;background:var(--update-tone);box-shadow:0 0 18px color-mix(in srgb,var(--update-tone) 55%,transparent)}
+.arcUpdateCard{padding:15px 16px;border:1px solid color-mix(in srgb,var(--update-tone) 24%,rgba(127,154,210,.12));border-radius:17px;background:linear-gradient(145deg,color-mix(in srgb,var(--update-tone) 7%,rgba(13,20,43,.9)),rgba(7,11,25,.72))}.arcUpdateEntry.current .arcUpdateCard{box-shadow:inset 0 0 28px color-mix(in srgb,var(--update-tone) 6%,transparent)}
+.arcUpdateCard header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.arcUpdateCard header small{display:block;color:#7286aa;font-size:.55rem;font-weight:900;letter-spacing:.13em}.arcUpdateCard h3{margin:4px 0 0;font-size:.92rem}.arcUpdateCard header>span{padding:5px 8px;border-radius:999px;background:color-mix(in srgb,var(--update-tone) 12%,#101731);color:var(--update-tone);font-size:.52rem;font-weight:950;letter-spacing:.09em}.arcUpdateCard ul{margin:12px 0 0;padding-left:18px;color:#91a3c3;font-size:.7rem;line-height:1.55}.arcUpdateCard li+li{margin-top:4px}
+.arcUpdateFuture{margin:5px 0 1px 34px;padding:15px 16px;border:1px dashed rgba(126,155,215,.24);border-radius:16px;background:rgba(8,13,29,.48)}.arcUpdateFuture span,.arcUpdateFuture b,.arcUpdateFuture small{display:block}.arcUpdateFuture span{color:#7185a9;font-size:.53rem;font-weight:900;letter-spacing:.15em}.arcUpdateFuture b{margin-top:5px;color:#eaf2ff}.arcUpdateFuture small{margin-top:5px;color:#8194b7;font-size:.67rem}
 .arcModalGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .arcModalTile{padding:16px;border:1px solid rgba(127,154,210,.15);border-radius:16px;background:rgba(7,11,26,.55)}
 .arcModalTile b,.arcModalTile small{display:block}.arcModalTile small{margin-top:5px;color:#8395b7;line-height:1.45}
@@ -288,5 +294,5 @@ body.arcCompactCards .gameFooter .card{min-width:132px!important;transform:scale
 }
 
 @media(max-width:390px){
-  .arcPlayCard h1{font-size:2.05rem}.arcPlayActions{flex-direction:column}.arcPlayPrimary,.arcPlaySecondary{width:100%}.arcFeatureGrid{gap:8px}.arcFeature{padding:13px}.arcProfileOrb{width:58px;height:58px}.arcTopActions{gap:6px}.arcIdentityButton{padding-right:9px}.arcIdentityText small{display:none}
+  .arcPlayCard h1{font-size:2.05rem}.arcPlayActions{flex-direction:column}.arcPlayPrimary,.arcPlaySecondary{width:100%}.arcFeatureGrid{gap:8px}.arcFeature{padding:13px}.arcProfileOrb{width:58px;height:58px}.arcTopActions{gap:6px}.arcIdentityButton{padding-right:9px}.arcIdentityText small{display:none}.arcUpdateEntry{grid-template-columns:18px minmax(0,1fr);gap:6px}.arcUpdateCard{padding:13px}.arcUpdateCard header{align-items:flex-start}.arcUpdateCard h3{font-size:.8rem}.arcUpdateFuture{margin-left:24px}
 }
