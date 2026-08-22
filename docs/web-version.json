@@ -1,21 +1,18 @@
 {
-  "publishedAt": "2026-08-22T15:30:00-03:00",
+  "publishedAt": "2026-08-22T17:30:00-03:00",
   "source": "ArcanaClash Web",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "channel": "web",
-  "title": "Identidades Reforjadas",
+  "title": "Mapa da Ascensão",
   "notes": [
-    "As habilidades das 172 cartas foram refeitas sem quebrar nomes ou decks salvos",
-    "Cada classe agora possui mecanicas, sinergias e decisoes proprias",
-    "Guerreiro usa formacao; Piromante combustao; Necromante sacrificio; Druida crescimento",
-    "Criomante controla o ritmo; Assassino executa; Invocador copia; Cronomante preve",
-    "Ouro e Essencia agora podem ser gastos no Mercado Arcano",
-    "Temas de lobby, molduras de carta e sigilos de perfil sao compras permanentes",
-    "Cosmeticos nao concedem dano, vida ou mana para preservar partidas justas",
-    "Painel ADM ampliado com economia, missoes, cosmeticos, sincronizacao e exportacao",
-    "Acesso ADM continua condicionado a uma funcao protegida na Conta Arcana",
-    "Compras e equipamentos fazem parte do cloud save",
-    "Remake integrado a Forja, decks, Baus, Espolios, Jornada e modos online",
-    "Oito cartas secretas ultrarraras continuam escondidas fora do catalogo"
+    "O lobby recebeu um mapa navegavel com nove destinos",
+    "Cada destino seleciona e abre um modo de jogo real",
+    "Regioes agora possuem nomes, historias curtas, cores e atmosferas proprias",
+    "Oceanos, ilhas, rotas, nevoa e bussola aumentam a imersao",
+    "A paleta recebeu azul, violeta, dourado, verde e coral de forma equilibrada",
+    "Cartoes de perfil, temporada, missoes e recursos ganharam materiais distintos",
+    "O mapa se transforma em uma jornada vertical responsiva no celular",
+    "A versao preserva o remake das 172 cartas e o Mercado Arcano da 0.9.2",
+    "Conta Arcana, cloud save, decks, missoes, economia e painel ADM permanecem integrados"
   ]
 }

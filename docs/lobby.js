@@ -1,10 +1,21 @@
-const LOBBY_VERSION='0.9.2';
+const LOBBY_VERSION='0.9.3';
 const PROFILE_KEY='arcana_profile_v2';
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const SETTINGS_KEY='arcana_lobby_settings_v1';
 const MODE_KEY='arcana_lobby_mode_v1';
 
 const MODE_COLORS={cyan:'#63e7ff',gold:'#ffd36b',blue:'#7fa8ff',red:'#ff738d',magenta:'#ff75c5',violet:'#a783ff',green:'#78e69b',amber:'#ffc465'};
+const MAP_DESTINATIONS={
+  solo:{region:'Bastião Celeste',lore:'A estrada dos iniciados atravessa ruínas que mudam a cada jornada.',x:12,y:63,mx:24,my:8},
+  duel:{region:'Arena do Sol',lore:'Duas vontades entram. Apenas uma deixa sua marca na areia dourada.',x:27,y:27,mx:74,my:18},
+  duo:{region:'Pontes Gêmeas',lore:'Rotas entrelaçadas onde parceria e posicionamento decidem o confronto.',x:43,y:60,mx:24,my:31},
+  raidcoop:{region:'Covil do Arquiteto',lore:'Uma fortaleza viva no limite do Vazio aguarda seu grupo.',x:58,y:20,mx:74,my:41},
+  blitz:{region:'Fenda Rubra',lore:'Mana instável acelera cada decisão e não perdoa hesitação.',x:74,y:50,mx:24,my:54},
+  chaos:{region:'Ilhas Impossíveis',lore:'As regras se partem e o campo nunca permanece o mesmo.',x:88,y:18,mx:74,my:64},
+  survival:{region:'Bosque dos Ecos',lore:'Ondas de inimigos guardam trilhas cada vez mais profundas.',x:24,y:83,mx:24,my:77},
+  raid:{region:'Abismo Coroado',lore:'Enfrente sozinho a criatura que governa as rotas perdidas.',x:62,y:80,mx:74,my:87},
+  draft:{region:'Mercado Flutuante',lore:'Construa seu arsenal enquanto viaja por escolhas inesperadas.',x:88,y:77,mx:50,my:96}
+};
 const CLASSES={
   vanguard:{icon:'🛡️',name:'Guerreiro Arcano'},
   pyromancer:{icon:'🔥',name:'Piromante'},
@@ -23,7 +34,8 @@ const DOCTRINES={
 };
 const DEFAULT_SETTINGS={sound:true,volume:32,vibration:true,reducedMotion:false,performance:false,largeUi:false,highContrast:false,compactCards:false,confirmTurn:false};
 const UPDATE_HISTORY=[
-  {version:'0.9.2',date:'22 AGO 2026',title:'Identidades Reforjadas',tag:'ATUAL',tone:'#63e7ff',notes:['As habilidades das 172 cartas foram refeitas sem quebrar nomes ou decks salvos.','Cada classe agora possui um vocabulário mecânico próprio: formação, combustão, sacrifício, crescimento, congelamento, execução, convergência ou tempo.','Mercado Arcano dá utilidade real a Ouro e Essência com temas, molduras e sigilos permanentes.','Cosméticos não aumentam dano, vida ou mana; a disputa continua justa.','O painel ADM ganhou ferramentas de economia, missões, cosméticos e diagnóstico, sempre protegido pela Conta Arcana.']},
+  {version:'0.9.3',date:'22 AGO 2026',title:'Mapa da Ascensão',tag:'ATUAL',tone:'#76e4d4',notes:['O lobby ganhou um mapa navegável com nove destinos ligados aos modos de jogo.','Cada região possui atmosfera, história curta, cor e posição próprias.','A paleta visual recebeu azul oceânico, violeta, dourado, verde e coral sem perder a legibilidade.','Cartões, perfil, temporada e missões agora usam materiais e iluminação distintos.','O mapa se reorganiza como uma jornada vertical no celular.']},
+  {version:'0.9.2',date:'22 AGO 2026',title:'Identidades Reforjadas',tag:'CARTAS',tone:'#63e7ff',notes:['As habilidades das 172 cartas foram refeitas sem quebrar nomes ou decks salvos.','Cada classe agora possui um vocabulário mecânico próprio: formação, combustão, sacrifício, crescimento, congelamento, execução, convergência ou tempo.','Mercado Arcano dá utilidade real a Ouro e Essência com temas, molduras e sigilos permanentes.','Cosméticos não aumentam dano, vida ou mana; a disputa continua justa.','O painel ADM ganhou ferramentas de economia, missões, cosméticos e diagnóstico, sempre protegido pela Conta Arcana.']},
   {version:'0.9.1',date:'22 AGO 2026',title:'Expansão do Arsenal',tag:'ARSENAL',tone:'#ffbd66',notes:['98 cartas novas elevaram o catálogo de 74 para 172.','Cada classe agora possui 20 exclusivas e compartilha 12 Neutras: 32 opções legais por classe.','Uma carta secreta ultrarrara foi escondida em cada uma das 8 classes.','Cartas secretas não aparecem no catálogo, na busca, na Forja nem em decks iniciais.','Raridade agora aparece com moldura, cor, símbolo e nome em cada carta.','Sinalização integrada à Forja, mão, mulligan, Baús, campo, Inspector e modos online.','Novas cartas funcionam em decks, Baús, Espólios, Relíquias e modos online.']},
   {version:'0.9.0',date:'22 AGO 2026',title:'Ascensão das Classes',tag:'CLASSES',tone:'#63e7ff',notes:['Classes passaram a controlar decks, Baús, Espólios e Relíquias.','Forja de Deck com 30 cartas, limite de 3 cópias e cloud save.','Mulligan, mão inicial rebalanceada e identidade de classe online.','Micro-updates: Histórico de Updates e guia interativo da Forja adicionados ao lobby.']},
   {version:'0.8.0',date:'22 AGO 2026',title:'Lobby Arcano',tag:'LOBBY',tone:'#9f80ff',notes:['A antiga home foi substituída por um lobby completo.','Modos, perfil, amigos, missões, temporada, ranking e configurações foram integrados.','Conta Arcana, cloud save e acesso ADM foram preservados.']},
@@ -109,6 +121,23 @@ function renderModeChoices(){
   return modes.map(mode=>`<button class="arcModeChoice ${mode.id===selectedMode?'active':''}" data-mode-choice="${escapeHtml(mode.id)}" style="--choice-tone:${MODE_COLORS[mode.tone]||MODE_COLORS.cyan}"><span class="arcModeIcon">${mode.icon||'✦'}</span><b>${escapeHtml(mode.name)}</b><small>${escapeHtml(mode.subtitle||mode.players||'')}</small></button>`).join('');
 }
 
+function renderWorldMap(){
+  const modes=Object.values(modeApi()),active=activeMode(),destination=MAP_DESTINATIONS[active.id]||MAP_DESTINATIONS.solo;
+  const nodes=modes.map(mode=>{
+    const point=MAP_DESTINATIONS[mode.id]||{region:mode.name,lore:mode.description,x:50,y:50,mx:50,my:50};
+    return `<button class="arcMapNode ${mode.id===selectedMode?'active':''}" data-mode-choice="${escapeHtml(mode.id)}" aria-label="${escapeHtml(`${mode.name} · ${point.region}`)}" style="--map-x:${point.x}%;--map-y:${point.y}%;--map-mobile-x:${point.mx}%;--map-mobile-y:${point.my}%;--node-tone:${MODE_COLORS[mode.tone]||MODE_COLORS.cyan}"><i>${mode.icon||'✦'}</i><span><b>${escapeHtml(mode.name)}</b><small>${escapeHtml(point.region)}</small></span></button>`;
+  }).join('');
+  return `<section class="arcLobbyCard arcWorldMapCard" style="--map-active-tone:${MODE_COLORS[active.tone]||MODE_COLORS.cyan}">
+    <header class="arcMapHead"><div><small>EXPLORE O REINO</small><h2>Mapa da Ascensão</h2><p>Escolha um destino para preparar sua próxima batalha.</p></div><span>${modes.length} DESTINOS</span></header>
+    <div class="arcWorldMapCanvas">
+      <div class="arcMapSea"></div><div class="arcMapLand arcMapLandWest"></div><div class="arcMapLand arcMapLandNorth"></div><div class="arcMapLand arcMapLandEast"></div><div class="arcMapLand arcMapLandSouth"></div>
+      <svg class="arcMapRoutes" viewBox="0 0 1000 470" preserveAspectRatio="none" aria-hidden="true"><path d="M120 296 C170 230 215 166 270 127 S370 228 430 282 S520 142 580 94 S680 188 740 235 S830 128 880 85"/><path d="M120 296 C170 350 190 390 240 390 S350 330 430 282 S525 365 620 376 S790 350 880 362"/><path d="M740 235 C800 280 830 320 880 362"/></svg>
+      <div class="arcMapCompass"><i>✦</i><span>N</span></div><div class="arcMapMist mistOne"></div><div class="arcMapMist mistTwo"></div>${nodes}
+    </div>
+    <footer class="arcMapSelected"><div class="arcMapSelectedIcon">${active.icon||'✦'}</div><div><small>DESTINO SELECIONADO · ${escapeHtml(active.players||'')}</small><b>${escapeHtml(destination.region)}</b><p>${escapeHtml(destination.lore)}</p></div><button data-action="play">VIAJAR E JOGAR</button></footer>
+  </section>`;
+}
+
 function missionPreview(state){
   const missions=state?.missions?.items||[];
   if(!missions.length)return '<div class="arcEmpty"><b>Missões preparando...</b><span>Abra a área de missões para atualizar.</span></div>';
@@ -146,10 +175,7 @@ function lobbyMarkup(){
           <div class="arcPlayMeta"><span>${CLASSES[activeClassId]?.icon||'✦'} ${escapeHtml(CLASSES[activeClassId]?.name||'Classe Arcana')}</span><span>${DOCTRINES[s.doctrine]?.icon||'⚖️'} ${escapeHtml(DOCTRINES[s.doctrine]?.name||'Equilíbrio')}</span><span>${mode.online?'CROSSPLAY ONLINE':`${deckCount}/30 · DECK DE CLASSE`}</span></div>
           <div class="arcPlayActions"><button class="arcPlayPrimary" data-action="play">JOGAR AGORA</button><button class="arcPlaySecondary" data-action="rules">COMO JOGAR</button></div>
         </section>
-        <section class="arcLobbyCard arcModeShelf">
-          <div class="arcSectionTitle"><div><small>ESCOLHA SUA BATALHA</small><b>Modos de jogo</b></div><span>${Object.keys(modeApi()).length} modos</span></div>
-          <div class="arcModeList">${renderModeChoices()}</div>
-        </section>
+        ${renderWorldMap()}
         <section class="arcFeatureGrid">
           <button class="arcFeature" data-action="decks" style="--feature-tone:#63e7ff"><span class="arcFeatureIcon">▤</span><b>Forja de Deck</b><small>${deckCount}/30 no deck · ${classPool||32} opções da classe</small><span class="arcFeatureBadge">172</span></button>
           <button class="arcFeature" data-action="market" style="--feature-tone:#ffd36b"><span class="arcFeatureIcon">✦</span><b>Mercado Arcano</b><small>Use ${Number(s.coins||0)} Ouro e ${Number(s.essence||0)} Essências</small><span class="arcFeatureBadge">NOVO</span></button>
@@ -345,14 +371,14 @@ function showNews(){
   requestAnimationFrame(()=>{
     const eyebrow=document.querySelector('#aboutScreen .eyebrow'),title=document.querySelector('#aboutScreen h2'),rules=document.querySelector('#aboutScreen .rules');
     if(eyebrow)eyebrow.textContent=`ARCANACLASH ${LOBBY_VERSION} WEB`;
-    if(title)title.textContent='Identidades Reforjadas';
-    if(rules)rules.innerHTML='<p><b>⚔️ Remake completo:</b> as habilidades das 172 cartas foram refeitas sem quebrar seus decks salvos.</p><p><b>🧙 Classes únicas:</b> cada classe agora joga com um conjunto próprio de mecânicas e sinergias.</p><p><b>✦ Mercado Arcano:</b> Ouro e Essência compram temas, molduras e sigilos permanentes.</p><p><b>⚖️ Jogo justo:</b> nenhuma compra dá dano, vida ou mana extra.</p><p><b>🛡️ Administração:</b> contas autorizadas recebem ferramentas reais de teste e economia.</p><p><b>🌐 Compatibilidade:</b> o remake alimenta Jornada, Baús, Espólios, Forja e modos online.</p><p><b>☁ Cloud save:</b> compras, equipamentos e recursos permanecem sincronizáveis.</p>';
+    if(title)title.textContent='Mapa da Ascensão';
+    if(rules)rules.innerHTML='<p><b>🗺️ Mapa navegável:</b> nove regiões agora levam diretamente aos modos de jogo.</p><p><b>🌊 Mais atmosfera:</b> oceanos, ilhas, rotas, névoa e luzes dão profundidade ao lobby.</p><p><b>🎨 Nova paleta:</b> azul, violeta, dourado, verde e coral substituem a aparência quase monocromática.</p><p><b>📍 Destinos vivos:</b> cada ponto possui nome, história curta e cor própria.</p><p><b>📱 Jornada móvel:</b> no celular, o mapa se reorganiza verticalmente sem perder nenhum destino.</p><p><b>⚔️ Integração real:</b> selecionar um local muda o modo preparado no cartão principal e no botão Jogar.</p>';
   });
 }
 
 function renderUpdateHistory(){
   const entries=UPDATE_HISTORY.map((release,index)=>`<article class="arcUpdateEntry ${index===0?'current':''}" style="--update-tone:${release.tone}"><div class="arcUpdateRail"><i></i></div><div class="arcUpdateCard"><header><div><small>${escapeHtml(release.date)}</small><h3>v${escapeHtml(release.version)} · ${escapeHtml(release.title)}</h3></div><span>${escapeHtml(release.tag)}</span></header><ul>${release.notes.map(note=>`<li>${escapeHtml(note)}</li>`).join('')}</ul></div></article>`).join('');
-  modalShell('Histórico de Updates','A JORNADA ATÉ A VERSÃO 1.0',`<p class="arcModalLead">Aqui ficam registradas as mudanças reais de cada versão pública. As próximas atualizações 0.9.x serão adicionadas nesta linha do tempo até o grande lançamento 1.0.</p><div class="arcUpdateTimeline">${entries}</div><div class="arcUpdateFuture"><span>PRÓXIMO MARCO</span><b>0.9.3 · Campo de Batalha Vivo</b><small>Feedback de combate, animações, áudio e leitura das rotas.</small></div>`);
+  modalShell('Histórico de Updates','A JORNADA ATÉ A VERSÃO 1.0',`<p class="arcModalLead">Aqui ficam registradas as mudanças reais de cada versão pública. As próximas atualizações 0.9.x serão adicionadas nesta linha do tempo até o grande lançamento 1.0.</p><div class="arcUpdateTimeline">${entries}</div><div class="arcUpdateFuture"><span>PRÓXIMO MARCO</span><b>0.9.4 · Campo de Batalha Vivo</b><small>Feedback de combate, animações, áudio e leitura das rotas.</small></div>`);
 }
 
 function applySettings(value=settings()){
