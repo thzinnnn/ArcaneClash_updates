@@ -1,18 +1,18 @@
 {
-  "publishedAt": "2026-08-22T17:12:59-03:00",
+  "publishedAt": "2026-08-24T03:00:00-03:00",
   "source": "ArcanaClash Web",
-  "version": "0.9.4",
+  "version": "1.0.0",
   "channel": "web",
-  "title": "Combate Renascido",
+  "title": "Convergencia",
   "notes": [
-    "As tres rotas agora formam um campo de batalha integrado ao cenario",
-    "Os nove destinos possuem terreno, atmosfera e iluminacao proprios",
-    "Cada rota recebeu nome e marco visual ligados a sua regiao",
-    "Posicoes vazias, rotas disponiveis e alvos validos ficaram mais claros",
-    "Criaturas ganharam entrada, impacto, sombra e profundidade no terreno",
-    "O campo foi reconstruido para PC, celular e modo desempenho",
-    "Botao Sair adicionado a partida com confirmacao; desistir conta como derrota e retorna ao lobby",
-    "Desfazer, historico de acoes e confirmacoes perigosas nao foram adicionados",
-    "Lobby, mapa, cartas, decks, economia, Conta Arcana e cloud save foram preservados"
+    "Roadmap planejado desde o Mapa da Ascensao consolidado na versao 1.0",
+    "Colecao por copias, crafting, desmontagem, favoritos e decks de classe",
+    "Arvores de Maestria para as oito classes e progressao PvE permanente",
+    "Reserva conhecida, objetivos de rota e vitoria alternativa por Dominio",
+    "Desfazer antes do fim do turno, confirmacoes perigosas e historico de acoes",
+    "Historico de partidas e replays locais turno a turno",
+    "Amigos reais por ID Arcana, presenca e desafios online",
+    "Painel ADM com jogadores online, IDs, espectador, banimentos, eventos e auditoria",
+    "Migracao automatica preservando conta, cloud save, decks e progresso"
   ]
 }

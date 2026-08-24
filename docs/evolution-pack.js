@@ -1,5 +1,5 @@
 (()=>{
-const EVOLUTION_VERSION='0.9.2-remake';
+const EVOLUTION_VERSION='1.0.0';
 const PROFILE_KEY='arcana_profile_v2';
 const FORGE_GUIDE_KEY='arcana_forge_guide_seen_v2';
 const DECK_SIZE=30;
@@ -103,7 +103,7 @@ function autoDeckNames(classId,catalog,heroFaction=null){
 
 function validateDeckNames(names,classId,catalog,heroFaction=null){
   if(!Array.isArray(names)||names.length!==DECK_SIZE)return null;
-  const rule=CLASS_RULES[classId],counts={},valid=[];
+  const rule=CLASS_RULES[classId],counts={},valid=[],owned=profile().cardCopies||null;
   for(const name of names){
     const card=catalog.find(item=>item.name===name);
     if(!card)return null;
@@ -111,6 +111,7 @@ function validateDeckNames(names,classId,catalog,heroFaction=null){
     if(!rule&&card.fac!=='neutral'&&card.fac!==heroFaction)return null;
     counts[name]=(counts[name]||0)+1;
     if(counts[name]>MAX_COPIES)return null;
+    if(owned&&counts[name]>Number(owned[name]||0))return null;
     valid.push(card);
   }
   return valid;
@@ -209,9 +210,9 @@ function curve(){
 }
 
 function forgeCard(card,counts,discovered){
-  const count=counts[card.name]||0,owner=card.fac==='neutral'?'NEUTRA':'EXCLUSIVA',known=discovered.includes(card.name);
+  const count=counts[card.name]||0,owner=card.fac==='neutral'?'NEUTRA':'EXCLUSIVA',known=discovered.includes(card.name),copies=Math.max(0,Number(profile().cardCopies?.[card.name]||0)),copyLimit=Math.min(MAX_COPIES,copies);
   const rarity=card.rarity||'comum',archetype=card.archetype||'Tática';
-  return `<article class="arcForgeCard ${count?'selected':''} ${known?'discovered':''}" style="--card-tone:${CLASS_RULES[forgeState.classId].color}"><div class="arcForgeCost">${card.cost}</div><div class="arcForgeIcon">${card.icon||'✦'}</div><div class="arcForgeCardText"><small>${owner} · ${FACTION_NAMES[card.fac]||card.fac}</small><b>${escapeHtml(card.name)}</b><div class="arcForgeMeta"><span data-rarity="${escapeHtml(rarity)}">${RARITY_NAMES[rarity]||escapeHtml(rarity).toUpperCase()}</span><em>${escapeHtml(archetype)}</em></div><p>${escapeHtml(card.text||'')}</p></div><div class="arcForgeCount"><button data-deck-remove="${escapeHtml(card.name)}" ${!count?'disabled':''}>−</button><strong>${count}</strong><button data-deck-add="${escapeHtml(card.name)}" ${count>=MAX_COPIES||forgeState.names.length>=DECK_SIZE?'disabled':''}>+</button></div></article>`;
+  return `<article class="arcForgeCard ${count?'selected':''} ${known?'discovered':''}" style="--card-tone:${CLASS_RULES[forgeState.classId].color}"><div class="arcForgeCost">${card.cost}</div><div class="arcForgeIcon">${card.icon||'✦'}</div><div class="arcForgeCardText"><small>${owner} · ${FACTION_NAMES[card.fac]||card.fac}</small><b>${escapeHtml(card.name)}</b><div class="arcForgeMeta"><span data-rarity="${escapeHtml(rarity)}">${RARITY_NAMES[rarity]||escapeHtml(rarity).toUpperCase()}</span><em>${escapeHtml(archetype)}</em></div><p>${escapeHtml(card.text||'')}</p><small>${copies} CÓPIA${copies===1?'':'S'} NA COLEÇÃO</small></div><div class="arcForgeCount"><button data-deck-remove="${escapeHtml(card.name)}" ${!count?'disabled':''}>−</button><strong>${count}</strong><button data-deck-add="${escapeHtml(card.name)}" ${count>=copyLimit||forgeState.names.length>=DECK_SIZE?'disabled':''}>+</button></div></article>`;
 }
 
 function closeForgeGuide(){
@@ -245,7 +246,7 @@ function renderForge(){
   document.getElementById('arcForgeArchetype').onchange=event=>{forgeState.archetype=event.target.value;renderForge()};
   document.getElementById('arcForgeSearch').oninput=event=>{forgeState.search=event.target.value.trim().toLowerCase();renderForge()};
   root.querySelectorAll('[data-forge-filter]').forEach(button=>button.onclick=()=>{forgeState.filter=button.dataset.forgeFilter;renderForge()});
-  root.querySelectorAll('[data-deck-add]').forEach(button=>button.onclick=()=>{const name=button.dataset.deckAdd;if((deckCounts()[name]||0)<MAX_COPIES&&forgeState.names.length<DECK_SIZE)forgeState.names.push(name);renderForge()});
+  root.querySelectorAll('[data-deck-add]').forEach(button=>button.onclick=()=>{const name=button.dataset.deckAdd,copies=Number(profile().cardCopies?.[name]||0);if((deckCounts()[name]||0)<Math.min(MAX_COPIES,copies)&&forgeState.names.length<DECK_SIZE)forgeState.names.push(name);renderForge()});
   root.querySelectorAll('[data-deck-remove]').forEach(button=>button.onclick=()=>{const index=forgeState.names.indexOf(button.dataset.deckRemove);if(index>=0)forgeState.names.splice(index,1);renderForge()});
   document.getElementById('arcAutoDeck').onclick=()=>{forgeState.names=autoDeckNames(forgeState.classId,catalog);renderForge()};
   document.getElementById('arcClearDeck').onclick=()=>{forgeState.names=[];renderForge()};

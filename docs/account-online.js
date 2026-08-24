@@ -468,6 +468,76 @@ async function adminAudit(limit=25){
   return result.entries||[];
 }
 
+async function presenceHeartbeat({state='lobby',mode=null,matchId=null,snapshot=null}={}){
+  return await rpc('arcana_presence_heartbeat',{p_state:state,p_mode:mode,p_match_id:matchId,p_snapshot:snapshot});
+}
+
+async function presenceOffline(){
+  try{return await rpc('arcana_presence_offline')}catch{return {ok:false}}
+}
+
+async function adminLivePlayers(){
+  const result=await rpc('arcana_admin_live_players');
+  if(!result?.ok)throw Object.assign(new Error(result?.code||'admin_rejected'),{code:result?.code||'admin_rejected'});
+  return result.entries||[];
+}
+
+async function adminSpectate(targetUserId){
+  const result=await rpc('arcana_admin_spectate',{p_target_user_id:targetUserId});
+  if(!result?.ok)throw Object.assign(new Error(result?.code||'spectate_rejected'),{code:result?.code||'spectate_rejected'});
+  return result;
+}
+
+async function adminBan({targetUserId,reason,durationMinutes=null}){
+  const result=await rpc('arcana_admin_ban_user',{p_target_user_id:targetUserId,p_reason:String(reason||'').trim(),p_duration_minutes:durationMinutes==null?null:Number(durationMinutes)});
+  if(!result?.ok)throw Object.assign(new Error(result?.code||'ban_rejected'),{code:result?.code||'ban_rejected'});
+  return result;
+}
+
+async function adminUnban({targetUserId,reason='Banimento removido pelo administrador'}){
+  const result=await rpc('arcana_admin_unban_user',{p_target_user_id:targetUserId,p_reason:String(reason||'').trim()});
+  if(!result?.ok)throw Object.assign(new Error(result?.code||'unban_rejected'),{code:result?.code||'unban_rejected'});
+  return result;
+}
+
+async function friendList(){
+  const result=await rpc('arcana_friend_list');
+  if(!result?.ok)throw Object.assign(new Error(result?.code||'friends_rejected'),{code:result?.code||'friends_rejected'});
+  return result.entries||[];
+}
+
+async function friendRequest(targetUserId){
+  const result=await rpc('arcana_friend_request',{p_target_user_id:targetUserId});
+  if(!result?.ok)throw Object.assign(new Error(result?.code||'friend_rejected'),{code:result?.code||'friend_rejected'});
+  return result;
+}
+
+async function friendAccept(requesterUserId){
+  const result=await rpc('arcana_friend_accept',{p_requester_user_id:requesterUserId});
+  if(!result?.ok)throw Object.assign(new Error(result?.code||'friend_rejected'),{code:result?.code||'friend_rejected'});
+  return result;
+}
+
+async function friendRemove(otherUserId){
+  const result=await rpc('arcana_friend_remove',{p_other_user_id:otherUserId});
+  if(!result?.ok)throw Object.assign(new Error(result?.code||'friend_rejected'),{code:result?.code||'friend_rejected'});
+  return result;
+}
+
+async function currentEvent(){
+  const result=await rpc('arcana_current_event');
+  if(!result?.ok)throw Object.assign(new Error(result?.code||'event_rejected'),{code:result?.code||'event_rejected'});
+  return result.event||null;
+}
+
+async function adminSetEvent(payload){
+  const result=await rpc('arcana_admin_set_event',{
+    p_event_id:String(payload.eventId||'').trim(),p_title:String(payload.title||'').trim(),p_description:String(payload.description||'').trim(),p_icon:String(payload.icon||'✦'),p_rules:payload.rules||{},p_starts_at:payload.startsAt,p_ends_at:payload.endsAt,p_reason:String(payload.reason||'').trim()
+  });
+  if(!result?.ok)throw Object.assign(new Error(result?.code||'event_rejected'),{code:result?.code||'event_rejected'});
+  return result;
+}
+
 function installButton(){
   const actions=document.querySelector('.homeActions');
   if(!actions||document.getElementById('arcAccountMenuBtn'))return;
@@ -482,4 +552,4 @@ function install(){
 }
 
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install,{once:true}):install();
-globalThis.ArcanaOnline={open:openPanel,sync:syncNow,user:currentUser,signOut,context:getSecurityContext,trusted:()=>trustedProgress,isAdmin:async()=>{const context=await getSecurityContext();return context.role==='admin'},beginMfa,adminAdjust,adminAudit};
+globalThis.ArcanaOnline={open:openPanel,sync:syncNow,user:currentUser,signOut,context:getSecurityContext,trusted:()=>trustedProgress,isAdmin:async()=>{const context=await getSecurityContext();return context.role==='admin'},beginMfa,adminAdjust,adminAudit,presenceHeartbeat,presenceOffline,adminLivePlayers,adminSpectate,adminBan,adminUnban,friendList,friendRequest,friendAccept,friendRemove,currentEvent,adminSetEvent};

@@ -1,5 +1,5 @@
 (()=>{
-  const VERSION='0.9.4';
+  const VERSION='1.0.0';
   const MODE_KEY='arcana_lobby_mode_v1';
   const MAPS={
     solo:{id:'citadel',name:'Bastião Celeste',tagline:'Muralhas acima das nuvens',lanes:[['Ponte das Nuvens','☁'],['Pátio do Juramento','⚜'],['Torre do Oráculo','✦']]},
