@@ -323,13 +323,23 @@ function showMfaCode(factorId,lead='Digite o código atual do seu aplicativo aut
   box.querySelector('#arcMfaCode').focus();
 }
 
+function mfaQrSource(value){
+  if(typeof value!=='string')return '';
+  const qr=value.trim();
+  if(/^data:image\/(?:svg\+xml|png|webp);/i.test(qr))return qr;
+  const svgStart=qr.search(/<svg\b/i);
+  if(svgStart!==-1&&/<\/svg>\s*$/i.test(qr))return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(qr.slice(svgStart))}`;
+  return '';
+}
+
 function showMfaEnrollment(enrollment){
   const box=document.getElementById('arcMfaBox');if(!box)return;
   const factorId=enrollment?.id,totp=enrollment?.totp||{};
   box.classList.remove('hidden');
   box.innerHTML='<b>🛡️ ATIVAR AUTENTICADOR</b><p>Escaneie o QR no Google Authenticator, Microsoft Authenticator ou app compatível. Depois digite o código.</p><img id="arcMfaQr" alt="QR code do autenticador"><code id="arcMfaSecret"></code><label><span>CÓDIGO DE 6 DÍGITOS</span><input id="arcMfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"></label><button id="arcMfaVerify" class="arcAccountPrimary">ATIVAR E VERIFICAR</button><small id="arcMfaStatus">Não compartilhe o QR nem a chave.</small>';
   const qr=box.querySelector('#arcMfaQr');
-  if(typeof totp.qr_code==='string'&&totp.qr_code.startsWith('data:image/'))qr.src=totp.qr_code;else qr.remove();
+  const qrSource=mfaQrSource(totp.qr_code);
+  if(qrSource)qr.src=qrSource;else{qr.remove();box.querySelector('#arcMfaStatus').textContent='QR indisponível. Use a chave manual abaixo e não a compartilhe.'}
   box.querySelector('#arcMfaSecret').textContent=totp.secret||'';
   box.querySelector('#arcMfaCode').oninput=event=>event.target.value=event.target.value.replace(/\D/g,'').slice(0,6);
   box.querySelector('#arcMfaVerify').onclick=()=>verifyMfa(factorId,box.querySelector('#arcMfaCode').value);
