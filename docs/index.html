@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#080b18">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://omhokhrpddahfowdkklb.supabase.co https://raw.githubusercontent.com https://0.peerjs.com wss://0.peerjs.com; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
-  <title>ArcanaClash 1.0.2 - Carregamento Restaurado</title>
+  <title>ArcanaClash 1.1.0 - Crônicas da Ascensão</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="modes.css">
   <link rel="stylesheet" href="ui-fixes.css">
@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="arcana-100.css?v=102">
   <link rel="stylesheet" href="admin-live.css?v=102">
   <link rel="stylesheet" href="social-100.css?v=102">
+  <link rel="stylesheet" href="ascension-110.css?v=110">
 </head>
 <body>
   <main id="app">
@@ -46,7 +47,7 @@
 
   <section id="home" class="screen">
     <div class="panel homePanel">
-      <div class="homeTop"><div><div class="logo">ARCANA<br><em>CLASH</em></div><p class="eyebrow">MOBILE · CROSSPLAY</p></div><button id="checkUpdate" class="versionPill">v<span id="appVersion">1.0.2</span><small>VERIFICAR</small></button></div>
+      <div class="homeTop"><div><div class="logo">ARCANA<br><em>CLASH</em></div><p class="eyebrow">MOBILE · CROSSPLAY</p></div><button id="checkUpdate" class="versionPill">v<span id="appVersion">1.1.0</span><small>VERIFICAR</small></button></div>
       <p class="lead">Escolha como lutar. Evolua seu Arcano, domine classes e transforme cada eliminação em novas possibilidades.</p>
       <div id="modeGrid" class="modeCatalog"></div>
       <div class="homeActions"><button id="openRules" class="ghost">COMO JOGAR</button><button id="openAbout" class="ghost">NOVIDADES</button></div>
@@ -73,7 +74,7 @@
 
   <section id="rulesScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">REGRAS 1.0</p><h2>Rápido de aprender, difícil de dominar</h2><div class="rules"><p><b>▤ Deck:</b> a partida começa com exatamente 30 cartas da sua classe; você pode usar até 3 cópias iguais.</p><p><b>♻ Mulligan:</b> antes da primeira jogada, troque até 2 cartas sem perder recursos.</p><p><b>⌛ Reserva:</b> consulte as próximas compras para planejar; Baús e Espólios podem adicionar novas cartas durante a partida.</p><p><b>🎁 Baú:</b> todo turno oferece 2 opções complementares e possui proteção contra sequências ruins.</p><p><b>🧙 Classe Arcana:</b> classe define cartas permitidas, identidade, passiva, habilidade e Maestria PvE.</p><p><b>⚔️ Rotas:</b> cada rodada destaca um objetivo. Controle as três rotas por tempo suficiente para vencer por Domínio.</p><p><b>↶ Desfazer:</b> no PvE, reverta jogadas enquanto o turno ainda não foi encerrado.</p><p><b>☷ Histórico:</b> consulte ações recentes durante a luta e reveja partidas salvas depois.</p><p><b>🏆 Vitória:</b> reduza a vida rival a zero ou cumpra a condição de Domínio.</p></div><button id="closeRules" class="primary">Entendi</button></div></section>
 
-  <section id="aboutScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">ARCANACLASH 1.0.2 WEB</p><h2>Carregamento Restaurado</h2><div class="rules"><p>✓ Lobby e motor iniciam corretamente.</p><p>🃏 Toda a mão pode ser percorrida e jogada.</p><p>↔ Setas, contador, rolagem por mouse e gesto no celular.</p><p>☷ Desfazer, Ações e Reserva não cobrem mais as cartas.</p><p>🛡️ Administração online protegida por MFA.</p></div><button id="closeAbout" class="primary">Voltar</button></div></section>
+  <section id="aboutScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">ARCANACLASH 1.1.0 WEB</p><h2>Crônicas da Ascensão</h2><div class="rules"><p>🗺️ Campanha com 15 destinos, escolhas e chefes.</p><p>🎓 Academia, glossário e desafios interativos.</p><p>🃏 80 cartas exclusivas novas: 252 no catálogo.</p><p>📊 Laboratório de Deck com curva, chances e códigos.</p><p>🎁 Recompensas diárias, retorno e caixa de entrada.</p></div><button id="closeAbout" class="primary">Voltar</button></div></section>
 
   <section id="gameover" class="screen hidden"><div class="panel compact"><p class="eyebrow" id="gameoverMode">FIM DO DUELO</p><div id="resultTitle" class="result">VITÓRIA</div><p id="resultText" class="lead"></p><div id="runStats" class="runStats"></div><div class="buttons"><button id="rematch" class="primary">JOGAR DE NOVO</button><button id="returnHome" class="ghost">MODOS</button></div></div></section>
 
@@ -96,5 +97,6 @@
   <script src="arcana-100.js?v=102"></script>
   <script src="admin-live.js?v=102"></script>
   <script src="social-100.js?v=102"></script>
+  <script src="ascension-110.js?v=110"></script>
 </body>
 </html>

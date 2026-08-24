@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.0.2';
+const VERSION='1.1.0';
 const PROFILE_KEY='arcana_profile_v2';
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const META_KEY='arcana_release_100_v1';

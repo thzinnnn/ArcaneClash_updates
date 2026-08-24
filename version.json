@@ -1,19 +1,19 @@
 {
-  "version": "1.0.2",
-  "build": 1002,
+  "version": "1.1.0",
+  "build": 1100,
   "channel": "web",
   "minSupported": "1.0.0",
   "required": true,
-  "title": "ArcanaClash Web 1.0.2 - Carregamento Restaurado",
+  "title": "ArcanaClash Web 1.1.0 - Cronicas da Ascensao",
   "notes": [
-    "Lobby e motor do jogo voltaram a iniciar corretamente",
-    "Arquivos principais republicados sem corrupcao",
-    "A mao navegavel e os controles separados foram preservados"
+    "Campanha com 15 destinos, escolhas, chefes e progressao persistente",
+    "Academia Arcana, recompensas recorrentes e Laboratorio de Deck",
+    "80 cartas exclusivas novas elevam o catalogo para 252 cartas"
   ],
-  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-102",
-  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-102",
+  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-110",
+  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-110",
   "android": {
-    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-102",
+    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-110",
     "playUrl": ""
   },
   "ios": {

@@ -1,4 +1,4 @@
-const LOBBY_VERSION='1.0.2';
+const LOBBY_VERSION='1.1.0';
 const PROFILE_KEY='arcana_profile_v2';
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const SETTINGS_KEY='arcana_lobby_settings_v1';
@@ -34,6 +34,7 @@ const DOCTRINES={
 };
 const DEFAULT_SETTINGS={sound:true,volume:32,vibration:true,reducedMotion:false,performance:false,largeUi:false,highContrast:false,compactCards:false,confirmTurn:false};
 const UPDATE_HISTORY=[
+  {version:'1.1.0',date:'24 AGO 2026',title:'Crônicas da Ascensão',tag:'EXPANSÃO',tone:'#a986ff',notes:['Jornada pelo Reino adiciona uma campanha persistente com 15 destinos, escolhas, lojas, santuários e chefes.','Academia Arcana ensina mana, rotas, alvos, classes, Forja, economia e segurança, com glossário e desafios práticos.','80 cartas exclusivas novas ampliam o catálogo de 172 para 252 cartas e reforçam a identidade das oito classes.','Laboratório de Deck mostra curva de mana, composição, legalidade e chances da mão inicial, além de importar e exportar códigos.','Calendário diário, sequência, recompensa de retorno e caixa de entrada dão utilidade recorrente ao progresso.','Estatísticas pós-partida, histórico de decks e novas opções de acessibilidade completam a expansão.']},
   {version:'1.0.2',date:'24 AGO 2026',title:'Carregamento Restaurado',tag:'CORREÇÃO',tone:'#63e7ff',notes:['O lobby e o motor voltaram a iniciar corretamente no site público.','Os arquivos principais foram republicados integralmente e validados no navegador.','A mão navegável, os controles separados e todas as melhorias da 1.0.1 foram preservados.']},
   {version:'1.0.1',date:'24 AGO 2026',title:'Mão Navegável',tag:'CORREÇÃO',tone:'#78e69b',notes:['Desfazer, Ações e Reserva ganharam uma faixa própria e não cobrem mais nomes, habilidades ou atributos das cartas.','A mão agora ocupa toda a largura disponível e mantém qualquer quantidade de cartas dentro de uma área navegável.','Setas Anterior e Próxima percorrem a mão em blocos, com contador das cartas atualmente visíveis.','Rolagem pelo mouse, touchpad e gesto horizontal no celular permitem alcançar e jogar todas as cartas.','A barra de rolagem recebeu sinalização discreta e os controles continuam legíveis em telas pequenas e no modo paisagem.']},
   {version:'1.0.0',date:'24 AGO 2026',title:'Convergência',tag:'MARCO',tone:'#63e7ff',notes:['As atualizações planejadas desde o Mapa da Ascensão foram consolidadas em um único lançamento real.','Coleção por cópias, crafting, desmontagem, favoritos e Forja de Deck agora formam o mesmo sistema.','Árvore de Maestria para as oito classes, eventos rotativos, conquistas avançadas e recompensas de partida.','Reserva conhecida, objetivos de rota, vitória por Domínio, desfazer antes de encerrar, confirmações perigosas e histórico de ações.','Histórico de partidas e replays locais turno a turno, sem revelar a mão privada para espectadores.','Painel ADM com presença online, IDs, espectador seguro, banimentos, economia e auditoria protegidos por MFA.','Migração automática preserva Conta Arcana, cloud save, decks, progresso, cosméticos e configurações antigas.']},
@@ -182,8 +183,8 @@ function lobbyMarkup(){
         </section>
         ${renderWorldMap()}
         <section class="arcFeatureGrid">
-          <button class="arcFeature" data-action="decks" style="--feature-tone:#63e7ff"><span class="arcFeatureIcon">▤</span><b>Forja de Deck</b><small>${deckCount}/30 no deck · ${classPool||32} opções da classe</small><span class="arcFeatureBadge">172</span></button>
-          <button class="arcFeature" data-action="collection100" style="--feature-tone:#58cfff"><span class="arcFeatureIcon">💎</span><b>Coleção & Crafting</b><small>Cópias, favoritos, criação e desmontagem</small><span class="arcFeatureBadge">1.0</span></button>
+          <button class="arcFeature" data-action="decks" style="--feature-tone:#63e7ff"><span class="arcFeatureIcon">▤</span><b>Forja de Deck</b><small>${deckCount}/30 no deck · ${classPool||32} opções da classe</small><span class="arcFeatureBadge">${catalog.length||172}</span></button>
+          <button class="arcFeature" data-action="collection100" style="--feature-tone:#58cfff"><span class="arcFeatureIcon">💎</span><b>Coleção & Crafting</b><small>Cópias, favoritos, criação e desmontagem</small><span class="arcFeatureBadge">${catalog.length||172}</span></button>
           <button class="arcFeature" data-action="mastery100" style="--feature-tone:#a783ff"><span class="arcFeatureIcon">✥</span><b>Maestria de Classe</b><small>Árvore permanente das oito classes</small><span class="arcFeatureBadge">NOVO</span></button>
           <button class="arcFeature" data-action="replays100" style="--feature-tone:#ff7aae"><span class="arcFeatureIcon">⏳</span><b>Histórico & Replays</b><small>Últimas partidas e ações turno a turno</small></button>
           <button class="arcFeature" data-action="events100" style="--feature-tone:#72e79f"><span class="arcFeatureIcon">🌌</span><b>Eventos</b><small>Rotação semanal e desafios especiais</small></button>
@@ -415,7 +416,7 @@ function showNews(){
 
 function renderUpdateHistory(){
   const entries=UPDATE_HISTORY.map((release,index)=>`<article class="arcUpdateEntry ${index===0?'current':''}" style="--update-tone:${release.tone}"><div class="arcUpdateRail"><i></i></div><div class="arcUpdateCard"><header><div><small>${escapeHtml(release.date)}</small><h3>v${escapeHtml(release.version)} · ${escapeHtml(release.title)}</h3></div><span>${escapeHtml(release.tag)}</span></header><ul>${release.notes.map(note=>`<li>${escapeHtml(note)}</li>`).join('')}</ul></div></article>`).join('');
-  modalShell('Histórico de Updates','A JORNADA DA VERSÃO 1.0',`<p class="arcModalLead">Aqui ficam registradas as mudanças reais de cada versão pública. A linha 1.0 agora recebe micro-updates de correção sem apagar o histórico do lançamento.</p><div class="arcUpdateTimeline">${entries}</div><div class="arcUpdateFuture"><span>VERSÃO ATUAL</span><b>1.0.2 · Carregamento Restaurado</b><small>Lobby e motor restaurados, mantendo a mão navegável no PC e no celular.</small></div>`);
+  modalShell('Histórico de Updates','A JORNADA CONTINUA',`<p class="arcModalLead">Aqui ficam registradas as mudanças reais de cada versão pública, desde a fundação até as expansões posteriores ao marco 1.0.</p><div class="arcUpdateTimeline">${entries}</div><div class="arcUpdateFuture"><span>VERSÃO ATUAL</span><b>1.1.0 · Crônicas da Ascensão</b><small>Campanha, Academia, recompensas, análise de decks, acessibilidade e 80 cartas novas.</small></div>`);
 }
 
 function applySettings(value=settings()){
