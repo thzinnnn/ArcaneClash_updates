@@ -255,7 +255,8 @@ function renderButton(){
 
 function build(){
   if(document.getElementById('arcAccountOnline'))return;
-  const css=document.createElement('link');css.rel='stylesheet';css.href='./account-online.css?v=security2';document.head.appendChild(css);
+  const css=document.createElement('link');css.rel='stylesheet';css.href='./account-online.css?v=security4';document.head.appendChild(css);
+  const mfaCss=document.createElement('link');mfaCss.rel='stylesheet';mfaCss.href='./account-mfa.css?v=security4';document.head.appendChild(mfaCss);
   const root=document.createElement('section');
   root.id='arcAccountOnline';root.className='arcAccountOnline hidden';
   root.innerHTML=`<div class="arcAccountBackdrop"></div><div class="arcAccountPanel"><div class="arcAccountHead"><div><small>ARCANA CLASH ONLINE · COFRE V2</small><h2>☁ Conta Arcana</h2></div><button class="arcAccountClose" aria-label="Fechar">×</button></div><div id="arcAccountGuest"><p class="arcAccountLead">Entre para usar um save isolado por conta. Tokens e permissões ADM nunca entram no save.</p><label class="arcAccountField"><span>NOME</span><input id="arcDisplayName" maxlength="24" autocomplete="nickname" placeholder="Seu nome no jogo"></label><label class="arcAccountField"><span>E-MAIL</span><input id="arcEmail" type="email" maxlength="254" autocomplete="email" placeholder="voce@email.com"></label><label class="arcAccountField"><span>SENHA</span><input id="arcPassword" type="password" autocomplete="current-password" minlength="12" maxlength="128" placeholder="12+ caracteres fortes"></label><p class="arcPasswordHint">Use maiúscula, minúscula, número e símbolo. A sessão termina ao fechar o navegador.</p><div id="arcAccountStatus" class="arcAccountStatus">Use Entrar ou Criar conta.</div><div class="arcAccountActions"><button id="arcLogin" class="arcAccountPrimary">ENTRAR</button><button id="arcSignup" class="arcAccountSecondary">CRIAR CONTA</button></div></div><div id="arcAccountLogged" class="hidden"><div class="arcAccountProfile"><div class="arcAccountProfileIcon">☁</div><div><small>CONECTADO</small><strong id="arcAccountEmail"></strong></div></div><div id="arcAccountRole" class="arcAccountRole"></div><div id="arcAccountSecurity" class="arcAccountSecurity"></div><div id="arcMfaBox" class="arcMfaBox hidden"></div><div class="arcAccountCloud">SAVE PRIVADO · RLS · REVISÃO PROTEGIDA</div><div class="arcAccountActions"><button id="arcSync" class="arcAccountPrimary">SINCRONIZAR</button><button id="arcLogout" class="arcAccountDanger">SAIR DA CONTA</button></div></div><div id="arcConflict" class="arcConflict hidden"><b>CONFLITO DE SAVE</b><p>O save deste aparelho e o da nuvem são diferentes. Escolha qual deve continuar.</p><button id="arcUseCloud" class="arcAccountPrimary">USAR SAVE DA NUVEM</button><button id="arcUseLocal" class="arcAccountSecondary">USAR ESTE APARELHO</button><button id="arcLater" class="arcAccountSecondary">DECIDIR DEPOIS</button></div></div>`;
@@ -332,15 +333,48 @@ function mfaQrSource(value){
   return '';
 }
 
-function showMfaEnrollment(enrollment){
+function encodeMfaPayload(value){
+  const bytes=new TextEncoder().encode(value);
+  let binary='';
+  for(const byte of bytes)binary+=String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+
+async function mobileReaderQrSource(uri){
+  if(typeof uri!=='string'||!uri.startsWith('otpauth://totp/'))return '';
+  const bridge=new URL('./mfa-connect.html',location.href);
+  bridge.hash=encodeMfaPayload(uri);
+  const {qrcode}=await import('./vendor/qrcode-generator.mjs?v=204');
+  const qr=qrcode(0,'M');
+  qr.addData(bridge.href,'Byte');
+  qr.make();
+  return qr.createDataURL(5,20);
+}
+
+async function showMfaEnrollment(enrollment){
   const box=document.getElementById('arcMfaBox');if(!box)return;
   const factorId=enrollment?.id,totp=enrollment?.totp||{};
   box.classList.remove('hidden');
-  box.innerHTML='<b>🛡️ ATIVAR AUTENTICADOR</b><p>Escaneie o QR no Google Authenticator, Microsoft Authenticator ou app compatível. Depois digite o código.</p><img id="arcMfaQr" alt="QR code do autenticador"><code id="arcMfaSecret"></code><label><span>CÓDIGO DE 6 DÍGITOS</span><input id="arcMfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"></label><button id="arcMfaVerify" class="arcAccountPrimary">ATIVAR E VERIFICAR</button><small id="arcMfaStatus">Não compartilhe o QR nem a chave.</small>';
+  box.innerHTML='<b>🛡️ ATIVAR AUTENTICADOR</b><p id="arcMfaLead">Use a câmera ou o Leitor de QR do celular. Depois toque em “Abrir no autenticador”.</p><div class="arcMfaQrTabs"><button id="arcMfaPhoneQr" class="active">CÂMERA DO CELULAR</button><button id="arcMfaDirectQr">DIRETO NO APP</button></div><img id="arcMfaQr" alt="QR code do autenticador"><small id="arcMfaQrHelp">Preparando QR para o leitor do celular…</small><details class="arcMfaManual"><summary>USAR CHAVE MANUAL</summary><code id="arcMfaSecret"></code></details><label><span>CÓDIGO DE 6 DÍGITOS</span><input id="arcMfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"></label><button id="arcMfaVerify" class="arcAccountPrimary">ATIVAR E VERIFICAR</button><small id="arcMfaStatus">Não compartilhe o QR nem a chave.</small>';
   const qr=box.querySelector('#arcMfaQr');
-  const qrSource=mfaQrSource(totp.qr_code);
-  if(qrSource)qr.src=qrSource;else{qr.remove();box.querySelector('#arcMfaStatus').textContent='QR indisponível. Use a chave manual abaixo e não a compartilhe.'}
+  const directQr=mfaQrSource(totp.qr_code);
+  if(directQr)qr.src=directQr;
   box.querySelector('#arcMfaSecret').textContent=totp.secret||'';
+  let phoneQr='';
+  try{phoneQr=await mobileReaderQrSource(totp.uri)}catch{}
+  const phoneButton=box.querySelector('#arcMfaPhoneQr'),directButton=box.querySelector('#arcMfaDirectQr'),help=box.querySelector('#arcMfaQrHelp'),lead=box.querySelector('#arcMfaLead');
+  const showQr=mode=>{
+    const usePhone=mode==='phone'&&phoneQr;
+    const source=usePhone?phoneQr:directQr;
+    if(source){qr.src=source;qr.hidden=false}else qr.hidden=true;
+    phoneButton.classList.toggle('active',!!usePhone);directButton.classList.toggle('active',!usePhone);
+    lead.textContent=usePhone?'Use a câmera ou o Leitor de QR do celular. Depois toque em “Abrir no autenticador”.':'Abra o Google Authenticator, Microsoft Authenticator ou app compatível e use o leitor dentro dele.';
+    help.textContent=usePhone?'Compatível com o leitor comum do celular. A chave não é enviada ao servidor.':'QR tradicional para escanear diretamente dentro do aplicativo autenticador.';
+  };
+  phoneButton.disabled=!phoneQr;directButton.disabled=!directQr;
+  phoneButton.onclick=()=>showQr('phone');directButton.onclick=()=>showQr('direct');
+  showQr(phoneQr?'phone':'direct');
+  if(!phoneQr&&!directQr)box.querySelector('#arcMfaStatus').textContent='QR indisponível. Use a chave manual e não a compartilhe.';
   box.querySelector('#arcMfaCode').oninput=event=>event.target.value=event.target.value.replace(/\D/g,'').slice(0,6);
   box.querySelector('#arcMfaVerify').onclick=()=>verifyMfa(factorId,box.querySelector('#arcMfaCode').value);
 }
@@ -356,7 +390,7 @@ async function beginMfa(){
     const pending=factors.find(factor=>factor.factor_type==='totp'&&factor.status!=='verified');
     if(pending)try{await sb(`/auth/v1/factors/${pending.id}`,{method:'DELETE',token:session.access_token})}catch{}
     const enrollment=await sb('/auth/v1/factors',{method:'POST',token:session.access_token,body:{factor_type:'totp',friendly_name:'ArcanaClash ADM'}});
-    showMfaEnrollment(enrollment);
+    await showMfaEnrollment(enrollment);
   }catch{if(box)box.textContent='Não foi possível iniciar o MFA agora. Tente novamente em instantes.'}
 }
 
