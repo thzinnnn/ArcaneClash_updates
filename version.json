@@ -1,21 +1,19 @@
 {
-  "version": "1.0.0",
-  "build": 1000,
+  "version": "1.0.1",
+  "build": 1001,
   "channel": "web",
   "minSupported": "1.0.0",
   "required": true,
-  "title": "ArcanaClash Web 1.0 - Convergencia",
+  "title": "ArcanaClash Web 1.0.1 - Mao Navegavel",
   "notes": [
-    "Combate estrategico com decks, mulligan, Reserva conhecida e Dominio de rotas",
-    "Colecao, crafting, Maestria, eventos, conquistas e replays",
-    "Amigos online por ID Arcana e desafios diretos",
-    "Administracao segura com presenca, espectador, banimentos e auditoria",
-    "Migracao automatica e interface responsiva para PC e celular"
+    "Controles da partida agora ficam fora da area das cartas",
+    "Setas, contador e rolagem permitem acessar qualquer quantidade de cartas",
+    "Compatibilidade com mouse, touchpad, gesto no celular e modo paisagem"
   ],
-  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-100",
-  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-100",
+  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-101",
+  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-101",
   "android": {
-    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-100",
+    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-101",
     "playUrl": ""
   },
   "ios": {

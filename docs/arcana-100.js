@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.0.0';
+const VERSION='1.0.1';
 const PROFILE_KEY='arcana_profile_v2';
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const META_KEY='arcana_release_100_v1';
@@ -189,181 +189,6 @@ function renderReplays(container){
 
 function openReplay(item){
   if(!item)return;let index=0;
-  const root=document.createElement('section');root.className='arc100ReplayViewer';root.innerHTML='<div class="arc100ReplayStage"></div>';document.body.appendChild(root);
-  const draw=()=>{const action=item.actions[index]||{};root.querySelector('.arc100ReplayStage').innerHTML=`<header><div><small>REPLAY LOCAL Â· ${index+1}/${item.actions.length}</small><h2>${esc(item.modeName||item.mode||'Partida')}</h2></div><button id="arcReplayClose">Ã—</button></header><div class="arcReplayScore"><b>${esc(action.meName||'Arcano')} Â· ${Number(action.meHp||0)}â™¥</b><span>RODADA ${Number(action.round||1)}</span><b>${Number(action.opHp||0)}â™¥ Â· ${esc(action.opName||'Rival')}</b></div><div class="arcReplayLanes">${(action.lanes||[[],[],[]]).map((lane,laneIndex)=>`<article><small>ROTA ${laneIndex+1}</small><div>${(lane.op||[]).map(unit=>`<span>${esc(unit.icon||'âœ¦')} ${esc(unit.name)} Â· ${unit.atk}/${unit.hp}</span>`).join('')||'<i>â€”</i>'}</div><div>${(lane.me||[]).map(unit=>`<span>${esc(unit.icon||'âœ¦')} ${esc(unit.name)} Â· ${unit.atk}/${unit.hp}</span>`).join('')||'<i>â€”</i>'}</div></article>`).join('')}</div><p>${esc(action.label||'Estado da partida')}</p><footer><button id="arcReplayPrev" ${index<=0?'disabled':''}>â€¹ ANTERIOR</button><input id="arcReplayRange" type="range" min="0" max="${Math.max(0,item.actions.length-1)}" value="${index}"><button id="arcReplayNext" ${index>=item.actions.length-1?'disabled':''}>PRÃ“XIMA â€º</button></footer>`;root.querySelector('#arcReplayClose').onclick=()=>root.remove();root.querySelector('#arcReplayPrev').onclick=()=>{index=Math.max(0,index-1);draw()};root.querySelector('#arcReplayNext').onclick=()=>{index=Math.min(item.actions.length-1,index+1);draw()};root.querySelector('#arcReplayRange').oninput=event=>{index=Number(event.target.value);draw()}};
-  draw();
-}
-
-function renderEvents(container){
-  const event=globalThis.ArcanaLiveEvent||eventOfWeek();
-  container.innerHTML=`<div class="arc100SectionHead"><div><small>ROTAÃ‡ÃƒO SEMANAL</small><h2>${event.icon} Eventos & Destinos</h2><p>O evento atual muda automaticamente e pode ser substituÃ­do por uma temporada oficial administrada.</p></div></div><article class="arc100EventHero" style="--event-tone:${event.tone}"><span>${event.icon}</span><div><small>EVENTO ATIVO</small><h2>${esc(event.name)}</h2><p>${esc(event.desc)}</p></div></article><div class="arc100EventModes"><article><b>ğŸ‘¹ Chefe especial</b><span>Raid Solo e Raid Coop mantÃªm fases prÃ³prias e recompensas ampliadas.</span></article><article><b>ğŸ² Regras temporÃ¡rias</b><span>Caos altera mana, escudos, dano, BaÃºs e rotas a cada rodada.</span></article><article><b>ğŸ† Temporada AscensÃ£o</b><span>30 nÃ­veis, missÃµes, divisÃµes, tÃ­tulos e recompensas colecionÃ¡veis.</span></article></div>`;
-}
-
-function renderAchievements(container){
-  const p=profile(),s=strategy(),achievements=[
-    ['first_blood','ğŸ©¸','Primeiro Sangue',Number(p.stats?.kills||0)>=1],['veteran','ğŸ†','Veterano',Number(p.stats?.wins||0)>=10],['collector','ğŸ“š','Colecionador',(p.discovered||[]).length>=30],['mastery10','âœ¨','Mestre Arcano',Object.values(p.mastery||{}).some(value=>Number(value.level||0)>=10)],['flawless','ğŸ›¡ï¸','VitÃ³ria Imaculada',!!p.achievementsV2?.flawless],['last_breath','â¤ï¸','Ãšltimo Suspiro',!!p.achievementsV2?.lastBreath],['all_classes','ğŸŒˆ','Oito Caminhos',Object.values(p.mastery||{}).filter(value=>Number(value.wins||0)>=10).length===8],['legend','ğŸ‘‘','Lenda',Number(s.rankedPoints||0)>=2600]
-  ];
-  container.innerHTML=`<div class="arc100SectionHead"><div><small>FEITOS DO PERFIL</small><h2>ğŸ† Conquistas avanÃ§adas</h2><p>Objetivos de combate, coleÃ§Ã£o, classes e temporada.</p></div></div><div class="arc100Achievements">${achievements.map(([,icon,name,done])=>`<article class="${done?'done':''}"><span>${done?icon:'â—ˆ'}</span><b>${esc(name)}</b><small>${done?'CONCLUÃDA':'EM PROGRESSO'}</small></article>`).join('')}</div>`;
-}
-
-function open(tab='collection'){
-  modalTab=tab;let root=document.getElementById('arcanaOneHub');
-  if(!root){root=document.createElement('section');root.id='arcanaOneHub';root.className='arcanaOneHub';document.body.appendChild(root)}
-  root.innerHTML=`<div class="arc100Panel"><header><div><small>ARCANACLASH Â· VERSÃƒO DEFINITIVA</small><h1>Conclave 1.0</h1></div><button id="arc100Close">Ã—</button></header><nav>${[['collection','COLEÃ‡ÃƒO & FORJA'],['mastery','MAESTRIA'],['replays','REPLAYS'],['events','EVENTOS'],['achievements','CONQUISTAS']].map(([id,label])=>`<button data-tab="${id}" class="${modalTab===id?'active':''}">${label}</button>`).join('')}</nav><main id="arc100Content"></main></div>`;
-  root.classList.remove('hidden');root.querySelector('#arc100Close').onclick=()=>root.classList.add('hidden');root.onclick=event=>{if(event.target===root)root.classList.add('hidden')};root.querySelectorAll('[data-tab]').forEach(button=>button.onclick=()=>open(button.dataset.tab));
-  const container=root.querySelector('#arc100Content');if(tab==='collection')renderCollection(container);else if(tab==='mastery')renderMastery(container);else if(tab==='replays')renderReplays(container);else if(tab==='events')renderEvents(container);else renderAchievements(container);
-}
-
-function battleActive(){return document.body.classList.contains('arcBattleActive')&&!!game()&&!game().over}
-function isOfflineGame(value=game()){
-  if(!value)return false;return !api()?.modes?.[value.mode]?.online||['solo','survival','raid'].includes(value.mode);
-}
-function playerIndex(value){return value?.p?.[0]?.index??0}
-function currentPlayer(value){return value?.p?.[playerIndex(value)]||value?.p?.[0]}
-
-function compactFrame(value,label='Estado atualizado'){
-  const me=currentPlayer(value)||value?.p?.[0],op=value?.p?.[1];if(!me||!op)return null;
-  return {label,round:value.round,meName:me.hero?.name,opName:op.hero?.name,meHp:me.hp,opHp:op.hp,mana:me.mana,hand:me.hand?.length||0,reserve:me.deck?.length||0,lanes:[0,1,2].map(index=>({me:(me.lanes?.[index]||[]).map(unit=>({name:unit.name,icon:unit.icon,atk:unit.atk,hp:unit.hp})),op:(op.lanes?.[index]||[]).map(unit=>({name:unit.name,icon:unit.icon,atk:unit.atk,hp:unit.hp}))}))};
-}
-
-function inferAction(before,after){
-  if(!before)return 'Partida iniciada';
-  if(after.round!==before.round)return `Rodada ${after.round} iniciada`;
-  const a=currentPlayer(after),b=currentPlayer(before),opA=after.p?.[1],opB=before.p?.[1];
-  if(a?.hand?.length<b?.hand?.length)return 'Carta jogada';
-  if(a?.hand?.length>b?.hand?.length)return 'Carta adicionada Ã  mÃ£o';
-  if(a?.hp!==b?.hp)return `${a.hp<b.hp?'Dano':'Cura'} no seu Arcano: ${b.hp} â†’ ${a.hp}`;
-  if(opA?.hp!==opB?.hp)return `${opA.hp<opB.hp?'Dano':'Cura'} no rival: ${opB.hp} â†’ ${opA.hp}`;
-  return 'Campo atualizado';
-}
-
-function installBattleUi(){
-  if(document.getElementById('arc100BattleTools'))return;
-  const tools=document.createElement('aside');tools.id='arc100BattleTools';tools.innerHTML='<button id="arc100Undo" disabled>â†¶ <span>DESFAZER</span></button><button id="arc100History">â˜· <span>AÃ‡Ã•ES</span></button><button id="arc100Reserve">âŒ› <span>RESERVA</span></button>';
-  document.body.appendChild(tools);
-  const panel=document.createElement('section');panel.id='arc100BattlePanel';panel.className='hidden';document.body.appendChild(panel);
-  tools.querySelector('#arc100Undo').onclick=undo;
-  tools.querySelector('#arc100History').onclick=()=>showBattlePanel('history');
-  tools.querySelector('#arc100Reserve').onclick=()=>showBattlePanel('reserve');
-}
-
-function showBattlePanel(type){
-  const root=document.getElementById('arc100BattlePanel'),value=game(),me=currentPlayer(value);if(!root||!me)return;
-  const body=type==='reserve'?`<div class="arc100ReserveList">${(me.deck||[]).slice(-((profile().masteryTree?.chronomancer||[]).includes('glimpse')?4:3)).reverse().map((card,index)=>`<article><span>${index+1}</span><b>${esc(card.icon||'âœ¦')} ${esc(card.name)}</b><small>${Number(card.cost||0)} mana Â· ${esc(card.type||'carta')}</small></article>`).join('')||'<p>Reserva vazia.</p>'}</div><p class="arc100PanelHint">A ordem conhecida transforma sorte em planejamento. BaÃºs e EspÃ³lios ainda podem acrescentar novas opÃ§Ãµes.</p>`:`<div class="arc100ActionList">${replayFrames.slice(-16).reverse().map((frame,index)=>`<article><span>${replayFrames.length-index}</span><div><b>${esc(frame.label)}</b><small>Rodada ${frame.round} Â· ${frame.meHp}â™¥ Ã— ${frame.opHp}â™¥</small></div></article>`).join('')||'<p>Nenhuma aÃ§Ã£o registrada ainda.</p>'}</div>`;
-  root.innerHTML=`<div><header><small>${type==='reserve'?'PRÃ“XIMAS COMPRAS':'ÃšLTIMAS AÃ‡Ã•ES'}</small><h2>${type==='reserve'?'Reserva conhecida':'HistÃ³rico da partida'}</h2><button id="arc100BattleClose">Ã—</button></header>${body}</div>`;root.classList.remove('hidden');root.querySelector('#arc100BattleClose').onclick=()=>root.classList.add('hidden');root.onclick=event=>{if(event.target===root)root.classList.add('hidden')};
-}
-
-function mutateRestore(snapshot){
-  if(api()?.restoreState?.(snapshot))return true;
-  const target=game();if(!target||!snapshot)return false;
-  for(const key of Object.keys(target))delete target[key];Object.assign(target,clone(snapshot));api()?.refresh?.();return true;
-}
-
-function undo(){
-  const value=game(),entry=undoStack.pop();if(!entry||!isOfflineGame(value)||value.cur!==0)return notify('NÃ£o hÃ¡ uma jogada segura para desfazer.','error');
-  if(mutateRestore(entry.snapshot)){replayFrames.push(compactFrame(game(),`Desfeito: ${entry.label}`));notify('Jogada desfeita antes de encerrar o turno.','ok')}
-  updateBattleTools();
-}
-
-function captureBefore(label){
-  const value=game();if(!battleActive()||!isOfflineGame(value)||value.cur!==0)return;
-  pendingSnapshot={snapshot:clone(value),revision:value.rev,round:value.round};pendingLabel=label;
-  setTimeout(()=>{const after=game();if(pendingSnapshot&&after&&after.rev!==pendingSnapshot.revision&&after.round===pendingSnapshot.round&&after.cur===0){undoStack.push({snapshot:pendingSnapshot.snapshot,label:pendingLabel});undoStack=undoStack.slice(-8)}pendingSnapshot=null;updateBattleTools()},40);
-}
-
-function actionLabel(target){
-  if(target.closest('.chestChoice'))return 'Escolha do BaÃº';if(target.closest('#reroll'))return 'Reembaralhar';if(target.closest('#classAbility'))return 'Habilidade de classe';
-  const card=target.closest('.card');if(card)return `Carta: ${card.querySelector('.cn')?.textContent||'jogada'}`;
-  if(target.closest('.lane,.unit'))return `Posicionamento ou alvo`;
-  return 'Jogada';
-}
-
-function installActionCapture(){
-  document.addEventListener('click',event=>{
-    const target=event.target;if(!(target instanceof Element))return;
-    if(target.closest('#endTurn'))return dangerousEndTurn(event);
-    if(target.closest('.card,.lane,.unit,.chestChoice,#reroll,#classAbility'))captureBefore(actionLabel(target));
-  },true);
-}
-
-function dangerousEndTurn(event){
-  const value=game(),me=currentPlayer(value);if(dangerousBypass||!battleActive()||!meta().dangerousConfirm||!me)return;
-  const playable=(me.hand||[]).filter(card=>Number(card.cost||0)<=Number(me.mana||0));
-  if(!playable.length&&Number(me.mana||0)<3)return;
-  const detail=playable.length?`VocÃª ainda pode jogar ${playable.length} carta${playable.length>1?'s':''}.`:`VocÃª ainda tem ${me.mana} de mana.`;
-  if(window.confirm(`${detail}\n\nTem certeza que deseja encerrar o turno?`))return;
-  event.preventDefault();event.stopImmediatePropagation();
-}
-
-function applyMasteryAndRoutes(value){
-  if(!value||!isOfflineGame(value)||value.over)return;
-  const me=value.p?.[0],classId=me?.classId||activeClass(),nodes=new Set(profile().masteryTree?.[classId]||[]);
-  if(value.arcanaMasteryApplied!==VERSION){
-    value.arcanaMasteryApplied=VERSION;
-    const hpBonus=(nodes.has('bastion')||nodes.has('pact')||nodes.has('convergence'))?1:(nodes.has('seed')?2:0);
-    if(hpBonus){me.maxHp+=hpBonus;me.hp+=hpBonus}
-    if([...nodes].some(id=>['arsenal','echo','crystal','spark','loop'].includes(id)))me.rerolls++;
-    if([...nodes].some(id=>['ember','mark'].includes(id)))me.mana++;
-    api()?.refresh?.();
-  }
-  const roundKey=`${value.id}:${value.round}`;if(lastAppliedRound===roundKey||value.round<2||value.cur!==0)return;lastAppliedRound=roundKey;
-  value.arcanaDomination=value.arcanaDomination||[0,0];const lane=(value.round-1)%3;
-  const strength=side=>(value.p?.[side]?.lanes?.[lane]||[]).reduce((sum,unit)=>sum+Number(unit.atk||0),0);
-  const a=strength(0),b=strength(1);
-  if(a!==b){const winner=a>b?0:1,leader=value.p[winner].lanes[lane][0];value.p[winner].mana=Math.min(value.p[winner].maxMana,value.p[winner].mana+1);if(leader){leader.maxHp=Number(leader.maxHp||leader.hp)+1;leader.hp++}if(winner===0&&nodes.has('grove'))me.hp=Math.min(me.maxHp,me.hp+1)}
-  for(let side=0;side<2;side++){
-    const controls=[0,1,2].every(index=>(value.p[side].lanes[index]||[]).length>0&&(value.p[1-side].lanes[index]||[]).length===0);
-    value.arcanaDomination[side]=controls?Number(value.arcanaDomination[side]||0)+1:0;
-    const needed=side===0&&[...nodes].some(id=>['oath','absolute','portal'].includes(id))?2:3;
-    if(value.arcanaDomination[side]>=needed){value.over=true;value.winner=side;notify(`VitÃ³ria por DomÃ­nio: ${needed} rodadas controlando as trÃªs rotas!`,'ok')}
-  }
-  api()?.refresh?.();
-}
-
-function updateBattleTools(){
-  installBattleUi();const tools=document.getElementById('arc100BattleTools'),value=game(),active=battleActive();if(!tools)return;
-  tools.classList.toggle('active',active);const canUndo=active&&isOfflineGame(value)&&value.cur===0&&undoStack.length>0;tools.querySelector('#arc100Undo').disabled=!canUndo;
-}
-
-function pollGame(){
-  const value=game();updateBattleTools();
-  if(!value||!value.id){lastState=null;lastRevision=-1;return}
-  if(value.id!==lastMatchId){lastMatchId=value.id;matchStartedAt=Date.now();replayFrames=[];undoStack=[];lastState=clone(value);lastRevision=value.rev;const first=compactFrame(value,'Partida iniciada');if(first)replayFrames.push(first)}
-  applyMasteryAndRoutes(value);
-  if(value.rev===lastRevision)return;
-  const label=inferAction(lastState,value),frame=compactFrame(value,label);if(frame)replayFrames.push(frame);replayFrames=replayFrames.slice(-80);effects(lastState,value);lastState=clone(value);lastRevision=value.rev;
-}
-
-function effects(before,after){
-  if(!before||!after)return;
-  const oldMe=before.p?.[0]?.hp,newMe=after.p?.[0]?.hp,oldOp=before.p?.[1]?.hp,newOp=after.p?.[1]?.hp;
-  if(oldMe!==newMe)floatNumber(document.getElementById('meAvatar'),newMe-oldMe);
-  if(oldOp!==newOp)floatNumber(document.getElementById('enemyAvatar'),newOp-oldOp);
-}
-
-function floatNumber(anchor,amount){
-  if(!anchor||!amount)return;const box=anchor.getBoundingClientRect(),node=document.createElement('span');node.className=`arc100Float ${amount>0?'heal':'damage'}`;node.textContent=amount>0?`+${amount}`:String(amount);node.style.left=`${box.left+box.width/2}px`;node.style.top=`${box.top}px`;document.body.appendChild(node);setTimeout(()=>node.remove(),950);
-}
-
-function rewardCard(detail){
-  const catalog=(api()?.cards||[]).filter(card=>globalThis.ArcanaEvolution?.allowedForClass?.(card,detail.classId||activeClass()));if(!catalog.length)return;
-  const secretChance=Math.random()<.0025,eligible=catalog.filter(card=>secretChance?card.secret:!card.secret);if(!eligible.length)return;
-  const card=eligible[Math.floor(Math.random()*eligible.length)],next=profile();next.cardCopies={...(next.cardCopies||{})};next.cardCopies[card.name]=Number(next.cardCopies[card.name]||0)+1;if(!next.discovered?.includes(card.name))next.discovered=[...(next.discovered||[]),card.name];saveProfile(next);notify(secretChance?`âœ¦ SEGREDO REVELADO: ${card.name}`:`Recompensa da partida: ${card.name}`,'ok');
-}
-
-function onMatch(event){
-  const detail=event.detail||{},value=game(),now=Date.now(),fingerprint=value?.id||`${detail.mode||'solo'}:${!!detail.win}:${!!detail.surrendered}`;
-  if(fingerprint===lastProcessedMatch&&now-lastProcessedAt<4000)return;lastProcessedMatch=fingerprint;lastProcessedAt=now;
-  const frame=compactFrame(value,detail.surrendered?'DesistÃªncia':'Partida encerrada');if(frame)replayFrames.push(frame);
-  const item={id:value?.id||`${Date.now()}`,mode:value?.mode||detail.mode||'solo',modeName:api()?.modes?.[value?.mode||detail.mode]?.name||'Batalha',win:!!detail.win,rounds:Number(value?.round||1),duration:Date.now()-matchStartedAt,endedAt:Date.now(),actions:replayFrames};
-  const items=loadReplays().filter(replay=>replay.id!==item.id);items.unshift(item);saveReplays(items);rewardCard(detail);
-  const next=profile();next.achievementsV2={...(next.achievementsV2||{})};if(detail.win&&value?.p?.[0]?.hp===value?.p?.[0]?.maxHp)next.achievementsV2.flawless=Date.now();if(detail.win&&value?.p?.[0]?.hp===1)next.achievementsV2.lastBreath=Date.now();saveProfile(next);
-}
-
-function install(){
-  if(installed)return;installed=true;migrateProfile();installBattleUi();installActionCapture();window.addEventListener('arcana:match',onMatch);window.addEventListener('arcana:profile',migrateProfile);setInterval(pollGame,220);document.addEventListener('keydown',event=>{if(event.key==='Escape'){document.getElementById('arcanaOneHub')?.classList.add('hidden');document.getElementById('arc100BattlePanel')?.classList.add('hidden')}});
-}
-
-document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install,{once:true}):install();
-globalThis.ArcanaOne={version:VERSION,open,migrate:migrateProfile,replays:loadReplays,event:eventOfWeek,owned};
-})();
+  const root=document.createElement('section');ro×õ¶‰Ëkºwµçe‘‘•¸œ¤íÉ½½Ğ¹½¹±¥¬õ•Ù•¹Ğôùí¥˜¡•Ù•¹Ğ¹Ñ…É•ĞôôõÉ½½Ğ¥É½½Ğ¹±…ÍÍ1¥ÍĞ¹…‘ ¡¥‘‘•¸œ¥ôíÉ½½Ğ¹ÅÕ•ÉåM•±•Ñ½É±° m‘…Ñ„µÑ…‰tœ¤¹™½É… ¡‰ÕÑÑ½¸ôù‰ÕÑÑ½¸¹½¹±¥¬ô ¤ôù½Á•¸¡‰ÕÑÑ½¸¹‘…Ñ…Í•Ğ¹Ñ…ˆ¤¤ì(€½¹ÍĞ½¹Ñ…¥¹•ÈõÉ½½Ğ¹ÅÕ•ÉåM•±•Ñ½È œ…ÉŒÄÀÁ½¹Ñ•¹Ğœ¤í¥˜¡Ñ…ˆôôô½±±•Ñ¥½¸œ¥É•¹‘•É½±±•Ñ¥½¸¡½¹Ñ…¥¹•È¤í•±Í”¥˜¡Ñ…ˆôôôµ…ÍÑ•Éäœ¥É•¹‘•É5…ÍÑ•Éä¡½¹Ñ…¥¹•È¤í•±Í”¥˜¡Ñ…ˆôôôÉ•Á±…åÌœ¥É•¹‘•ÉI•Á±…åÌ¡½¹Ñ…¥¹•È¤í•±Í”¥˜¡Ñ…ˆôôô•Ù•¹ÑÌœ¥É•¹‘•ÉÙ•¹ÑÌ¡½¹Ñ…¥¹•È¤í•±Í”É•¹‘•É¡¥•Ù•µ•¹ÑÌ¡½¹Ñ…¥¹•È¤ì)ô()™Õ¹Ñ¥½¸‰…ÑÑ±•Ñ¥Ù” ¥íÉ•ÑÕÉ¸‘½Õµ•¹Ğ¹‰½‘ä¹±…ÍÍ1¥ÍĞ¹½¹Ñ…¥¹Ì …É	…ÑÑ±•Ñ¥Ù”œ¤˜˜„……µ” ¤˜˜……µ” ¤¹½Ù•Éô)™Õ¹Ñ¥½¸¥Í=™™±¥¹•…µ”¡Ù…±Õ”õ…µ” ¤¥ì(€¥˜ …Ù…±Õ”¥É•ÑÕÉ¸™…±Í”íÉ•ÑÕÉ¸€……Á¤ ¤ü¹µ½‘•Ìü¹mÙ…±Õ”¹µ½‘•tü¹½¹±¥¹•ññlÍ½±¼œ°ÍÕÉÙ¥Ù…°œ°É…¥t¹¥¹±Õ‘•Ì¡Ù…±Õ”¹µ½‘”¤ì)ô)™Õ¹Ñ¥½¸Á±…å•É%¹‘•à¡Ù…±Õ”¥íÉ•ÑÕÉ¸Ù…±Õ”ü¹Àü¹lÁtü¹¥¹‘•àüüÁô)™Õ¹Ñ¥½¸ÕÉÉ•¹ÑA±…å•È¡Ù…±Õ”¥íÉ•ÑÕÉ¸Ù…±Õ”ü¹Àü¹mÁ±…å•É%¹‘•à¡Ù…±Õ”¥uññÙ…±Õ”ü¹Àü¹lÁuô()™Õ¹Ñ¥½¸½µÁ…ÑÉ…µ”¡Ù…±Õ”±±…‰•°ôÍÑ…‘¼…ÑÕ…±¥é…‘¼œ¥ì(€½¹ÍĞµ”õÕÉÉ•¹ÑA±…å•È¡Ù…±Õ”¥ññÙ…±Õ”ü¹Àü¹lÁt±½ÀõÙ…±Õ”ü¹Àü¹lÅtí¥˜ …µ•ñğ…½À¥É•ÑÕÉ¸¹Õ±°ì(€É•ÑÕÉ¸í±…‰•°±É½Õ¹éÙ…±Õ”¹É½Õ¹±µ•9…µ”éµ”¹¡•É¼ü¹¹…µ”±½Á9…µ”é½À¹¡•É¼ü¹¹…µ”±µ•!Àéµ”¹¡À±½Á!Àé½À¹¡À±µ…¹„éµ”¹µ…¹„±¡…¹éµ”¹¡…¹ü¹±•¹Ñ¡ñğÀ±É•Í•ÉÙ”éµ”¹‘•¬ü¹±•¹Ñ¡ñğÀ±±…¹•ÌélÀ°Ä°Ét¹µ…À¡¥¹‘•àôø¡íµ”è¡µ”¹±…¹•Ìü¹m¥¹‘•áuññmt¤¹µ…À¡Õ¹¥Ğôø¡í¹…µ”éÕ¹¥Ğ¹¹…µ”±¥½¸éÕ¹¥Ğ¹¥½¸±…Ñ¬éÕ¹¥Ğ¹…Ñ¬±¡ÀéÕ¹¥Ğ¹¡Áô¤¤±½Àè¡½À¹±…¹•Ìü¹m¥¹‘•áuññmt¤¹µ…À¡Õ¹¥Ğôø¡í¹…µ”éÕ¹¥Ğ¹¹…µ”±¥½¸éÕ¹¥Ğ¹¥½¸±…Ñ¬éÕ¹¥Ğ¹…Ñ¬±¡ÀéÕ¹¥Ğ¹¡Áô¤¥ô¤¥ôì)ô()™Õ¹Ñ¥½¸¥¹™•ÉÑ¥½¸¡‰•™½É”±…™Ñ•È¥ì(€¥˜ …‰•™½É”¥É•ÑÕÉ¸€A…ÉÑ¥‘„¥¹¥¥…‘„œì(€¥˜¡…™Ñ•È¹É½Õ¹„ôõ‰•™½É”¹É½Õ¹¥É•ÑÕÉ¸I½‘…‘„€‘í…™Ñ•È¹É½Õ¹‘ô¥¹¥¥…‘…€ì(€½¹ÍĞ„õÕÉÉ•¹ÑA±…å•È¡…™Ñ•È¤±ˆõÕÉÉ•¹ÑA±…å•È¡‰•™½É”¤±½Áõ…™Ñ•È¹Àü¹lÅt±½Áõ‰•™½É”¹Àü¹lÅtì(€¥˜¡„ü¹¡…¹ü¹±•¹Ñ ñˆü¹¡…¹ü¹±•¹Ñ ¥É•ÑÕÉ¸€…ÉÑ„©½…‘„œì(€¥˜¡„ü¹¡…¹ü¹±•¹Ñ ùˆü¹¡…¹ü¹±•¹Ñ ¥É•ÑÕÉ¸€…ÉÑ„…‘¥¥½¹…‘„ƒ€·¼œì(€¥˜¡„ü¹¡À„ôõˆü¹¡À¥É•ÑÕÉ¸€‘í„¹¡Àñˆ¹¡Àü…¹¼œèÕÉ„ô¹¼Í•ÔÉ…¹¼è€‘íˆ¹¡ÁôƒŠH€‘í„¹¡Áõ€ì(€¥˜¡½Áü¹¡À„ôõ½Áü¹¡À¥É•ÑÕÉ¸€‘í½Á¹¡Àñ½Á¹¡Àü…¹¼œèÕÉ„ô¹¼É¥Ù…°è€‘í½Á¹¡ÁôƒŠH€‘í½Á¹¡Áõ€ì(€É•ÑÕÉ¸€…µÁ¼…ÑÕ…±¥é…‘¼œì)ô()™Õ¹Ñ¥½¸¥¹ÍÑ…±±	…ÑÑ±•U¤ ¥ì(€¥˜¡‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% …ÉŒÄÀÁ	…ÑÑ±•Q½½±Ìœ¤¥É•ÑÕÉ¸ì(€½¹ÍĞÑ½½±Ìõ‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ …Í¥‘”œ¤íÑ½½±Ì¹¥ô…ÉŒÄÀÁ	…ÑÑ±•Q½½±ÌœíÑ½½±Ì¹Í•ÑÑÑÉ¥‰ÕÑ” …É¥„µ±…‰•°œ°½¹ÑÉ½±•Ì‘„·¼œ¤íÑ½½±Ì¹¥¹¹•É!Q50ôœñ‘¥Ø±…ÍÌô‰…ÉŒÄÀÁQ½½±Ñ¥½¹Ìˆøñ‰ÕÑÑ½¸¥ô‰…ÉŒÄÀÁU¹‘¼ˆ‘¥Í…‰±•ûŠØ€ñÍÁ…¸ùMiHğ½ÍÁ…¸øğ½‰ÕÑÑ½¸øñ‰ÕÑÑ½¸¥ô‰…ÉŒÄÀÁ!¥ÍÑ½ÉäˆûŠbÜ€ñÍÁ…¸ùULğ½ÍÁ…¸øğ½‰ÕÑÑ½¸øñ‰ÕÑÑ½¸¥ô‰…ÉŒÄÀÁI•Í•ÉÙ”ˆûŠ2l€ñÍÁ…¸ùIMIYğ½ÍÁ…¸øğ½‰ÕÑÑ½¸øğ½‘¥Øøñ‘¥Ø±…ÍÌô‰…ÉŒÄÀÁ!…¹‘9…Øˆøñ‰ÕÑÑ½¸¥ô‰…ÉŒÄÀÁ!…¹‘AÉ•Øˆ…É¥„µ±…‰•°ô‰Y•È…ÉÑ…Ì…¹Ñ•É¥½É•ÌˆÑ¥Ñ±”ô‰…ÉÑ…Ì…¹Ñ•É¥½É•ÌˆûŠäğ½‰ÕÑÑ½¸øñÍÁ…¸¥ô‰…ÉŒÄÀÁ!…¹‘MÑ…ÑÕÌˆù7<ğ½ÍÁ…¸øñ‰ÕÑÑ½¸¥ô‰…ÉŒÄÀÁ!…¹‘9•áĞˆ…É¥„µ±…‰•°ô‰Y•ÈÁËÍá¥µ…Ì…ÉÑ…ÌˆÑ¥Ñ±”ô‰AËÍá¥µ…Ì…ÉÑ…ÌˆûŠèğ½‰ÕÑÑ½¸øğ½‘¥Øøœì(€½¹ÍĞ™½½Ñ•Èõ‘½Õµ•¹Ğ¹ÅÕ•ÉåM•±•Ñ½È œ¹…µ•½½Ñ•Èœ¤±¡…¹õ‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% ¡…¹œ¤ì(€¥˜¡™½½Ñ•È˜™¡…¹¥™½½Ñ•È¹¥¹Í•ÉÑ	•™½É”¡Ñ½½±Ì±¡…¹¤í•±Í”‘½Õµ•¹Ğ¹‰½‘ä¹…ÁÁ•¹‘¡¥±¡Ñ½½±Ì¤ì(€½¹ÍĞÁ…¹•°õ‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ Í•Ñ¥½¸œ¤íÁ…¹•°¹¥ô…ÉŒÄÀÁ	…ÑÑ±•A…¹•°œíÁ…¹•°¹±…ÍÍ9…µ”ô¡¥‘‘•¸œí‘½Õµ•¹Ğ¹‰½‘ä¹…ÁÁ•¹‘¡¥±¡Á…¹•°¤ì(€Ñ½½±Ì¹ÅÕ•ÉåM•±•Ñ½È œ…ÉŒÄÀÁU¹‘¼œ¤¹½¹±¥¬õÕ¹‘¼ì(€Ñ½½±Ì¹ÅÕ•ÉåM•±•Ñ½È œ…ÉŒÄÀÁ!¥ÍÑ½Éäœ¤¹½¹±¥¬ô ¤ôùÍ¡½İ	…ÑÑ±•A…¹•° ¡¥ÍÑ½Éäœ¤ì(€Ñ½½±Ì¹ÅÕ•ÉåM•±•Ñ½È œ…ÉŒÄÀÁI•Í•ÉÙ”œ¤¹½¹±¥¬ô ¤ôùÍ¡½İ	…ÑÑ±•A…¹•° É•Í•ÉÙ”œ¤ì(€Ñ½½±Ì¹ÅÕ•ÉåM•±•Ñ½È œ…ÉŒÄÀÁ!…¹‘AÉ•Øœ¤¹½¹±¥¬ô ¤ôùÍÉ½±±!…¹ ´Ä¤ì(€Ñ½½±Ì¹ÅÕ•ÉåM•±•Ñ½È œ…ÉŒÄÀÁ!…¹‘9•áĞœ¤¹½¹±¥¬ô ¤ôùÍÉ½±±!…¹ Ä¤ì(€¡…¹ü¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ÍÉ½±°œ±ÕÁ‘…Ñ•!…¹‘9…Ù¥…Ñ¥½¸±íÁ…ÍÍ¥Ù”éÑÉÕ•ô¤ì(€¡…¹ü¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È İ¡••°œ±•Ù•¹Ğôùì(€€€¥˜¡¡…¹¹ÍÉ½±±]¥‘Ñ ğõ¡…¹¹±¥•¹Ñ]¥‘Ñ ¬Ñññ5…Ñ ¹…‰Ì¡•Ù•¹Ğ¹‘•±Ñ…`¤øõ5…Ñ ¹…‰Ì¡•Ù•¹Ğ¹‘•±Ñ…d¤¥É•ÑÕÉ¸ì(€€€•Ù•¹Ğ¹ÁÉ•Ù•¹Ñ•™…Õ±Ğ ¤í¡…¹¹ÍÉ½±±1•™Ğ¬õ•Ù•¹Ğ¹‘•±Ñ…dì(€ô±íÁ…ÍÍ¥Ù”é™…±Í•ô¤ì)ô()™Õ¹Ñ¥½¸ÍÉ½±±!…¹¡‘¥É•Ñ¥½¸¥ì(€½¹ÍĞ¡…¹õ‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% ¡…¹œ¤í¥˜ …¡…¹¥É•ÑÕÉ¸ì(€¡…¹¹ÍÉ½±±	ä¡í±•™Ğé‘¥É•Ñ¥½¸©5…Ñ ¹µ…à ÈĞÀ±¡…¹¹±¥•¹Ñ]¥‘Ñ ¨¸ÜÈ¤±‰•¡…Ù¥½ÈèÍµ½½Ñ ô¤ì(€Í•ÑQ¥µ•½ÕĞ¡ÕÁ‘…Ñ•!…¹‘9…Ù¥…Ñ¥½¸°ÈØÀ¤ì)ô()™Õ¹Ñ¥½¸ÕÁ‘…Ñ•!…¹‘9…Ù¥…Ñ¥½¸ ¥ì(€½¹ÍĞ¡…¹õ‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% ¡…¹œ¤±ÍÑ…ÑÕÌõ‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% …ÉŒÄÀÁ!…¹‘MÑ…ÑÕÌœ¤±ÁÉ•Ù¥½ÕÌõ‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% …ÉŒÄÀÁ!…¹‘AÉ•Øœ¤±¹•áĞõ‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% …ÉŒÄÀÁ!…¹‘9•áĞœ¤ì(€¥˜ …¡…¹‘ñğ…ÍÑ…ÑÕÍñğ…ÁÉ•Ù¥½ÕÍñğ…¹•áĞ¥É•ÑÕÉ¸ì(€½¹ÍĞ…É‘Ìõl¸¸¹¡…¹¹¡¥±‘É•¹t¹™¥±Ñ•È¡…Éôù…É¹±…ÍÍ1¥ÍĞü¹½¹Ñ…¥¹Ì …Éœ¤¤±Ñ½Ñ…°õ…É‘Ì¹±•¹Ñ ±µ…àõ5…Ñ ¹µ…à À±¡…¹¹ÍÉ½±±]¥‘Ñ µ¡…¹¹±¥•¹Ñ]¥‘Ñ ¤±±•™Ğõ¡…¹¹ÍÉ½±±1•™Ğ¬È±É¥¡Ğõ¡…¹¹ÍÉ½±±1•™Ğ­¡…¹¹±¥•¹Ñ]¥‘Ñ ´Èì(€½¹ÍĞ™¥ÉÍĞõ5…Ñ ¹µ…à À±…É‘Ì¹™¥¹‘%¹‘•à¡…Éôù…É¹½™™Í•Ñ1•™Ğ­…É¹½™™Í•Ñ]¥‘Ñ ù±•™Ğ¤¤í±•Ğ±…ÍĞô´Äí…É‘Ì¹™½É…  ¡…É±¥¹‘•à¤ôùí¥˜¡…É¹½™™Í•Ñ1•™ĞñÉ¥¡Ğ¥±…ÍĞõ¥¹‘•áô¤í¥˜¡±…ÍĞğÀ¥±…ÍĞõ5…Ñ ¹µ…à À±Ñ½Ñ…°´Ä¤ì(€ÍÑ…ÑÕÌ¹Ñ•áÑ½¹Ñ•¹ĞõÑ½Ñ…°ıµ…àøĞı€‘í™¥ÉÍĞ¬Å÷ŠL‘í±…ÍĞ¬Åô€‘íÑ½Ñ…±õ€é€‘íÑ½Ñ…±ôIQ‘íÑ½Ñ…°ôôôÄüœœèLô97=€è7<Yi%œì(€ÁÉ•Ù¥½ÕÌ¹‘¥Í…‰±•õµ…àğôÑññ¡…¹¹ÍÉ½±±1•™ĞğôĞí¹•áĞ¹‘¥Í…‰±•õµ…àğôÑññ¡…¹¹ÍÉ½±±1•™Ğøõµ…à´Ğì(€¡…¹¹±…ÍÍ1¥ÍĞ¹Ñ½±” ¡…Í=Ù•É™±½Üœ±µ…àøĞ¤ì)ô()™Õ¹Ñ¥½¸Í¡½İ	…ÑÑ±•A…¹•°¡ÑåÁ”¥ì(€½¹ÍĞÉ½½Ğõ‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% …ÉŒÄÀÁ	…ÑÑ±•A…¹•°œ¤±Ù…±Õ”õ…µ” ¤±µ”õÕÉÉ•¹ÑA±…å•È¡Ù…±Õ”¤í¥˜ …É½½Ññğ…µ”¥É•ÑÕÉ¸ì(€½¹ÍĞ‰½‘äõÑåÁ”ôôôÉ•Í•ÉÙ”œı€ñ‘¥Ø±…ÍÌô‰…ÉŒÄÀÁI•Í•ÉÙ•1¥ÍĞˆø‘ì¡µ”¹‘•­ññmt¤¹Í±¥” ´ ¡ÁÉ½™¥±” ¤¹µ…ÍÑ•ÉåQÉ•”ü¹¡É½¹½µ…¹•Éññmt¤¹¥¹±Õ‘•Ì ±¥µÁÍ”œ¤üĞèÌ¤¤¹É•Ù•ÉÍ” ¤¹µ…À ¡…É±¥¹‘•à¤ôù€ñ…ÉÑ¥±”øñÍÁ…¸ø‘í¥¹‘•à¬Åôğ½ÍÁ…¸øñˆø‘í•ÍŒ¡…É¹¥½¹ñğŸŠr˜œ¥ô€‘í•ÍŒ¡…É¹¹…µ”¥ôğ½ˆøñÍµ…±°ø‘í9Õµ‰•È¡…É¹½ÍÑñğÀ¥ôµ…¹„ƒ
+Ü€‘í•ÍŒ¡…É¹ÑåÁ•ñğ…ÉÑ„œ¥ôğ½Íµ…±°øğ½…ÉÑ¥±”ù€¤¹©½¥¸ œœ¥ñğœñÀùI•Í•ÉÙ„Ù…é¥„¸ğ½Àøôğ½‘¥ØøñÀ±…ÍÌô‰…ÉŒÄÀÁA…¹•±!¥¹Ğˆù½É‘•´½¹¡•¥‘„ÑÉ…¹Í™½Éµ„Í½ÉÑ”•´Á±…¹•©…µ•¹Ñ¼¸	‡éÌ”ÍÃÍ±¥½Ì…¥¹‘„Á½‘•´…É•Í•¹Ñ…È¹½Ù…Ì½ÃŸÕ•Ì¸ğ½Àù€é€ñ‘¥Ø±…ÍÌô‰…ÉŒÄÀÁÑ¥½¹1¥ÍĞˆø‘íÉ•Á±…åÉ…µ•Ì¹Í±¥” ´ÄØ¤¹É•Ù•ÉÍ” ¤¹µ…À ¡™É…µ”±¥¹‘•à¤ôù€ñ…ÉÑ¥±”øñÍÁ…¸ø‘íÉ•Á±…åÉ…µ•Ì¹±•¹Ñ µ¥¹‘•áôğ½ÍÁ…¸øñ‘¥Øøñˆø‘í•ÍŒ¡™É…µ”¹±…‰•°¥ôğ½ˆøñÍµ…±°ùI½‘…‘„€‘í™É…µ”¹É½Õ¹‘ôƒ
+Ü€‘í™É…µ”¹µ•!Á÷Šf”ƒ\€‘í™É…µ”¹½Á!Á÷Šf”ğ½Íµ…±°øğ½‘¥Øøğ½…ÉÑ¥±”ù€¤¹©½¥¸ œœ¥ñğœñÀù9•¹¡Õµ„‡Ÿ¼É•¥ÍÑÉ…‘„…¥¹‘„¸ğ½Àøôğ½‘¥Øù€ì(€É½½Ğ¹¥¹¹•É!Q50õ€ñ‘¥Øøñ¡•…‘•ÈøñÍµ…±°ø‘íÑåÁ”ôôôÉ•Í•ÉÙ”œüAKMa%5L=5AILœèŸi1Q%5LULôğ½Íµ…±°øñ Èø‘íÑåÁ”ôôôÉ•Í•ÉÙ”œüI•Í•ÉÙ„½¹¡•¥‘„œè!¥ÍÓÍÉ¥¼‘„Á…ÉÑ¥‘„ôğ½ Èøñ‰ÕÑÑ½¸¥ô‰…ÉŒÄÀÁ	…ÑÑ±•±½Í”ˆû\ğ½‰ÕÑÑ½¸øğ½¡•…‘•Èø‘í‰½‘åôğ½‘¥Øù€íÉ½½Ğ¹±…ÍÍ1¥ÍĞ¹É•µ½Ù” ¡¥‘‘•¸œ¤íÉ½½Ğ¹ÅÕ•ÉåM•±•Ñ½È œ…ÉŒÄÀÁ	…ÑÑ±•±½Í”œ¤¹½¹±¥¬ô ¤ôùÉ½½Ğ¹±…ÍÍ1¥ÍĞ¹…‘ ¡¥‘‘•¸œ¤íÉ½½Ğ¹½¹±¥¬õ•Ù•¹Ğôùí¥˜¡•Ù•¹Ğ¹Ñ…É•ĞôôõÉ½½Ğ¥É½½Ğ¹±…ÍÍ1¥ÍĞ¹…‘ ¡¥‘‘•¸œ¥ôì)ô()™Õ¹Ñ¥½¸µÕÑ…Ñ•I•ÍÑ½É”¡Í¹…ÁÍ¡½Ğ¥ì(€¥˜¡…Á¤ ¤ü¹É•ÍÑ½É•MÑ…Ñ”ü¸¡Í¹…ÁÍ¡½Ğ¤¥É•ÑÕÉ¸ÑÉÕ”ì(€½¹ÍĞÑ…É•Ğõ…µ” ¤í¥˜ …Ñ…É•Ññğ…Í¹…ÁÍ¡½Ğ¥É•ÑÕÉ¸™…±Í”ì(€™½È¡½¹ÍĞ­•ä½˜=‰©•Ğ¹­•åÌ¡Ñ…É•Ğ¤¥‘•±•Ñ”Ñ…É•Ñm­•åtí=‰©•Ğ¹…ÍÍ¥¸¡Ñ…É•Ğ±±½¹”¡Í¹…ÁÍ¡½Ğ¤¤í…Á¤ ¤ü¹É•™É•Í ü¸ ¤íÉ•ÑÕÉ¸ÑÉÕ”ì)ô()™Õ¹Ñ¥½¸Õ¹‘¼ ¥ì(€½¹ÍĞÙ…±Õ”õ…µ” ¤±•¹ÑÉäõÕ¹‘½MÑ…¬¹Á½À ¤í¥˜ …•¹ÑÉåñğ…¥Í=™™±¥¹•…µ”¡Ù…±Õ”¥ññÙ…±Õ”¹ÕÈ„ôôÀ¥É•ÑÕÉ¸¹½Ñ¥™ä ;¼£„Õµ„©½…‘„Í•ÕÉ„Á…É„‘•Í™…é•È¸œ°•ÉÉ½Èœ¤ì(€¥˜¡µÕÑ…Ñ•I•ÍÑ½É”¡•¹ÑÉä¹Í¹…ÁÍ¡½Ğ¤¥íÉ•Á±…åÉ…µ•Ì¹ÁÕÍ ¡½µÁ…ÑÉ…µ”¡…µ” ¤±•Í™•¥Ñ¼è€‘í•¹ÑÉä¹±…‰•±õ€¤¤í¹½Ñ¥™ä )½…‘„‘•Í™•¥Ñ„…¹Ñ•Ì‘”•¹•ÉÉ…È¼ÑÕÉ¹¼¸œ°½¬œ¥ô(€ÕÁ‘…Ñ•	…ÑÑ±•Q½½±Ì ¤ì)ô()™Õ¹Ñ¥½¸…ÁÑÕÉ•	•™½É”¡±…‰•°¥ì(€½¹ÍĞÙ…±Õ”õ…µ” ¤í¥˜ …‰…ÑÑ±•Ñ¥Ù” ¥ñğ…¥Í=™™±¥¹•…µ”¡Ù…±Õ”¥ññÙ…±Õ”¹ÕÈ„ôôÀ¥É•ÑÕÉ¸ì(€Á•¹‘¥¹M¹…ÁÍ¡½ĞõíÍ¹…ÁÍ¡½Ğé±½¹”¡Ù…±Õ”¤±É•Ù¥Í¥½¸éÙ…±Õ”¹É•Ø±É½Õ¹éÙ…±Õ”¹É½Õ¹‘ôíÁ•¹‘¥¹1…‰•°õ±…‰•°ì(€Í•ÑQ¥µ•½ÕĞ  ¤ôùí½¹ÍĞ…™Ñ•Èõ…µ” ¤í¥˜¡Á•¹‘¥¹M¹…ÁÍ¡½Ğ˜™…™Ñ•È˜™…™Ñ•È¹É•Ø„ôõÁ•¹‘¥¹M¹…ÁÍ¡½Ğ¹É•Ù¥Í¥½¸˜™…™Ñ•È¹É½Õ¹ôôõÁ•¹‘¥¹M¹…ÁÍ¡½Ğ¹É½Õ¹˜™…™Ñ•È¹ÕÈôôôÀ¥íÕ¹‘½MÑ…¬¹ÁÕÍ ¡íÍ¹…ÁÍ¡½ĞéÁ•¹‘¥¹M¹…ÁÍ¡½Ğ¹Í¹…ÁÍ¡½Ğ±±…‰•°éÁ•¹‘¥¹1…‰•±ô¤íÕ¹‘½MÑ…¬õÕ¹‘½MÑ…¬¹Í±¥” ´à¥õÁ•¹‘¥¹M¹…ÁÍ¡½Ğõ¹Õ±°íÕÁ‘…Ñ•	…ÑÑ±•Q½½±Ì ¥ô°ĞÀ¤ì)ô()™Õ¹Ñ¥½¸…Ñ¥½¹1…‰•°¡Ñ…É•Ğ¥ì(€¥˜¡Ñ…É•Ğ¹±½Í•ÍĞ œ¹¡•ÍÑ¡½¥”œ¤¥É•ÑÕÉ¸€Í½±¡„‘¼	‡èœí¥˜¡Ñ…É•Ğ¹±½Í•ÍĞ œÉ•É½±°œ¤¥É•ÑÕÉ¸€I••µ‰…É…±¡…Èœí¥˜¡Ñ…É•Ğ¹±½Í•ÍĞ œ±…ÍÍ‰¥±¥Ñäœ¤¥É•ÑÕÉ¸€!…‰¥±¥‘…‘”‘”±…ÍÍ”œì(€½¹ÍĞ…ÉõÑ…É•Ğ¹±½Í•ÍĞ œ¹…Éœ¤í¥˜¡…É¥É•ÑÕÉ¸…ÉÑ„è€‘í…É¹ÅÕ•ÉåM•±•Ñ½È œ¹¸œ¤ü¹Ñ•áÑ½¹Ñ•¹Ññğ©½…‘„õ€ì(€¥˜¡Ñ…É•Ğ¹±½Í•ÍĞ œ¹±…¹”°¹Õ¹¥Ğœ¤¥É•ÑÕÉ¸A½Í¥¥½¹…µ•¹Ñ¼½Ô…±Ù½€ì(€É•ÑÕÉ¸€)½…‘„œì)ô()™Õ¹Ñ¥½¸¥¹ÍÑ…±±Ñ¥½¹…ÁÑÕÉ” ¥ì(€‘½Õµ•¹Ğ¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ±¥¬œ±•Ù•¹Ğôùì(€€€½¹ÍĞÑ…É•Ğõ•Ù•¹Ğ¹Ñ…É•Ğí¥˜ „¡Ñ…É•Ğ¥¹ÍÑ…¹•½˜±•µ•¹Ğ¤¥É•ÑÕÉ¸ì(€€€¥˜¡Ñ…É•Ğ¹±½Í•ÍĞ œ•¹‘QÕÉ¸œ¤¥É•ÑÕÉ¸‘…¹•É½ÕÍ¹‘QÕÉ¸¡•Ù•¹Ğ¤ì(€€€¥˜¡Ñ…É•Ğ¹±½Í•ÍĞ œ¹…É°¹±…¹”°¹Õ¹¥Ğ°¹¡•ÍÑ¡½¥”°É•É½±°°±…ÍÍ‰¥±¥Ñäœ¤¥…ÁÑÕÉ•	•™½É”¡…Ñ¥½¹1…‰•°¡Ñ…É•Ğ¤¤ì(€ô±ÑÉÕ”¤ì)ô()™Õ¹Ñ¥½¸‘…¹•É½ÕÍ¹‘QÕÉ¸¡•Ù•¹Ğ¥ì(€½¹ÍĞÙ…±Õ”õ…µ” ¤±µ”õÕÉÉ•¹ÑA±…å•È¡Ù…±Õ”¤í¥˜¡‘…¹•É½ÕÍ	åÁ…ÍÍñğ…‰…ÑÑ±•Ñ¥Ù” ¥ñğ…µ•Ñ„ ¤¹‘…¹•É½ÕÍ½¹™¥Éµñğ…µ”¥É•ÑÕÉ¸ì(€½¹ÍĞÁ±…å…‰±”ô¡µ”¹¡…¹‘ññmt¤¹™¥±Ñ•È¡…Éôù9Õµ‰•È¡…É¹½ÍÑñğÀ¤ğõ9Õµ‰•È¡µ”¹µ…¹…ñğÀ¤¤ì(€¥˜ …Á±…å…‰±”¹±•¹Ñ ˜™9Õµ‰•È¡µ”¹µ…¹…ñğÀ¤ğÌ¥É•ÑÕÉ¸ì(€½¹ÍĞ‘•Ñ…¥°õÁ±…å…‰±”¹±•¹Ñ ıY½¨…¥¹‘„Á½‘”©½…È€‘íÁ±…å…‰±”¹±•¹Ñ¡ô…ÉÑ„‘íÁ±…å…‰±”¹±•¹Ñ øÄüÌœèœô¹€éY½¨…¥¹‘„Ñ•´€‘íµ”¹µ…¹…ô‘”µ…¹„¹€ì(€¥˜¡İ¥¹‘½Ü¹½¹™¥É´¡€‘í‘•Ñ…¥±õq¹q¹Q•´•ÉÑ•é„ÅÕ”‘•Í•©„•¹•ÉÉ…È¼ÑÕÉ¹¼ı€¤¥É•ÑÕÉ¸ì(€•Ù•¹Ğ¹ÁÉ•Ù•¹Ñ•™…Õ±Ğ ¤í•Ù•¹Ğ¹ÍÑ½Á%µµ•‘¥…Ñ•AÉ½Á……Ñ¥½¸ ¤ì)ô()™Õ¹Ñ¥½¸…ÁÁ±å5…ÍÑ•Éå¹‘I½ÕÑ•Ì¡Ù…±Õ”¥ì(€¥˜ …Ù…±Õ•ñğ…¥Í=™™±¥¹•…µ”¡Ù…±Õ”¥ññÙ…±Õ”¹½Ù•È¥É•ÑÕÉ¸ì(€½¹ÍĞµ”õÙ…±Õ”¹Àü¹lÁt±±…ÍÍ%õµ”ü¹±…ÍÍ%‘ññ…Ñ¥Ù•±…ÍÌ ¤±¹½‘•Ìõ¹•ÜM•Ğ¡ÁÉ½™¥±” ¤¹µ…ÍÑ•ÉåQÉ•”ü¹m±…ÍÍ%‘uññmt¤ì(€¥˜¡Ù…±Õ”¹…É…¹…5…ÍÑ•ÉåÁÁ±¥•„ôõYIM%=8¥ì(€€€Ù…±Õ”¹…É…¹…5…ÍÑ•ÉåÁÁ±¥•õYIM%=8ì(€€€½¹ÍĞ¡Á	½¹ÕÌô¡¹½‘•Ì¹¡…Ì ‰…ÍÑ¥½¸œ¥ññ¹½‘•Ì¹¡…Ì Á…Ğœ¥ññ¹½‘•Ì¹¡…Ì ½¹Ù•É•¹”œ¤¤üÄè¡¹½‘•Ì¹¡…Ì Í••œ¤üÈèÀ¤ì(€€€¥˜¡¡Á	½¹ÕÌ¥íµ”¹µ…á!À¬õ¡Á	½¹ÕÌíµ”¹¡À¬õ¡Á	½¹ÕÍô(€€€¥˜¡l¸¸¹¹½‘•Ít¹Í½µ”¡¥ôùl…ÉÍ•¹…°œ°•¡¼œ°ÉåÍÑ…°œ°ÍÁ…É¬œ°±½½Àt¹¥¹±Õ‘•Ì¡¥¤¤¥µ”¹É•É½±±Ì¬¬ì(€€€¥˜¡l¸¸¹¹½‘•Ít¹Í½µ”¡¥ôùl•µ‰•Èœ°µ…É¬t¹¥¹±Õ‘•Ì¡¥¤¤¥µ”¹µ…¹„¬¬ì(€€€…Á¤ ¤ü¹É•™É•Í ü¸ ¤ì(€ô(€½¹ÍĞÉ½Õ¹‘-•äõ€‘íÙ…±Õ”¹¥‘ôè‘íÙ…±Õ”¹É½Õ¹‘õ€í¥˜¡±…ÍÑÁÁ±¥•‘I½Õ¹ôôõÉ½Õ¹‘-•åññÙ…±Õ”¹É½Õ¹ğÉññÙ…±Õ”¹ÕÈ„ôôÀ¥É•ÑÕÉ¸í±…ÍÑÁÁ±¥•‘I½Õ¹õÉ½Õ¹‘-•äì(€Ù…±Õ”¹…É…¹…½µ¥¹…Ñ¥½¸õÙ…±Õ”¹…É…¹…½µ¥¹…Ñ¥½¹ññlÀ°Átí½¹ÍĞ±…¹”ô¡Ù…±Õ”¹É½Õ¹´Ä¤”Ìì(€½¹ÍĞÍÑÉ•¹Ñ õÍ¥‘”ôø¡Ù…±Õ”¹Àü¹mÍ¥‘•tü¹±…¹•Ìü¹m±…¹•uññmt¤¹É•‘Õ” ¡ÍÕ´±Õ¹¥Ğ¤ôùÍÕ´­9Õµ‰•È¡Õ¹¥Ğ¹…Ñ­ñğÀ¤°À¤ì(€½¹ÍĞ„õÍÑÉ•¹Ñ  À¤±ˆõÍÑÉ•¹Ñ  Ä¤ì(€¥˜¡„„ôõˆ¥í½¹ÍĞİ¥¹¹•Èõ„ùˆüÀèÄ±±•…‘•ÈõÙ…±Õ”¹Ámİ¥¹¹•Ét¹±…¹•Ím±…¹•ulÁtíÙ…±Õ”¹Ámİ¥¹¹•Ét¹µ…¹„õ5…Ñ ¹µ¥¸¡Ù…±Õ”¹Ámİ¥¹¹•Ét¹µ…á5…¹„±Ù…±Õ”¹Ámİ¥¹¹•Ét¹µ…¹„¬Ä¤í¥˜¡±•…‘•È¥í±•…‘•È¹µ…á!Àõ9Õµ‰•È¡±•…‘•È¹µ…á!Áññ±•…‘•È¹¡À¤¬Äí±•…‘•È¹¡À¬­õ¥˜¡İ¥¹¹•ÈôôôÀ˜™¹½‘•Ì¹¡…Ì É½Ù”œ¤¥µ”¹¡Àõ5…Ñ ¹µ¥¸¡µ”¹µ…á!À±µ”¹¡À¬Ä¥ô(€™½È¡±•ĞÍ¥‘”ôÀíÍ¥‘”ğÈíÍ¥‘”¬¬¥ì(€€€½¹ÍĞ½¹ÑÉ½±ÌõlÀ°Ä°Ét¹•Ù•Éä¡¥¹‘•àôø¡Ù…±Õ”¹ÁmÍ¥‘•t¹±…¹•Ím¥¹‘•áuññmt¤¹±•¹Ñ øÀ˜˜¡Ù…±Õ”¹ÁlÄµÍ¥‘•t¹±…¹•Ím¥¹‘•áuññmt¤¹±•¹Ñ ôôôÀ¤ì(€€€Ù…±Õ”¹…É…¹…½µ¥¹…Ñ¥½¹mÍ¥‘•tõ½¹ÑÉ½±Ìı9Õµ‰•È¡Ù…±Õ”¹…É…¹…½µ¥¹…Ñ¥½¹mÍ¥‘•uñğÀ¤¬ÄèÀì(€€€½¹ÍĞ¹••‘•õÍ¥‘”ôôôÀ˜™l¸¸¹¹½‘•Ít¹Í½µ”¡¥ôùl½…Ñ œ°…‰Í½±ÕÑ”œ°Á½ÉÑ…°t¹¥¹±Õ‘•Ì¡¥¤¤üÈèÌì(€€€¥˜¡Ù…±Õ”¹…É…¹…½µ¥¹…Ñ¥½¹mÍ¥‘•tøõ¹••‘•¥íÙ…±Õ”¹½Ù•ÈõÑÉÕ”íÙ…±Õ”¹İ¥¹¹•ÈõÍ¥‘”í¹½Ñ¥™ä¡Y¥ÓÍÉ¥„Á½È½·µ¹¥¼è€‘í¹••‘•‘ôÉ½‘…‘…Ì½¹ÑÉ½±…¹‘¼…ÌÑË©ÌÉ½Ñ…Ì…€°½¬œ¥ô(€ô(€…Á¤ ¤ü¹É•™É•Í ü¸ ¤ì)ô()™Õ¹Ñ¥½¸ÕÁ‘…Ñ•	…ÑÑ±•Q½½±Ì ¥ì(€¥¹ÍÑ…±±	…ÑÑ±•U¤ ¤í½¹ÍĞÑ½½±Ìõ‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% …ÉŒÄÀÁ	…ÑÑ±•Q½½±Ìœ¤±Ù…±Õ”õ…µ” ¤±…Ñ¥Ù”õ‰…ÑÑ±•Ñ¥Ù” ¤í¥˜ …Ñ½½±Ì¥É•ÑÕÉ¸ì(€Ñ½½±Ì¹±…ÍÍ1¥ÍĞ¹Ñ½±” …Ñ¥Ù”œ±…Ñ¥Ù”¤í‘½Õµ•¹Ğ¹ÅÕ•ÉåM•±•Ñ½È œ¹…µ•½½Ñ•Èœ¤ü¹±…ÍÍ1¥ÍĞ¹Ñ½±” …ÉŒÄÀÁ!…¹‘I•…‘äœ±…Ñ¥Ù”¤í½¹ÍĞ…¹U¹‘¼õ…Ñ¥Ù”˜™¥Í=™™±¥¹•…µ”¡Ù…±Õ”¤˜™Ù…±Õ”¹ÕÈôôôÀ˜™Õ¹‘½MÑ…¬¹±•¹Ñ øÀíÑ½½±Ì¹ÅÕ•ÉåM•±•Ñ½È œ…ÉŒÄÀÁU¹‘¼œ¤¹‘¥Í…‰±•ô……¹U¹‘¼íÕÁ‘…Ñ•!…¹‘9…Ù¥…Ñ¥½¸ ¤ì)ô()™Õ¹Ñ¥½¸Á½±±…µ” ¥ì(€½¹ÍĞÙ…±Õ”õ…µ” ¤íÕÁ‘…Ñ•	…ÑÑ±•Q½½±Ì ¤ì(€¥˜ …Ù…±Õ•ñğ…Ù…±Õ”¹¥¥í±…ÍÑMÑ…Ñ”õ¹Õ±°í±…ÍÑI•Ù¥Í¥½¸ô´ÄíÉ•ÑÕÉ¹ô(€¥˜¡Ù…±Õ”¹¥„ôõ±…ÍÑ5…Ñ¡%¥í±…ÍÑ5…Ñ¡%õÙ…±Õ”¹¥íµ…Ñ¡MÑ…ÉÑ•‘Ğõ…Ñ”¹¹½Ü ¤íÉ•Á±…åÉ…µ•ÌõmtíÕ¹‘½MÑ…¬õmtí±…ÍÑMÑ…Ñ”õ±½¹”¡Ù…±Õ”¤í±…ÍÑI•Ù¥Í¥½¸õÙ…±Õ”¹É•Øí½¹ÍĞ™¥ÉÍĞõ½µÁ…ÑÉ…µ”¡Ù…±Õ”°A…ÉÑ¥‘„¥¹¥¥…‘„œ¤í¥˜¡™¥ÉÍĞ¥É•Á±…åÉ…µ•Ì¹ÁÕÍ ¡™¥ÉÍĞ¥ô(€…ÁÁ±å5…ÍÑ•Éå¹‘I½ÕÑ•Ì¡Ù…±Õ”¤ì(€¥˜¡Ù…±Õ”¹É•Øôôõ±…ÍÑI•Ù¥Í¥½¸¥É•ÑÕÉ¸ì(€½¹ÍĞ±…‰•°õ¥¹™•ÉÑ¥½¸¡±…ÍÑMÑ…Ñ”±Ù…±Õ”¤±™É…µ”õ½µÁ…ÑÉ…µ”¡Ù…±Õ”±±…‰•°¤í¥˜¡™É…µ”¥É•Á±…åÉ…µ•Ì¹ÁÕÍ ¡™É…µ”¤íÉ•Á±…åÉ…µ•ÌõÉ•Á±…åÉ…µ•Ì¹Í±¥” ´àÀ¤í•™™•ÑÌ¡±…ÍÑMÑ…Ñ”±Ù…±Õ”¤í±…ÍÑMÑ…Ñ”õ±½¹”¡Ù…±Õ”¤í±…ÍÑI•Ù¥Í¥½¸õÙ…±Õ”¹É•Øì)ô()™Õ¹Ñ¥½¸•™™•ÑÌ¡‰•™½É”±…™Ñ•È¥ì(€¥˜ …‰•™½É•ñğ……™Ñ•È¥É•ÑÕÉ¸ì(€½¹ÍĞ½±‘5”õ‰•™½É”¹Àü¹lÁtü¹¡À±¹•İ5”õ…™Ñ•È¹Àü¹lÁtü¹¡À±½±‘=Àõ‰•™½É”¹Àü¹lÅtü¹¡À±¹•İ=Àõ…™Ñ•È¹Àü¹lÅtü¹¡Àì(€¥˜¡½±‘5”„ôõ¹•İ5”¥™±½…Ñ9Õµ‰•È¡‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% µ•Ù…Ñ…Èœ¤±¹•İ5”µ½±‘5”¤ì(€¥˜¡½±‘=À„ôõ¹•İ=À¥™±½…Ñ9Õµ‰•È¡‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% •¹•µåÙ…Ñ…Èœ¤±¹•İ=Àµ½±‘=À¤ì)ô()™Õ¹Ñ¥½¸™±½…Ñ9Õµ‰•È¡…¹¡½È±…µ½Õ¹Ğ¥ì(€¥˜ ……¹¡½Éñğ……µ½Õ¹Ğ¥É•ÑÕÉ¸í½¹ÍĞ‰½àõ…¹¡½È¹•Ñ	½Õ¹‘¥¹±¥•¹ÑI•Ğ ¤±¹½‘”õ‘½Õµ•¹Ğ¹É•…Ñ•±•µ•¹Ğ ÍÁ…¸œ¤í¹½‘”¹±…ÍÍ9…µ”õ…ÉŒÄÀÁ±½…Ğ€‘í…µ½Õ¹ĞøÀü¡•…°œè‘…µ…”õ€í¹½‘”¹Ñ•áÑ½¹Ñ•¹Ğõ…µ½Õ¹ĞøÀı€¬‘í…µ½Õ¹Ñõ€éMÑÉ¥¹œ¡…µ½Õ¹Ğ¤í¹½‘”¹ÍÑå±”¹±•™Ğõ€‘í‰½à¹±•™Ğ­‰½à¹İ¥‘Ñ ¼ÉõÁá€í¹½‘”¹ÍÑå±”¹Ñ½Àõ€‘í‰½à¹Ñ½ÁõÁá€í‘½Õµ•¹Ğ¹‰½‘ä¹…ÁÁ•¹‘¡¥±¡¹½‘”¤íÍ•ÑQ¥µ•½ÕĞ  ¤ôù¹½‘”¹É•µ½Ù” ¤°äÔÀ¤ì)ô()™Õ¹Ñ¥½¸É•İ…É‘…É¡‘•Ñ…¥°¥ì(€½¹ÍĞ…Ñ…±½œô¡…Á¤ ¤ü¹…É‘Íññmt¤¹™¥±Ñ•È¡…Éôù±½‰…±Q¡¥Ì¹É…¹…Ù½±ÕÑ¥½¸ü¹…±±½İ•‘½É±…ÍÌü¸¡…É±‘•Ñ…¥°¹±…ÍÍ%‘ññ…Ñ¥Ù•±…ÍÌ ¤¤¤í¥˜ ……Ñ…±½œ¹±•¹Ñ ¥É•ÑÕÉ¸ì(€½¹ÍĞÍ•É•Ñ¡…¹”õ5…Ñ ¹É…¹‘½´ ¤ğ¸ÀÀÈÔ±•±¥¥‰±”õ…Ñ…±½œ¹™¥±Ñ•È¡…ÉôùÍ•É•Ñ¡…¹”ı…É¹Í•É•Ğè……É¹Í•É•Ğ¤í¥˜ …•±¥¥‰±”¹±•¹Ñ ¥É•ÑÕÉ¸ì(€½¹ÍĞ…Éõ•±¥¥‰±•m5…Ñ ¹™±½½È¡5…Ñ ¹É…¹‘½´ ¤©•±¥¥‰±”¹±•¹Ñ ¥t±¹•áĞõÁÉ½™¥±” ¤í¹•áĞ¹…É‘½Á¥•Ìõì¸¸¸¡¹•áĞ¹…É‘½Á¥•Íññíô¥ôí¹•áĞ¹…É‘½Á¥•Ím…É¹¹…µ•tõ9Õµ‰•È¡¹•áĞ¹…É‘½Á¥•Ím…É¹¹…µ•uñğÀ¤¬Äí¥˜ …¹•áĞ¹‘¥Í½Ù•É•ü¹¥¹±Õ‘•Ì¡…É¹¹…µ”¤¥¹•áĞ¹‘¥Í½Ù•É•õl¸¸¸¡¹•áĞ¹‘¥Í½Ù•É•‘ññmt¤±…É¹¹…µ•tíÍ…Ù•AÉ½™¥±”¡¹•áĞ¤í¹½Ñ¥™ä¡Í•É•Ñ¡…¹”ıƒŠr˜MI<IY1<è€‘í…É¹¹…µ•õ€éI•½µÁ•¹Í„‘„Á…ÉÑ¥‘„è€‘í…É¹¹…µ•õ€°½¬œ¤ì)ô()™Õ¹Ñ¥½¸½¹5…Ñ ¡•Ù•¹Ğ¥ì(€½¹ÍĞ‘•Ñ…¥°õ•Ù•¹Ğ¹‘•Ñ…¥±ññíô±Ù…±Õ”õ…µ” ¤±¹½Üõ…Ñ”¹¹½Ü ¤±™¥¹•ÉÁÉ¥¹ĞõÙ…±Õ”ü¹¥‘ññ€‘í‘•Ñ…¥°¹µ½‘•ñğÍ½±¼ôè‘ì„…‘•Ñ…¥°¹İ¥¹ôè‘ì„…‘•Ñ…¥°¹ÍÕÉÉ•¹‘•É•‘õ€ì(€¥˜¡™¥¹•ÉÁÉ¥¹Ğôôõ±…ÍÑAÉ½•ÍÍ•‘5…Ñ ˜™¹½Üµ±…ÍÑAÉ½•ÍÍ•‘ĞğĞÀÀÀ¥É•ÑÕÉ¸í±…ÍÑAÉ½•ÍÍ•‘5…Ñ õ™¥¹•ÉÁÉ¥¹Ğí±…ÍÑAÉ½•ÍÍ•‘Ğõ¹½Üì(€½¹ÍĞ™É…µ”õ½µÁ…ÑÉ…µ”¡Ù…±Õ”±‘•Ñ…¥°¹ÍÕÉÉ•¹‘•É•ü•Í¥ÍÓ©¹¥„œèA…ÉÑ¥‘„•¹•ÉÉ…‘„œ¤í¥˜¡™É…µ”¥É•Á±…åÉ…µ•Ì¹ÁÕÍ ¡™É…µ”¤ì(€½¹ÍĞ¥Ñ•´õí¥éÙ…±Õ”ü¹¥‘ññ€‘í…Ñ”¹¹½Ü ¥õ€±µ½‘”éÙ…±Õ”ü¹µ½‘•ññ‘•Ñ…¥°¹µ½‘•ñğÍ½±¼œ±µ½‘•9…µ”é…Á¤ ¤ü¹µ½‘•Ìü¹mÙ…±Õ”ü¹µ½‘•ññ‘•Ñ…¥°¹µ½‘•tü¹¹…µ•ñğ	…Ñ…±¡„œ±İ¥¸è„…‘•Ñ…¥°¹İ¥¸±É½Õ¹‘Ìé9Õµ‰•È¡Ù…±Õ”ü¹É½Õ¹‘ñğÄ¤±‘ÕÉ…Ñ¥½¸é…Ñ”¹¹½Ü ¤µµ…Ñ¡MÑ…ÉÑ•‘Ğ±•¹‘•‘Ğé…Ñ”¹¹½Ü ¤±…Ñ¥½¹ÌéÉ•Á±…åÉ…µ•Íôì(€½¹ÍĞ¥Ñ•µÌõ±½…‘I•Á±…åÌ ¤¹™¥±Ñ•È¡É•Á±…äôùÉ•Á±…ä¹¥„ôõ¥Ñ•´¹¥¤í¥Ñ•µÌ¹Õ¹Í¡¥™Ğ¡¥Ñ•´¤íÍ…Ù•I•Á±…åÌ¡¥Ñ•µÌ¤íÉ•İ…É‘…É¡‘•Ñ…¥°¤ì(€½¹ÍĞ¹•áĞõÁÉ½™¥±” ¤í¹•áĞ¹…¡¥•Ù•µ•¹ÑÍXÈõì¸¸¸¡¹•áĞ¹…¡¥•Ù•µ•¹ÑÍXÉññíô¥ôí¥˜¡‘•Ñ…¥°¹İ¥¸˜™Ù…±Õ”ü¹Àü¹lÁtü¹¡ÀôôõÙ…±Õ”ü¹Àü¹lÁtü¹µ…á!À¥¹•áĞ¹…¡¥•Ù•µ•¹ÑÍXÈ¹™±…İ±•ÍÌõ…Ñ”¹¹½Ü ¤í¥˜¡‘•Ñ…¥°¹İ¥¸˜™Ù…±Õ”ü¹Àü¹lÁtü¹¡ÀôôôÄ¥¹•áĞ¹…¡¥•Ù•µ•¹ÑÍXÈ¹±…ÍÑ	É•…Ñ õ…Ñ”¹¹½Ü ¤íÍ…Ù•AÉ½™¥±”¡¹•áĞ¤ì)ô()™Õ¹Ñ¥½¸¥¹ÍÑ…±° ¥ì(€¥˜¡¥¹ÍÑ…±±•¥É•ÑÕÉ¸í¥¹ÍÑ…±±•õÑÉÕ”íµ¥É…Ñ•AÉ½™¥±” ¤í¥¹ÍÑ…±±	…ÑÑ±•U¤ ¤í¥¹ÍÑ…±±Ñ¥½¹…ÁÑÕÉ” ¤íİ¥¹‘½Ü¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È …É…¹„éµ…Ñ œ±½¹5…Ñ ¤íİ¥¹‘½Ü¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È …É…¹„éÁÉ½™¥±”œ±µ¥É…Ñ•AÉ½™¥±”¤íÍ•Ñ%¹Ñ•ÉÙ…°¡Á½±±…µ”°ÈÈÀ¤í‘½Õµ•¹Ğ¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ­•å‘½İ¸œ±•Ù•¹Ğôùí¥˜¡•Ù•¹Ğ¹­•äôôôÍ…Á”œ¥í‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% …É…¹…=¹•!Õˆœ¤ü¹±…ÍÍ1¥ÍĞ¹…‘ ¡¥‘‘•¸œ¤í‘½Õµ•¹Ğ¹•Ñ±•µ•¹Ñ	å% …ÉŒÄÀÁ	…ÑÑ±•A…¹•°œ¤ü¹±…ÍÍ1¥ÍĞ¹…‘ ¡¥‘‘•¸œ¥õô¤ì)ô()‘½Õµ•¹Ğ¹É•…‘åMÑ…Ñ”ôôô±½…‘¥¹œœı‘½Õµ•¹Ğ¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È =5½¹Ñ•¹Ñ1½…‘•œ±¥¹ÍÑ…±°±í½¹”éÑÉÕ•ô¤é¥¹ÍÑ…±° ¤ì)±½‰…±Q¡¥Ì¹É…¹…=¹”õíÙ•ÉÍ¥½¸éYIM%=8±½Á•¸±µ¥É…Ñ”éµ¥É…Ñ•AÉ½™¥±”±É•Á±…åÌé±½…‘I•Á±…åÌ±•Ù•¹Ğé•Ù•¹Ñ=™]••¬±½İ¹•‘ôì)ô¤ ¤ì(

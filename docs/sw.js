@@ -1,4 +1,4 @@
-const CACHE='arcana-web-release-v100-1';
+const CACHE='arcana-web-release-v101-1';
 const ASSETS=['./','./index.html','./play-072.html','./mfa-connect.html','./mfa-connect.js','./styles.css','./modes.css','./ui-fixes.css','./desktop.css','./app.min.js','./armory-expansion.js','./card-remake-092.js','./secret-cards.js','./rarity-signals.js','./rarity-signals.css','./party.min.js','./inspector.min.js','./web.min.js','./strategy-pack.js','./strategy-pack.css','./account-online.js','./account-online.css','./account-mfa.css','./account-admin.css','./arcane-market.js','./arcane-market.css','./evolution-pack.js','./evolution-pack.css','./lobby.js','./lobby.css','./world-map-093.css','./combat-reborn-094.js','./combat-reborn-094.css','./arcana-100.js','./arcana-100.css','./admin-live.js','./admin-live.css','./social-100.js','./social-100.css','./vendor/peerjs.min.js','./vendor/qrcode-generator.mjs'];
 const ASSET_PATHS=new Set(ASSETS.map(asset=>new URL(asset,self.registration.scope).pathname));
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));

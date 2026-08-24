@@ -1,5 +1,5 @@
 (()=>{
-const MARKET_VERSION='1.0.0';
+const MARKET_VERSION='1.0.1';
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const DEFAULT_OWNED=['theme_arcana','frame_arcana','sigil_star'];
 const ITEMS=[

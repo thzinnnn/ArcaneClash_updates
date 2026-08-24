@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.0.0';
+const VERSION='1.0.1';
 const MODE_KEY='arcana_lobby_mode_v1';
 let root=null;
 let currentUser=null;

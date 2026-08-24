@@ -1,6 +1,6 @@
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const PROFILE_KEY='arcana_profile_v2';
-const PACK_VERSION='1.0.0';
+const PACK_VERSION='1.0.1';
 const SEASON_DAYS=30;
 const SEASON_EPOCH=new Date('2026-08-01T00:00:00Z').getTime();
 const DAY=86400000;

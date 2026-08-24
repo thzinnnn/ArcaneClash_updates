@@ -1,18 +1,13 @@
 {
-  "publishedAt": "2026-08-24T03:00:00-03:00",
+  "publishedAt": "2026-08-24T15:00:00-03:00",
   "source": "ArcanaClash Web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "channel": "web",
-  "title": "Convergencia",
+  "title": "Mao Navegavel",
   "notes": [
-    "Roadmap planejado desde o Mapa da Ascensao consolidado na versao 1.0",
-    "Colecao por copias, crafting, desmontagem, favoritos e decks de classe",
-    "Arvores de Maestria para as oito classes e progressao PvE permanente",
-    "Reserva conhecida, objetivos de rota e vitoria alternativa por Dominio",
-    "Desfazer antes do fim do turno, confirmacoes perigosas e historico de acoes",
-    "Historico de partidas e replays locais turno a turno",
-    "Amigos reais por ID Arcana, presenca e desafios online",
-    "Painel ADM com jogadores online, IDs, espectador, banimentos, eventos e auditoria",
-    "Migracao automatica preservando conta, cloud save, decks e progresso"
+    "Controles da partida separados da area das cartas",
+    "Mao com largura completa, setas e contador de cartas visiveis",
+    "Rolagem por mouse, touchpad e gesto horizontal no celular",
+    "Todas as cartas continuam acessiveis mesmo com uma mao muito grande"
   ]
 }

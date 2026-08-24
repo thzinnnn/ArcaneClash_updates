@@ -1,5 +1,5 @@
 (()=>{
-const EVOLUTION_VERSION='1.0.0';
+const EVOLUTION_VERSION='1.0.1';
 const PROFILE_KEY='arcana_profile_v2';
 const FORGE_GUIDE_KEY='arcana_forge_guide_seen_v2';
 const DECK_SIZE=30;
