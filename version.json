@@ -1,19 +1,19 @@
 {
-  "version": "1.0.1",
-  "build": 1001,
+  "version": "1.0.2",
+  "build": 1002,
   "channel": "web",
   "minSupported": "1.0.0",
   "required": true,
-  "title": "ArcanaClash Web 1.0.1 - Mao Navegavel",
+  "title": "ArcanaClash Web 1.0.2 - Carregamento Restaurado",
   "notes": [
-    "Controles da partida agora ficam fora da area das cartas",
-    "Setas, contador e rolagem permitem acessar qualquer quantidade de cartas",
-    "Compatibilidade com mouse, touchpad, gesto no celular e modo paisagem"
+    "Lobby e motor do jogo voltaram a iniciar corretamente",
+    "Arquivos principais republicados sem corrupcao",
+    "A mao navegavel e os controles separados foram preservados"
   ],
-  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-101",
-  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-101",
+  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-102",
+  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-102",
   "android": {
-    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-101",
+    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-102",
     "playUrl": ""
   },
   "ios": {

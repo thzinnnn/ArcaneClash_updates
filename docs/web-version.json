@@ -1,13 +1,12 @@
 {
   "publishedAt": "2026-08-24T15:00:00-03:00",
   "source": "ArcanaClash Web",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "channel": "web",
-  "title": "Mao Navegavel",
+  "title": "Carregamento Restaurado",
   "notes": [
-    "Controles da partida separados da area das cartas",
-    "Mao com largura completa, setas e contador de cartas visiveis",
-    "Rolagem por mouse, touchpad e gesto horizontal no celular",
-    "Todas as cartas continuam acessiveis mesmo com uma mao muito grande"
+    "Lobby e motor restaurados no site publico",
+    "Arquivos principais republicados sem corrupcao",
+    "Mao navegavel e controles separados preservados"
   ]
 }

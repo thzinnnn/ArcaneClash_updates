@@ -1,4 +1,4 @@
-const LOBBY_VERSION='1.0.1';
+const LOBBY_VERSION='1.0.2';
 const PROFILE_KEY='arcana_profile_v2';
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const SETTINGS_KEY='arcana_lobby_settings_v1';
@@ -34,6 +34,7 @@ const DOCTRINES={
 };
 const DEFAULT_SETTINGS={sound:true,volume:32,vibration:true,reducedMotion:false,performance:false,largeUi:false,highContrast:false,compactCards:false,confirmTurn:false};
 const UPDATE_HISTORY=[
+  {version:'1.0.2',date:'24 AGO 2026',title:'Carregamento Restaurado',tag:'CORREÃ‡ÃƒO',tone:'#63e7ff',notes:['O lobby e o motor voltaram a iniciar corretamente no site pÃºblico.','Os arquivos principais foram republicados integralmente e validados no navegador.','A mÃ£o navegÃ¡vel, os controles separados e todas as melhorias da 1.0.1 foram preservados.']},
   {version:'1.0.1',date:'24 AGO 2026',title:'MÃ£o NavegÃ¡vel',tag:'CORREÃ‡ÃƒO',tone:'#78e69b',notes:['Desfazer, AÃ§Ãµes e Reserva ganharam uma faixa prÃ³pria e nÃ£o cobrem mais nomes, habilidades ou atributos das cartas.','A mÃ£o agora ocupa toda a largura disponÃ­vel e mantÃ©m qualquer quantidade de cartas dentro de uma Ã¡rea navegÃ¡vel.','Setas Anterior e PrÃ³xima percorrem a mÃ£o em blocos, com contador das cartas atualmente visÃ­veis.','Rolagem pelo mouse, touchpad e gesto horizontal no celular permitem alcanÃ§ar e jogar todas as cartas.','A barra de rolagem recebeu sinalizaÃ§Ã£o discreta e os controles continuam legÃ­veis em telas pequenas e no modo paisagem.']},
   {version:'1.0.0',date:'24 AGO 2026',title:'ConvergÃªncia',tag:'MARCO',tone:'#63e7ff',notes:['As atualizaÃ§Ãµes planejadas desde o Mapa da AscensÃ£o foram consolidadas em um Ãºnico lanÃ§amento real.','ColeÃ§Ã£o por cÃ³pias, crafting, desmontagem, favoritos e Forja de Deck agora formam o mesmo sistema.','Ãrvore de Maestria para as oito classes, eventos rotativos, conquistas avanÃ§adas e recompensas de partida.','Reserva conhecida, objetivos de rota, vitÃ³ria por DomÃ­nio, desfazer antes de encerrar, confirmaÃ§Ãµes perigosas e histÃ³rico de aÃ§Ãµes.','HistÃ³rico de partidas e replays locais turno a turno, sem revelar a mÃ£o privada para espectadores.','Painel ADM com presenÃ§a online, IDs, espectador seguro, banimentos, economia e auditoria protegidos por MFA.','MigraÃ§Ã£o automÃ¡tica preserva Conta Arcana, cloud save, decks, progresso, cosmÃ©ticos e configuraÃ§Ãµes antigas.']},
   {version:'0.9.4',date:'22 AGO 2026',title:'Combate Renascido',tag:'MARCO',tone:'#8fd8ff',notes:['As trÃªs rotas deixaram de ser painÃ©is iguais e agora formam campos de batalha integrados ao cenÃ¡rio.','Cada um dos nove destinos possui atmosfera, terreno, iluminaÃ§Ã£o, marcos e nomes de rota prÃ³prios.','PosiÃ§Ãµes vazias, rotas disponÃ­veis e alvos vÃ¡lidos receberam sinalizaÃ§Ã£o mais clara.','Criaturas ganharam entrada, impacto, profundidade e presenÃ§a visual no terreno.','Os campos foram reconstruÃ­dos para manter leitura e desempenho no PC e no celular.','A partida agora possui botÃ£o Sair com confirmaÃ§Ã£o; desistir conta como derrota e devolve o jogador ao lobby.']},
@@ -159,10 +160,319 @@ function lobbyMarkup(){
   const friends=p.social?.friends?.length||0,collection=p.discovered?.length||0;
   const activeDeck=p.classDecks?.[activeClassId],deckCount=activeDeck?.cards?.length||30;
   const catalog=globalThis.__ARCANA?.cards||[],classPool=catalog.filter(card=>globalThis.ArcanaEvolution?.allowedForClass?.(card,activeClassId)).length;
-  const accountState=identityçİµ¶‰ËkºwµçUÑÑ½¸ˆù	I%H=1<ğ½‰ÕÑÑ½¸øğ½‘¥Øù€¤ì(€½¹ÍĞ•ÅÕ¥Àô¡±…ÍÍ%±‘½ÑÉ¥¹”¤ôùí½¹ÍĞ¹•áĞõÁÉ½™¥±” ¤í¹•áĞ¹±…ÍÍ%õ±…ÍÍ%íÍ…Ù•AÉ½™¥±”¡¹•áĞ¤í½¹ÍĞÍÑ…Ñ”õÍÑÉ…Ñ•ä ¤íÍÑ…Ñ”¹‘½ÑÉ¥¹”õ‘½ÑÉ¥¹”íÍ…Ù•MÑÉ…Ñ•ä¡ÍÑ…Ñ”¤íÑ½…ÍĞ 1½…‘½ÕĞ•ÅÕ¥Á…‘¼Á…É„„ÁËÍá¥µ„Á…ÉÑ¥‘„¸œ¥ôì(€‰å% …ÉÁÁ±åÕÉÉ•¹Ğœ¤¹½¹±¥¬ô ¤ôùí•ÅÕ¥À¡‰å% …ÉÕÉÉ•¹Ñ±…ÍÌœ¤¹Ù…±Õ”±‰å% …ÉÕÉÉ•¹Ñ½ÑÉ¥¹”œ¤¹Ù…±Õ”¤íÉ•¹‘•É•­Ì ¥ôì(€‰å% …É=Á•¹½±±•Ñ¥½¸œ¤¹½¹±¥¬ô ¤ôùí±½Í•5½‘…° ¤í½É•AÉ½™¥±•	ÕÑÑ½¸ ½±±•Ñ¥½¸œ¥ôì(€µ½‘…°¹ÅÕ•ÉåM•±•Ñ½É±° m‘…Ñ„µÍ…Ù”µ±½…‘½ÕÑtœ¤¹™½É… ¡‰ÕÑÑ½¸ôù‰ÕÑÑ½¸¹½¹±¥¬ô ¤ôùí½¹ÍĞ¹•áĞõÁÉ½™¥±” ¤±‘…Ñ„õ¹½Éµ…±¥é•1½…‘½ÕÑÌ¡¹•áĞ¤¹Í…Ù•±¥¹‘•àõ9Õµ‰•È¡‰ÕÑÑ½¸¹‘…Ñ…Í•Ğ¹Í…Ù•1½…‘½ÕĞ¤í‘…Ñ…m¥¹‘•átõí¹…µ”é1½…‘½ÕĞ€‘í¥¹‘•à¬Åõ€±±…ÍÍ%é¹•áĞ¹±…ÍÍ%‘ñğÙ…¹Õ…Éœ±‘½ÑÉ¥¹”éÍÑÉ…Ñ•ä ¤¹‘½ÑÉ¥¹•ñğ‰…±…¹•ôí¹•áĞ¹±½…‘½ÕÑÌõ‘…Ñ„íÍ…Ù•AÉ½™¥±”¡¹•áĞ¤íÉ•¹‘•É•­Ì ¥ô¤ì(€µ½‘…°¹ÅÕ•ÉåM•±•Ñ½É±° m‘…Ñ„µ•ÅÕ¥Àµ±½…‘½ÕÑtœ¤¹™½É… ¡‰ÕÑÑ½¸ôù‰ÕÑÑ½¸¹½¹±¥¬ô ¤ôùí½¹ÍĞ¥Ñ•´õÍ…Ù•‘m9Õµ‰•È¡‰ÕÑÑ½¸¹‘…Ñ…Í•Ğ¹•ÅÕ¥Á1½…‘½ÕĞ¥tí¥˜¡¥Ñ•´¥•ÅÕ¥À¡¥Ñ•´¹±…ÍÍ%±¥Ñ•´¹‘½ÑÉ¥¹”¤íÉ•¹‘•É•­Ì ¥ô¤ì(€µ½‘…°¹ÅÕ•ÉåM•±•Ñ½É±° m‘…Ñ„µ‘•±•Ñ”µ±½…‘½ÕÑtœ¤¹™½É… ¡‰ÕÑÑ½¸ôù‰ÕÑÑ½¸¹½¹±¥¬ô ¤ôùí½¹ÍĞ¹•áĞõÁÉ½™¥±” ¤±‘…Ñ„õ¹½Éµ…±¥é•1½…‘½ÕÑÌ¡¹•áĞ¤¹Í…Ù•í‘…Ñ…m9Õµ‰•È¡‰ÕÑÑ½¸¹‘…Ñ…Í•Ğ¹‘•±•Ñ•1½…‘½ÕĞ¥tõ¹Õ±°í¹•áĞ¹±½…‘½ÕÑÌõ‘…Ñ„íÍ…Ù•AÉ½™¥±”¡¹•áĞ¤íÉ•¹‘•É•­Ì ¥ô¤ì(€µ½‘…°¹ÅÕ•ÉåM•±•Ñ½É±° m‘…Ñ„µ±½…‘½ÕĞµ¹…µ•tœ¤¹™½É… ¡¥¹ÁÕĞôù¥¹ÁÕĞ¹½¹¡…¹”ô ¤ôùí½¹ÍĞ¹•áĞõÁÉ½™¥±” ¤±‘…Ñ„õ¹½Éµ…±¥é•1½…‘½ÕÑÌ¡¹•áĞ¤¹Í…Ù•±¥¹‘•àõ9Õµ‰•È¡¥¹ÁÕĞ¹‘…Ñ…Í•Ğ¹±½…‘½ÕÑ9…µ”¤í¥˜¡‘…Ñ…m¥¹‘•át¥‘…Ñ…m¥¹‘•át¹¹…µ”õ¥¹ÁÕĞ¹Ù…±Õ”¹ÑÉ¥´ ¥ññ1½…‘½ÕĞ€‘í¥¹‘•à¬Åõ€í¹•áĞ¹±½…‘½ÕÑÌõ‘…Ñ„íÍ…Ù•AÉ½™¥±”¡¹•áĞ¥ô¤ì)ô()™Õ¹Ñ¥½¸É•¹‘•ÉM•ÑÑ¥¹Ì ¥ì(€½¹ÍĞÙ…±Õ”õÍ•ÑÑ¥¹Ì ¤ì(€½¹ÍĞÑ½±”ô¡­•ä±±…‰•°±¡•±À¤ôù€ñ±…‰•°±…ÍÌô‰…ÉM•ÑÑ¥¹œˆøñ‘¥Øøñˆø‘í±…‰•±ôğ½ˆøñÍµ…±°ø‘í¡•±Áôğ½Íµ…±°øğ½‘¥Øøñ¥¹ÁÕĞÑåÁ”ô‰¡•­‰½àˆ‘…Ñ„µÍ•ÑÑ¥¹œôˆ‘í­•åôˆ€‘íÙ…±Õ•m­•åtü¡•­•œèœôøğ½±…‰•°ù€ì(€½¹ÍĞµ½‘…°õµ½‘…±M¡•±° ½¹™¥ÕÉ‡ŸÕ•Ìœ°%9QI°M=4€˜MM%	%1%œ±€ñ‘¥Ø±…ÍÌô‰…ÉM•ÑÑ¥¹1¥ÍĞˆøñ±…‰•°±…ÍÌô‰…ÉM•ÑÑ¥¹œˆøñ‘¥ØøñˆùY½±Õµ”‘„¥¹Ñ•É™…”ğ½ˆøñÍµ…±°ù••‘‰…¬Í½¹½É¼‘½Ì‰½ÓÕ•Ì‘¼±½‰‰ä¸ğ½Íµ…±°øğ½‘¥Øøñ¥¹ÁÕĞÑåÁ”ô‰É…¹”ˆµ¥¸ôˆÀˆµ…àôˆÄÀÀˆÙ…±Õ”ôˆ‘íÙ…±Õ”¹Ù½±Õµ•ôˆ‘…Ñ„µÍ•ÑÑ¥¹œµÉ…¹”ô‰Ù½±Õµ”ˆøğ½±…‰•°ø‘íÑ½±” Í½Õ¹œ°™•¥Ñ½ÌÍ½¹½É½Ìœ°Ñ¥Ù„¼Í½´‘”½¹™¥Éµ‡Ÿ¼‘½Ì½¹ÑÉ½±•Ì¸œ¥ô‘íÑ½±” Ù¥‰É…Ñ¥½¸œ°Y¥‰É‡Ÿ¼œ°••‘‰…¬Ó…Ñ¥°•´…Á…É•±¡½Ì½µÁ…ÓµÙ•¥Ì¸œ¥ô‘íÑ½±” ½¹™¥ÉµQÕÉ¸œ°½¹™¥Éµ…È™¥´‘¼ÑÕÉ¹¼œ°Ù¥Ñ„•¹•ÉÉ…È¼ÑÕÉ¹¼Á½ÈÑ½ÅÕ”…¥‘•¹Ñ…°¸œ¥ô‘íÑ½±” ½µÁ…Ñ…É‘Ìœ°…ÉÑ…Ì½µÁ…Ñ…Ìœ°5½ÍÑÉ„µ…¥Ì…ÉÑ…Ì¹„·¼‘ÕÉ…¹Ñ”„‰…Ñ…±¡„¸œ¥ô‘íÑ½±” ±…É•U¤œ°%¹Ñ•É™…”…µÁ±¥…‘„œ°Õµ•¹Ñ„Ñ•áÑ½Ì”ƒ…É•…Ì‘”¥¹Ñ•É‡Ÿ¼¸œ¥ô‘íÑ½±” ¡¥¡½¹ÑÉ…ÍĞœ°±Ñ¼½¹ÑÉ…ÍÑ”œ°I•™½Ë„‰½É‘…Ì”±•¥‰¥±¥‘…‘”¸œ¥ô‘íÑ½±” É•‘Õ•‘5½Ñ¥½¸œ°I•‘Õé¥Èµ½Ù¥µ•¹Ñ¼œ°I•µ½Ù”ÑÉ…¹Í§ŸÕ•Ì”…¹¥µ‡ŸÕ•Ì»¼•ÍÍ•¹¥…¥Ì¸œ¥ô‘íÑ½±” Á•É™½Éµ…¹”œ°5½‘¼‘•Í•µÁ•¹¡¼œ°M¥µÁ±¥™¥„‰É¥±¡½Ì°Í½µ‰É…Ì”‘•Í™½ÅÕ•Ì¸œ¥ôğ½‘¥Øøñ‘¥Ø±…ÍÌô‰…ÉM•ÑÑ¥¹ÍÑ¥½¹Ìˆøñ‰ÕÑÑ½¸¥ô‰…ÉÕ±±ÍÉ••¸ˆ±…ÍÌô‰…É5½‘…±	ÕÑÑ½¸ÁÉ¥µ…ÉäˆùQ1!%ğ½‰ÕÑÑ½¸øñ‰ÕÑÑ½¸¥ô‰…ÉI•Í•ÑM•ÑÑ¥¹Ìˆ±…ÍÌô‰…É5½‘…±	ÕÑÑ½¸ˆùIMQUIHAKULğ½‰ÕÑÑ½¸øğ½‘¥Øù€¤ì(€µ½‘…°¹ÅÕ•ÉåM•±•Ñ½É±° m‘…Ñ„µÍ•ÑÑ¥¹tœ¤¹™½É… ¡¥¹ÁÕĞôù¥¹ÁÕĞ¹½¹¡…¹”ô ¤ôùí½¹ÍĞ¹•áĞõÍ•ÑÑ¥¹Ì ¤í¹•áÑm¥¹ÁÕĞ¹‘…Ñ…Í•Ğ¹Í•ÑÑ¥¹tõ¥¹ÁÕĞ¹¡•­•íÍ…Ù•M•ÑÑ¥¹Ì¡¹•áĞ¥ô¤ì(€µ½‘…°¹ÅÕ•ÉåM•±•Ñ½É±° m‘…Ñ„µÍ•ÑÑ¥¹œµÉ…¹•tœ¤¹™½É… ¡¥¹ÁÕĞôù¥¹ÁÕĞ¹½¹¥¹ÁÕĞô ¤ôùí½¹ÍĞ¹•áĞõÍ•ÑÑ¥¹Ì ¤í¹•áÑm¥¹ÁÕĞ¹‘…Ñ…Í•Ğ¹Í•ÑÑ¥¹I…¹•tõ9Õµ‰•È¡¥¹ÁÕĞ¹Ù…±Õ”¤íÍ…Ù•M•ÑÑ¥¹Ì¡¹•áĞ¥ô¤ì(€‰å% …ÉÕ±±ÍÉ••¸œ¤¹½¹±¥¬õ…Íå¹Œ ¤ôùíÑÉåí¥˜¡‘½Õµ•¹Ğ¹™Õ±±ÍÉ••¹±•µ•¹Ğ¥…İ…¥Ğ‘½Õµ•¹Ğ¹•á¥ÑÕ±±ÍÉ••¸ ¤í•±Í”…İ…¥Ğ‘½Õµ•¹Ğ¹‘½Õµ•¹Ñ±•µ•¹Ğ¹É•ÅÕ•ÍÑÕ±±ÍÉ••¸ ¥õ…Ñ¡íÑ½…ÍĞ Q•±„¡•¥„»¼•ÍÓ„‘¥ÍÁ½»µÙ•°¹•ÍÑ”¹…Ù•…‘½È¸œ¥õôì(€‰å% …ÉI•Í•ÑM•ÑÑ¥¹Ìœ¤¹½¹±¥¬ô ¤ôùíÍ…Ù•M•ÑÑ¥¹Ì¡U1Q}MQQ%9L¤íÉ•¹‘•ÉM•ÑÑ¥¹Ì ¤íÑ½…ÍĞ ½¹™¥ÕÉ‡ŸÕ•ÌÉ•ÍÑ…ÕÉ…‘…Ì¸œ¥ôì)ô()™Õ¹Ñ¥½¸É•¹‘•É‘µ¥¸ ¥ì(€¥˜ …¥Í‘µ¥¸¥É•ÑÕÉ¸Ñ½…ÍĞ ÍÑ„½¹Ñ„»¼Á½ÍÍÕ¤Á•Éµ¥ÍÏ¼…‘µ¥¹¥ÍÑÉ…Ñ¥Ù„¸œ¤ì(€¥˜ …Í•ÕÉ¥ÑåMÑ…Ñ”ü¹…‘µ¥¹I•…‘ä¥ì(€€€µ½‘…±M¡•±° ‘µ¥¹¥ÍÑÉ‡Ÿ¼‰±½ÅÕ•…‘„œ°5=	I%SMI%<œ±€ñ‘¥Ø±…ÍÌô‰…É‘µ¥¹1½¬ˆøñÍÁ…¸ûÂ~R@ğ½ÍÁ…¸øñ Ìù½¹™¥Éµ”ÍÕ„¥‘•¹Ñ¥‘…‘”Á…É„½¹Ñ¥¹Õ…Èğ½ ÌøñÀù<Á…Á•°4™½¤±½…±¥é…‘¼¹¼‰…¹¼°µ…Ì¹•¹¡Õµ„½Á•É‡Ÿ¼…‘µ¥¹¥ÍÑÉ…Ñ¥Ù„Í•Ë„…•¥Ñ„Í•´Õ´Í‘¥¼‘¼Í•Ô…Á±¥…Ñ¥Ù¼…ÕÑ•¹Ñ¥…‘½È¸%ÍÍ¼ÁÉ½Ñ•”Ñ½‘…Ì…Ì½¹Ñ…Ìµ•Íµ¼Í”Õµ„Í•ÍÏ¼½µÕ´™½ÈÉ½Õ‰…‘„¸ğ½Àøñ‰ÕÑÑ½¸¥ô‰…É‘µ¥¹=Á•¹5™„ˆ±…ÍÌô‰…É5½‘…±	ÕÑÑ½¸ÁÉ¥µ…Éäˆù	I%H=9QI9YI%%Hğ½‰ÕÑÑ½¸øğ½‘¥Øù€¤ì(€€€‰å% …É‘µ¥¹=Á•¹5™„œ¤¹½¹±¥¬ô ¤ôùí±½Í•5½‘…° ¤í±½‰…±Q¡¥Ì¹É…¹…=¹±¥¹”ü¹½Á•¸ü¸ ¥ôì(€€€É•ÑÕÉ¸ì(€ô(€½¹ÍĞÑÉÕÍÑ•õÍ•ÕÉ¥ÑåMÑ…Ñ”ü¹ÑÉÕÍÑ•‘ññíôì(€µ½‘…±M¡•±° ‘µ¥¹¥ÍÑÉ‡Ÿ¼Í•ÕÉ„œ°	9<AI%Y<ƒ
-Ü5ƒ
-ÜU%Q=I%œ±€ñÀ±…ÍÌô‰…É5½‘…±1•…ˆùÌ…±Ñ•É‡ŸÕ•Ì…‰…¥á¼…½¹Ñ••´¹¼Í•ÉÙ¥‘½È°•á¥•´5”É•¥ÍÑÉ…´…‘µ¥¹¥ÍÑÉ…‘½È°…±Ù¼°µ½Ñ¥Ù¼”Ù…±½É•Ì…¹Ñ•É¥½É•Ì¸<Á…¥¹•°»¼…±Ñ•É„µ…¥Ì‘¥¹¡•¥É¼Á•±¼¹…Ù•…‘½È¸ğ½Àøñ‘¥Ø±…ÍÌô‰…É‘µ¥¹%‘•¹Ñ¥ÑäˆøñÍÁ…¸ûÂ~n‡¾â<ğ½ÍÁ…¸øñ‘¥ØøñÍµ…±°ù=9Q5%9%MQI=IYI%%ğ½Íµ…±°øñˆø‘í•Í…Á•!Ñµ°¡¥‘•¹Ñ¥Ñäü¹•µ…¥±ñğ½¹Ñ„É…¹„œ¥ôğ½ˆøñ½‘”ø‘í•Í…Á•!Ñµ°¡¥‘•¹Ñ¥Ñäü¹¥‘ñğ%¥¹‘¥ÍÁ½»µÙ•°œ¥ôğ½½‘”øğ½‘¥Øøñ‰ÕÑÑ½¸¥ô‰…É‘µ¥¹½Áå%ˆù=A%H5T%ğ½‰ÕÑÑ½¸øğ½‘¥Øøñ‘¥Ø±…ÍÌô‰…É‘µ¥¹QÉÕÍÑ•ˆøñÍÁ…¸øñÍµ…±°ù=UI<=9'Y0ğ½Íµ…±°øñˆø‘í9Õµ‰•È¡ÑÉÕÍÑ•¹½¥¹ÍñğÀ¥ôğ½ˆøğ½ÍÁ…¸øñÍÁ…¸øñÍµ…±°ùMO)9%=9'Y0ğ½Íµ…±°øñˆø‘í9Õµ‰•È¡ÑÉÕÍÑ•¹•ÍÍ•¹•ñğÀ¥ôğ½ˆøğ½ÍÁ…¸øñÍÁ…¸øñÍµ…±°ùMMO<ğ½Íµ…±°øñˆø‘í•Í…Á•!Ñµ°¡MÑÉ¥¹œ¡Í•ÕÉ¥ÑåMÑ…Ñ”ü¹……±ñğ……°Èœ¤¹Ñ½UÁÁ•É…Í” ¤¥ôğ½ˆøğ½ÍÁ…¸øğ½‘¥Øøñ‘¥Ø±…ÍÌô‰…É‘µ¥¹½É´ˆøñ±…‰•°±…ÍÌô‰İ¥‘”ˆù%=9Q1Y<ñ¥¹ÁÕĞ¥ô‰…É‘µ¥¹Q…É•Ğˆµ…á±•¹Ñ ôˆÌØˆÍÁ•±±¡•¬ô‰™…±Í”ˆÙ…±Õ”ôˆ‘í•Í…Á•!Ñµ°¡¥‘•¹Ñ¥Ñäü¹¥‘ñğœœ¥ôˆøğ½±…‰•°øñ±…‰•°ù)UMQ=UI<ñ¥¹ÁÕĞ¥ô‰…É‘µ¥¹½¥¹ÌˆÑåÁ”ô‰¹Õµ‰•Èˆµ¥¸ôˆ´ÄÀÀÀÀÀˆµ…àôˆÄÀÀÀÀÀˆÍÑ•ÀôˆÄˆÙ…±Õ”ôˆÀˆøğ½±…‰•°øñ±…‰•°ù)UMQMO)9%ñ¥¹ÁÕĞ¥ô‰…É‘µ¥¹ÍÍ•¹”ˆÑåÁ”ô‰¹Õµ‰•Èˆµ¥¸ôˆ´ÄÀÀÀÀÀˆµ…àôˆÄÀÀÀÀÀˆÍÑ•ÀôˆÄˆÙ…±Õ”ôˆÀˆøğ½±…‰•°øñ±…‰•°±…ÍÌô‰İ¥‘”ˆù5=Q%Y<=	I%SMI%<ñ¥¹ÁÕĞ¥ô‰…É‘µ¥¹I•…Í½¸ˆµ…á±•¹Ñ ôˆÈÀÀˆÁ±…•¡½±‘•Èô‰à¸è½ÉÉ—Ÿ¼‘”É•½µÁ•¹Í„»¼É••‰¥‘„ˆøğ½±…‰•°øñ‰ÕÑÑ½¸¥ô‰…É‘µ¥¹É…¹Ğˆ±…ÍÌô‰…É5½‘…±	ÕÑÑ½¸ÁÉ¥µ…Éäİ¥‘”ˆùA1%H9<MIY%=Hğ½‰ÕÑÑ½¸øñÀ¥ô‰…É‘µ¥¹MÑ…ÑÕÌˆ±…ÍÌô‰…É‘µ¥¹MÑ…ÑÕÌİ¥‘”ˆù1¥µ¥Ñ”Á½È½Á•É‡Ÿ¼èƒ
-ÄÄÀÀ¸ÀÀÀ¸Y…±½É•Ì¹Õ¹„™¥…´¹•…Ñ¥Ù½Ì¸ğ½Àøğ½‘¥ØøñÍ•Ñ¥½¸±…ÍÌô‰…É‘µ¥¹Õ‘¥Ğˆøñ¡•…‘•Èøñ‘¥ØøñÍµ…±°ùI%MQI<%5USY0AI)==ILğ½Íµ…±°øñ Ìûi±Ñ¥µ…Ì½Á•É‡ŸÕ•Ìğ½ Ìøğ½‘¥Øøñ‰ÕÑÑ½¸¥ô‰…É‘µ¥¹I•±½…‘Õ‘¥Ğˆ±…ÍÌô‰…É5½‘…±	ÕÑÑ½¸ˆùQU1%iHğ½‰ÕÑÑ½¸øğ½¡•…‘•Èøñ‘¥Ø¥ô‰…É‘µ¥¹Õ‘¥ÑI½İÌˆøñÀ±…ÍÌô‰…É‘µ¥¹MÑ…ÑÕÌˆù…ÉÉ•…¹‘¼…Õ‘¥Ñ½É¥„¸¸¸ğ½Àøğ½‘¥Øøğ½Í•Ñ¥½¸ù€¤ì(€‰å% …É‘µ¥¹½Áå%œ¤¹½¹±¥¬õ…Íå¹Œ ¤ôùíÑÉåí…İ…¥Ğ¹…Ù¥…Ñ½È¹±¥Á‰½…É¹İÉ¥Ñ•Q•áĞ¡¥‘•¹Ñ¥Ñäü¹¥‘ñğœœ¤íÑ½…ÍĞ %‘„½¹Ñ„É…¹„½Á¥…‘¼¸œ¥õ…Ñ¡íÑ½…ÍĞ ;¼™½¤Á½ÍÏµÙ•°½Á¥…È¼%¸œ¥õôì(€½¹ÍĞ•ÉÉ½ÉQ•áĞõ½‘”ôø¡íµ™…}É•ÅÕ¥É•è<5‘•ÍÑ„Í•ÍÏ¼•áÁ¥É½Ô¸Y•É¥™¥ÅÕ”¹½Ù…µ•¹Ñ”¹„½¹Ñ„É…¹„¸œ±™½É‰¥‘‘•¸è<Í•ÉÙ¥‘½ÈÉ•ÕÍ½Ô„Á•Éµ¥ÍÏ¼4¸œ±¥¹Ù…±¥‘}É•ÅÕ•ÍĞè½¹™¥É„¼%°½ÌÙ…±½É•Ì”¥¹™½Éµ”Õ´µ½Ñ¥Ù¼½´Á•±¼µ•¹½Ì€à…É…Ñ•É•Ì¸œ±ÕÍ•É}¹½Ñ}™½Õ¹è9•¹¡Õµ„½¹Ñ„™½¤•¹½¹ÑÉ…‘„½´•ÍÍ”%¸õm½‘•uñğ½Á•É‡Ÿ¼™½¤É•ÕÍ…‘„Á•±¼Í•ÉÙ¥‘½È¸œ¤ì(€½¹ÍĞ±½…‘Õ‘¥Ğõ…Íå¹Œ ¤ôùì(€€€½¹ÍĞÉ½İÌõ‰å% …É‘µ¥¹Õ‘¥ÑI½İÌœ¤í¥˜ …É½İÌ¥É•ÑÕÉ¸ì(€€€É½İÌ¹¥¹¹•É!Q50ôœñÀ±…ÍÌô‰…É‘µ¥¹MÑ…ÑÕÌˆù…ÉÉ•…¹‘¼…Õ‘¥Ñ½É¥„¸¸¸ğ½Àøœì(€€€ÑÉåì(€€€€€½¹ÍĞ•¹ÑÉ¥•Ìõ…İ…¥Ğ±½‰…±Q¡¥Ì¹É…¹…=¹±¥¹”¹…‘µ¥¹Õ‘¥Ğ ÈÔ¤ì(€€€€€É½İÌ¹¥¹¹•É!Q50õ•¹ÑÉ¥•Ì¹±•¹Ñ ı•¹ÑÉ¥•Ì¹µ…À¡•¹ÑÉäôù€ñ…ÉÑ¥±”±…ÍÌô‰…ÉÕ‘¥ÑI½Üˆøñ‘¥Øøñˆø‘í•Í…Á•!Ñµ°¡•¹ÑÉä¹…Ñ¥½¹ñğ½Á•É‡Ÿ¼œ¥ôğ½ˆøñÑ¥µ”ø‘í•Í…Á•!Ñµ°¡¹•Ü…Ñ”¡•¹ÑÉä¹É•…Ñ•‘Ğ¤¹Ñ½1½…±•MÑÉ¥¹œ ÁĞµ	Hœ¤¥ôğ½Ñ¥µ”øğ½‘¥Øøñ½‘”ø‘í•Í…Á•!Ñµ°¡•¹ÑÉä¹Ñ…É•ÑUÍ•É%‘ñğ…±Ù¼É•µ½Ù¥‘¼œ¥ôğ½½‘”øñÀø‘í•Í…Á•!Ñµ°¡•¹ÑÉä¹É•…Í½¹ñğM•´µ½Ñ¥Ù¼œ¥ôğ½ÀøñÍµ…±°ù=ÕÉ¼è€‘í9Õµ‰•È¡•¹ÑÉä¹‰•™½É”ü¹½¥¹ÍñğÀ¥ôƒŠH€‘í9Õµ‰•È¡•¹ÑÉä¹…™Ñ•Èü¹½¥¹ÍñğÀ¥ôƒ
-ÜÍÏ©¹¥„è€‘í9Õµ‰•È¡•¹ÑÉä¹‰•™½É”ü¹•ÍÍ•¹•ñğÀ¥ôƒŠH€‘í9Õµ‰•È¡•¹ÑÉä¹…™Ñ•Èü¹•ÍÍ•¹•ñğÀ¥ôğ½Íµ…±°øğ½…ÉÑ¥±”ù€¤¹©½¥¸ œœ¤èœñÀ±…ÍÌô‰…É‘µ¥¹MÑ…ÑÕÌˆù9•¹¡Õµ„½Á•É‡Ÿ¼…‘µ¥¹¥ÍÑÉ…Ñ¥Ù„É•¥ÍÑÉ…‘„¸ğ½Àøœì(€€€õ…Ñ ¡•ÉÉ½È¥íÉ½İÌ¹¥¹¹•É!Q50õ€ñÀ±…ÍÌô‰…É‘µ¥¹MÑ…ÑÕÌ•ÉÉ½Èˆø‘í•Í…Á•!Ñµ°¡•ÉÉ½ÉQ•áĞ¡•ÉÉ½È¹½‘”¤¥ôğ½Àùô(€ôì(€‰å% …É‘µ¥¹I•±½…‘Õ‘¥Ğœ¤¹½¹±¥¬õ±½…‘Õ‘¥Ğì(€‰å% …É‘µ¥¹É…¹Ğœ¤¹½¹±¥¬õ…Íå¹Œ ¤ôùì(€€€½¹ÍĞ‰ÕÑÑ½¸õ‰å% …É‘µ¥¹É…¹Ğœ¤±µ•ÍÍ…”õ‰å% …É‘µ¥¹MÑ…ÑÕÌœ¤ì(€€€½¹ÍĞÑ…É•ÑUÍ•É%õ‰å% …É‘µ¥¹Q…É•Ğœ¤¹Ù…±Õ”¹ÑÉ¥´ ¤±½¥¹Í•±Ñ„õ5…Ñ ¹ÑÉÕ¹Œ¡9Õµ‰•È¡‰å% …É‘µ¥¹½¥¹Ìœ¤¹Ù…±Õ”¥ñğÀ¤±•ÍÍ•¹••±Ñ„õ5…Ñ ¹ÑÉÕ¹Œ¡9Õµ‰•È¡‰å% …É‘µ¥¹ÍÍ•¹”œ¤¹Ù…±Õ”¥ñğÀ¤±É•…Í½¸õ‰å% …É‘µ¥¹I•…Í½¸œ¤¹Ù…±Õ”¹ÑÉ¥´ ¤ì(€€€¥˜ „½ylÀ´å„µ™uìáôµlÀ´å„µ™uìÑôµlÄ´ÕulÀ´å„µ™uìÍôµlàå…‰ulÀ´å„µ™uìÍôµlÀ´å„µ™uìÄÉô½¤¹Ñ•ÍĞ¡Ñ…É•ÑUÍ•É%¥ññ5…Ñ ¹…‰Ì¡½¥¹Í•±Ñ„¤øÄÀÀÀÀÁññ5…Ñ ¹…‰Ì¡•ÍÍ•¹••±Ñ„¤øÄÀÀÀÀÁñğ …½¥¹Í•±Ñ„˜˜…•ÍÍ•¹••±Ñ„¥ññÉ•…Í½¸¹±•¹Ñ ğà¥íµ•ÍÍ…”¹±…ÍÍ9…µ”ô…É‘µ¥¹MÑ…ÑÕÌİ¥‘”•ÉÉ½Èœíµ•ÍÍ…”¹Ñ•áÑ½¹Ñ•¹Ğõ•ÉÉ½ÉQ•áĞ ¥¹Ù…±¥‘}É•ÅÕ•ÍĞœ¤íÉ•ÑÕÉ¹ô(€€€‰ÕÑÑ½¸¹‘¥Í…‰±•õÑÉÕ”íµ•ÍÍ…”¹±…ÍÍ9…µ”ô…É‘µ¥¹MÑ…ÑÕÌİ¥‘”œíµ•ÍÍ…”¹Ñ•áÑ½¹Ñ•¹ĞôÁ±¥…¹‘¼”É•¥ÍÑÉ…¹‘¼…Õ‘¥Ñ½É¥„¸¸¸œì(€€€ÑÉåì(€€€€€½¹ÍĞÉ•ÍÕ±Ğõ…İ…¥Ğ±½‰…±Q¡¥Ì¹É…¹…=¹±¥¹”¹…‘µ¥¹‘©ÕÍĞ¡íÑ…É•ÑUÍ•É%±½¥¹Í•±Ñ„±•ÍÍ•¹••±Ñ„±É•…Í½¹ô¤ì(€€€€€Í•ÕÉ¥ÑåMÑ…Ñ”õ…İ…¥Ğ±½‰…±Q¡¥Ì¹É…¹…=¹±¥¹”¹½¹Ñ•áĞ ¤ì(€€€€€µ•ÍÍ…”¹±…ÍÍ9…µ”ô…É‘µ¥¹MÑ…ÑÕÌİ¥‘”½¬œíµ•ÍÍ…”¹Ñ•áÑ½¹Ñ•¹Ğõ=Á•É‡Ÿ¼½¹±×µ‘„¸M…±‘¼½¹™§…Ù•°è€‘í9Õµ‰•È¡É•ÍÕ±Ğ¹ÑÉÕÍÑ•ü¹½¥¹ÍñğÀ¥ô=ÕÉ¼”€‘í9Õµ‰•È¡É•ÍÕ±Ğ¹ÑÉÕÍÑ•ü¹•ÍÍ•¹•ñğÀ¥ôÍÏ©¹¥…Ì¹€ì(€€€€€‰å% …É‘µ¥¹½¥¹Ìœ¤¹Ù…±Õ”ôœÀœí‰å% …É‘µ¥¹ÍÍ•¹”œ¤¹Ù…±Õ”ôœÀœí‰å% …É‘µ¥¹I•…Í½¸œ¤¹Ù…±Õ”ôœœì(€€€€€…İ…¥Ğ±½…‘Õ‘¥Ğ ¤ì(€€€õ…Ñ ¡•ÉÉ½È¥íµ•ÍÍ…”¹±…ÍÍ9…µ”ô…É‘µ¥¹MÑ…ÑÕÌİ¥‘”•ÉÉ½Èœíµ•ÍÍ…”¹Ñ•áÑ½¹Ñ•¹Ğõ•ÉÉ½ÉQ•áĞ¡•ÉÉ½È¹½‘”¥õ™¥¹…±±åí‰ÕÑÑ½¸¹‘¥Í…‰±•õ™…±Í•ô(€ôì(€±½…‘Õ‘¥Ğ ¤ì)ô()™Õ¹Ñ¥½¸Í¡½İ9•İÌ ¥ì(€‰å% ½Á•¹‰½ÕĞœ¤ü¹±¥¬ ¤ì(€É•ÅÕ•ÍÑ¹¥µ…Ñ¥½¹É…µ”  ¤ôùì(€€€½¹ÍĞ•å•‰É½Üõ‘½Õµ•¹Ğ¹ÅÕ•ÉåM•±•Ñ½È œ…‰½ÕÑMÉ••¸€¹•å•‰É½Üœ¤±Ñ¥Ñ±”õ‘½Õµ•¹Ğ¹ÅÕ•ÉåM•±•Ñ½È œ…‰½ÕÑMÉ••¸ Èœ¤±ÉÕ±•Ìõ‘½Õµ•¹Ğ¹ÅÕ•ÉåM•±•Ñ½È œ…‰½ÕÑMÉ••¸€¹ÉÕ±•Ìœ¤ì(€€€¥˜¡•å•‰É½Ü¥•å•‰É½Ü¹Ñ•áÑ½¹Ñ•¹ĞõI91M €‘í1=		e}YIM%=9ô]	€ì(€€€¥˜¡Ñ¥Ñ±”¥Ñ¥Ñ±”¹Ñ•áÑ½¹Ñ•¹Ğô½¹Ù•ÉŸ©¹¥„€Ä¸Àœì(€€€¥˜¡ÉÕ±•Ì¥ÉÕ±•Ì¹¥¹¹•É!Q50ôœñÀøñˆûŠf|ÍÑÉ…Ó¥¥„½µÁ±•Ñ„èğ½ˆø‘•¬½¹ÍÑÉ×µ‘¼°µÕ±±¥…¸°I•Í•ÉÙ„½¹¡•¥‘„°½‰©•Ñ¥Ù½Ì‘”É½Ñ„”Ù¥ÓÍÉ¥„…±Ñ•É¹…Ñ¥Ù„Á½È½·µ¹¥¼¸ğ½ÀøñÀøñˆûÂ~J8½±—Ÿ¼€˜É…™Ñ¥¹œèğ½ˆøÍÁ¥…Ì…½É„Ó©´™Õ»Ÿ¼É•…°ìÉ¥”°‘•Íµ½¹Ñ”°™…Ù½É¥Ñ””ÕÍ”…Ó¤ÑË©Ì¥Õ…¥ÌÁ…É„…Õµ•¹Ñ…È„½¹Í¥ÍÓ©¹¥„¸ğ½ÀøñÀøñˆûŠr”5…•ÍÑÉ¥„èğ½ˆø…Ì½¥Ñ¼±…ÍÍ•Ì…¹¡…É…´ƒ…ÉÙ½É•ÌÁËÍÁÉ¥…Ì½´ÁÉ½É•ÍÏ¼Á•Éµ…¹•¹Ñ”Á…É„AÙ¸ğ½ÀøñÀøñˆûŠ>Ì½¹ÑÉ½±”‘„Á…ÉÑ¥‘„èğ½ˆø‘•Í™…é•È…¹Ñ•Ì‘”•¹•ÉÉ…È°½¹™¥Éµ‡Ÿ¼‘”™¥´Á•É¥½Í¼°ƒé±Ñ¥µ…Ì‡ŸÕ•Ì”É•Á±…åÌ±½…¥Ì¸ğ½ÀøñÀøñˆûÂ~205Õ¹‘¼Ù¥Ù¼èğ½ˆø•Ù•¹Ñ½ÌÍ•µ…¹…¥Ì°Ñ•µÁ½É…‘„°µ¥ÍÏÕ•Ì°½¹ÅÕ¥ÍÑ…Ì”É•½µÁ•¹Í…Ì‘”½±—Ÿ¼¸ğ½ÀøñÀøñˆûÂ~n‡¾â<‘µ¥¹¥ÍÑÉ‡Ÿ¼É•…°èğ½ˆø©½…‘½É•Ì½¹±¥¹”°%Ì°•ÍÁ•Ñ…‘½È°‰…¹¥µ•¹Ñ½Ì°•½¹½µ¥„”…Õ‘¥Ñ½É¥„ÁÉ½Ñ•¥‘½ÌÁ½È5¸ğ½ÀøñÀøñˆûÂ~NÄ•™¥¹¥Ñ¥Ù„¹„]•ˆèğ½ˆøµ¥É‡Ÿ¼…ÕÑ½·…Ñ¥„°±½ÕÍ…Ù”°…¡”½™™±¥¹””¥¹Ñ•É™…”É•ÍÁ½¹Í¥Ù„Á…É„A”•±Õ±…È¸ğ½Àøœì(€ô¤ì)ô()™Õ¹Ñ¥½¸É•¹‘•ÉUÁ‘…Ñ•!¥ÍÑ½Éä ¥ì(€½¹ÍĞ•¹ÑÉ¥•ÌõUAQ}!%MQ=Id¹µ…À ¡É•±•…Í”±¥¹‘•à¤ôù€ñ…ÉÑ¥±”±…ÍÌô‰…ÉUÁ‘…Ñ•¹ÑÉä€‘í¥¹‘•àôôôÀüÕÉÉ•¹ĞœèœôˆÍÑå±”ôˆ´µÕÁ‘…Ñ”µÑ½¹”è‘íÉ•±•…Í”¹Ñ½¹•ôˆøñ‘¥Ø±…ÍÌô‰…ÉUÁ‘…Ñ•I…¥°ˆøñ¤øğ½¤øğ½‘¥Øøñ‘¥Ø±…ÍÌô‰…ÉUÁ‘…Ñ•…Éˆøñ¡•…‘•Èøñ‘¥ØøñÍµ…±°ø‘í•Í…Á•!Ñµ°¡É•±•…Í”¹‘…Ñ”¥ôğ½Íµ…±°øñ ÌùØ‘í•Í…Á•!Ñµ°¡É•±•…Í”¹Ù•ÉÍ¥½¸¥ôƒ
-Ü€‘í•Í…Á•!Ñµ°¡É•±•…Í”¹Ñ¥Ñ±”¥ôğ½ Ìøğ½‘¥ØøñÍÁ…¸ø‘í•Í…Á•!Ñµ°¡É•±•…Í”¹Ñ…œ¥ôğ½ÍÁ…¸øğ½¡•…‘•ÈøñÕ°ø‘íÉ•±•…Í”¹¹½Ñ•Ì¹µ…À¡¹½Ñ”ôù€ñ±¤ø‘í•Í…Á•!Ñµ°¡¹½Ñ”¥ôğ½±¤ù€¤¹©½¥¸ œœ¥ôğ½Õ°øğ½‘¥Øøğ½…ÉÑ¥±”ù€¤¹©½¥¸ œœ¤ì(€µ½‘…±M¡•±° !¥ÍÓÍÉ¥¼‘”UÁ‘…Ñ•Ìœ°)=I9YIO<€Ä¸Àœ±€ñÀ±…ÍÌô‰…É5½‘…±1•…ˆùÅÕ¤™¥…´É•¥ÍÑÉ…‘…Ì…ÌµÕ‘…»…ÌÉ•…¥Ì‘”…‘„Ù•ÉÏ¼Ãé‰±¥„¸±¥¹¡„€Ä¸À…½É„É••‰”µ¥É¼µÕÁ‘…Ñ•Ì‘”½ÉÉ—Ÿ¼Í•´…Á……È¼¡¥ÍÓÍÉ¥¼‘¼±…»…µ•¹Ñ¼¸ğ½Àøñ‘¥Ø±…ÍÌô‰…ÉUÁ‘…Ñ•Q¥µ•±¥¹”ˆø‘í•¹ÑÉ¥•Íôğ½‘¥Øøñ‘¥Ø±…ÍÌô‰…ÉUÁ‘…Ñ•ÕÑÕÉ”ˆøñÍÁ…¸ùYIO<QU0ğ½ÍÁ…¸øñˆøÄ¸À¸Äƒ
-Ü7¼9…Ù•Ÿ…Ù•°ğ½ˆøñÍµ…±°ù½¹ÑÉ½±•ÌÍ•Á…É…‘½Ì‘…Ì…ÉÑ…Ì”…•ÍÍ¼…É…¹Ñ¥‘¼„Ñ½‘„„·¼¹¼A”¹¼•±Õ±…È¸ğ½Íµ…±°øğ½‘¥Øù€¤ì)ô()™Õ¹Ñ¥½¸…ÁÁ±åM•ÑÑ¥¹Ì¡Ù…±Õ”õÍ•ÑÑ¥¹Ì ¤¥ì(€½¹ÍĞ±…ÍÍ•Ìõí…ÉI•‘Õ•‘5½Ñ¥½¸éÙ…±Õ”¹É•‘Õ•‘5½Ñ¥½¸±…ÉA•É™½Éµ…¹”éÙ…±Õ”¹Á•É™½Éµ…¹”±…É1…É•U¤éÙ…±Õ”¹±…É•U¤±…É!¥¡½¹ÑÉ…ÍĞéÙ…±Õ”¹¡¥¡½¹ÑÉ…ÍĞ±…É½µÁ…Ñ…É‘ÌéÙ…±Õ”¹½µÁ…Ñ…É‘Íôì(€=‰©•Ğ¹•¹ÑÉ¥•Ì¡±…ÍÍ•Ì¤¹™½É…  ¡m¹…µ”±½¹t¤ôù‘½Õµ•¹Ğ¹‰½‘ä¹±…ÍÍ1¥ÍĞ¹Ñ½±”¡¹…µ”°„…½¸¤¤ì)ô()™Õ¹Ñ¥½¸±¥­••‘‰…¬¡•Ù•¹Ğ¥ì(€¥˜ …•Ù•¹Ğ¹Ñ…É•Ğ¹±½Í•ÍĞ ‰ÕÑÑ½¸œ¤¥É•ÑÕÉ¸ì(€½¹ÍĞÙ…±Õ”õÍ•ÑÑ¥¹Ì ¤ì(€¥˜¡Ù…±Õ”¹Ù¥‰É…Ñ¥½¸¥ÑÉåí¹…Ù¥…Ñ½È¹Ù¥‰É…Ñ”ü¸ ÄÈ¥õ…Ñ¡íô(€¥˜ …Ù…±Õ”¹Í½Õ¹‘ññÙ…±Õ”¹Ù½±Õµ”ğôÀ¥É•ÑÕÉ¸ì(€ÑÉåì(€€€½¹ÍĞ½¹Ñ•áĞõİ¥¹‘½Ü¹Õ‘¥½½¹Ñ•áÑññİ¥¹‘½Ü¹İ•‰­¥ÑÕ‘¥½½¹Ñ•áĞí¥˜ …½¹Ñ•áĞ¥É•ÑÕÉ¸ì(€€€±¥­••‘‰…¬¹Ñàõ±¥­••‘‰…¬¹Ñáññ¹•Ü½¹Ñ•áĞ ¤ì(€€€½¹ÍĞ½Í¥±±…Ñ½Èõ±¥­••‘‰…¬¹Ñà¹É•…Ñ•=Í¥±±…Ñ½È ¤±…¥¸õ±¥­••‘‰…¬¹Ñà¹É•…Ñ•…¥¸ ¤±¹½Üõ±¥­••‘‰…¬¹Ñà¹ÕÉÉ•¹ÑQ¥µ”ì(€€€½Í¥±±…Ñ½È¹ÑåÁ”ôÍ¥¹”œí½Í¥±±…Ñ½È¹™É•ÅÕ•¹ä¹Í•ÑY…±Õ•ÑQ¥µ” ĞÄÀ±¹½Ü¤í½Í¥±±…Ñ½È¹™É•ÅÕ•¹ä¹•áÁ½¹•¹Ñ¥…±I…µÁQ½Y…±Õ•ÑQ¥µ” ØÈÀ±¹½Ü¬¸ÀĞÔ¤í…¥¸¹…¥¸¹Í•ÑY…±Õ•ÑQ¥µ”¡5…Ñ ¹µ…à ¸ÀÀÄ±Ù…±Õ”¹Ù½±Õµ”¼ÄÀÀÀ¤±¹½Ü¤í…¥¸¹…¥¸¹•áÁ½¹•¹Ñ¥…±I…µÁQ½Y…±Õ•ÑQ¥µ” ¸ÀÀÄ±¹½Ü¬¸ÀÔÔ¤í½Í¥±±…Ñ½È¹½¹¹•Ğ¡…¥¸¤¹½¹¹•Ğ¡±¥­••‘‰…¬¹Ñà¹‘•ÍÑ¥¹…Ñ¥½¸¤í½Í¥±±…Ñ½È¹ÍÑ…ÉĞ¡¹½Ü¤í½Í¥±±…Ñ½È¹ÍÑ½À¡¹½Ü¬¸ÀØ¤ì(€õ…Ñ¡íô)ô()™Õ¹Ñ¥½¸¥¹ÍÑ…±±½¹™¥ÉµQÕÉ¸ ¥ì(€‰å% •¹‘QÕÉ¸œ¤ü¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ±¥¬œ±•Ù•¹Ğôùì(€€€¥˜ …Í•ÑÑ¥¹Ì ¤¹½¹™¥ÉµQÕÉ¸¥É•ÑÕÉ¸ì(€€€¥˜ …İ¥¹‘½Ü¹½¹™¥É´ ¹•ÉÉ…ÈÍ•ÔÑÕÉ¹¼…½É„üœ¤¥í•Ù•¹Ğ¹ÁÉ•Ù•¹Ñ•™…Õ±Ğ ¤í•Ù•¹Ğ¹ÍÑ½Á%µµ•‘¥…Ñ•AÉ½Á……Ñ¥½¸ ¥ô(€ô±ÑÉÕ”¤ì)ô()…Íå¹Œ™Õ¹Ñ¥½¸É•™É•Í¡%‘•¹Ñ¥Ñä ¥ì(€½¹ÍĞÁÉ•Ù¥½ÕÍ%õ¥‘•¹Ñ¥Ñäü¹¥‘ññ¹Õ±°±ÁÉ•Ù¥½ÕÍ‘µ¥¸õ¥Í‘µ¥¸±ÁÉ•Ù¥½ÕÍI•…‘äõÍ•ÕÉ¥ÑåMÑ…Ñ”ü¹…‘µ¥¹I•…‘äì(€ÑÉåì(€€€¥‘•¹Ñ¥Ñäõ…İ…¥Ğ±½‰…±Q¡¥Ì¹É…¹…=¹±¥¹”ü¹ÕÍ•Èü¸ ¥ññ¹Õ±°ì(€€€Í•ÕÉ¥ÑåMÑ…Ñ”õ¥‘•¹Ñ¥Ñäı…İ…¥Ğ±½‰…±Q¡¥Ì¹É…¹…=¹±¥¹”ü¹½¹Ñ•áĞü¸ ¥ññ¹Õ±°é¹Õ±°ì(€€€¥Í‘µ¥¸õÍ•ÕÉ¥ÑåMÑ…Ñ”ü¹É½±”ôôô…‘µ¥¸œì(€õ…Ñ¡í¥‘•¹Ñ¥Ñäõ¹Õ±°íÍ•ÕÉ¥ÑåMÑ…Ñ”õ¹Õ±°í¥Í‘µ¥¸õ™…±Í•ô(€¥˜¡ÁÉ•Ù¥½ÕÍ%„ôô¡¥‘•¹Ñ¥Ñäü¹¥‘ññ¹Õ±°¥ññÁÉ•Ù¥½ÕÍ‘µ¥¸„ôõ¥Í‘µ¥¹ññÁÉ•Ù¥½ÕÍI•…‘ä„ôõÍ•ÕÉ¥ÑåMÑ…Ñ”ü¹…‘µ¥¹I•…‘ä¥É•™É•Í¡1½‰‰ä¡ÑÉÕ”¤ì)ô()™Õ¹Ñ¥½¸¥¹ÍÑ…±° ¥ì(€…ÁÁ±åM•ÑÑ¥¹Ì ¤ì(€¥¹ÍÑ…±±1½‰‰ä ¤ì(€¥¹ÍÑ…±±9…Ù¥…Ñ¥½¹…±±‰…­Ì ¤ì(€Íå¹1½‰‰åY¥Í¥‰¥±¥Ñä ¤ì(€½¹ÍĞ¡½µ”õ‰å% ¡½µ”œ¤ì(€¥˜¡¡½µ”¥¹•Ü5ÕÑ…Ñ¥½¹=‰Í•ÉÙ•È¡Íå¹1½‰‰åY¥Í¥‰¥±¥Ñä¤¹½‰Í•ÉÙ”¡¡½µ”±í…ÑÑÉ¥‰ÕÑ•ÌéÑÉÕ”±…ÑÑÉ¥‰ÕÑ•¥±Ñ•Èél±…ÍÌuô¤ì(€¥¹ÍÑ…±±½¹™¥ÉµQÕÉ¸ ¤ì(€‘½Õµ•¹Ğ¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ±¥¬œ±±¥­••‘‰…¬±íÁ…ÍÍ¥Ù”éÑÉÕ•ô¤ì(€‘½Õµ•¹Ğ¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ­•å‘½İ¸œ±•Ù•¹Ğôùí¥˜¡•Ù•¹Ğ¹­•äôôôÍ…Á”œ˜™µ½‘…±QåÁ”¥±½Í•5½‘…° ¥ô¤ì(€İ¥¹‘½Ü¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È …É…¹„éÁÉ½™¥±”œ° ¤ôùÉ•™É•Í¡1½‰‰ä¡ÑÉÕ”¤¤ì(€İ¥¹‘½Ü¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È …É…¹„é•½¹½µäœ° ¤ôùÉ•™É•Í¡1½‰‰ä¡ÑÉÕ”¤¤ì(€İ¥¹‘½Ü¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È …É…¹„é¥‘•¹Ñ¥Ñäœ±É•™É•Í¡%‘•¹Ñ¥Ñä¤ì(€İ¥¹‘½Ü¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È …É…¹„éÍ•ÕÉ¥Ñäœ±É•™É•Í¡%‘•¹Ñ¥Ñä¤ì(€İ¥¹‘½Ü¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È …É…¹„éµ…Ñ œ° ¤ôùÉ•™É•Í¡1½‰‰ä¡ÑÉÕ”¤¤ì(€İ¥¹‘½Ü¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È ÍÑ½É…”œ° ¤ôùÉ•™É•Í¡1½‰‰ä¡ÑÉÕ”¤¤ì(€Í•ÑQ¥µ•½ÕĞ¡É•™É•Í¡%‘•¹Ñ¥Ñä°ÈÔÀ¤ì(€Í•Ñ%¹Ñ•ÉÙ…°  ¤ôùíÉ•™É•Í¡1½‰‰ä ¤í½¹ÍĞ±½Õõ‰å% …É±½Õ‘5¥¹¤œ¤ü¹Ñ•áÑ½¹Ñ•¹Ññğœœí¥˜ …¥‘•¹Ñ¥Ñåñğ½1=0¼¹Ñ•ÍĞ¡±½Õ¤¥É•™É•Í¡%‘•¹Ñ¥Ñä ¥ô°ÈÈÀÀ¤ì)ô()‘½Õµ•¹Ğ¹É•…‘åMÑ…Ñ”ôôô±½…‘¥¹œœı‘½Õµ•¹Ğ¹…‘‘Ù•¹Ñ1¥ÍÑ•¹•È =5½¹Ñ•¹Ñ1½…‘•œ±¥¹ÍÑ…±°±í½¹”éÑÉÕ•ô¤é¥¹ÍÑ…±° ¤ì()±½‰…±Q¡¥Ì¹É…¹…1½‰‰äõíÙ•ÉÍ¥½¸é1=		e}YIM%=8±É•™É•Í è ¤ôùÉ•™É•Í¡1½‰‰ä¡ÑÉÕ”¤±½Á•¹M•ÑÑ¥¹Ìè ¤ôù½Á•¹5½‘…° Í•ÑÑ¥¹Ìœ¤±½Á•¹É¥•¹‘Ìè ¤ôù½Á•¹5½‘…° ™É¥•¹‘Ìœ¥ôì(
+  const accountState=identity?'online':'local';
+  const adminFeature=isAdmin?`<button class="arcFeature" data-action="admin" style="--feature-tone:#ff728b"><span class="arcFeatureIcon">ğŸ›¡ï¸</span><b>AdministraÃ§Ã£o</b><small>${securityState?.adminReady?'MFA ativo Â· operaÃ§Ãµes auditadas':'MFA necessÃ¡rio para operar'}</small><span class="arcFeatureBadge">ADM</span></button>`:'';
+  return `<div class="arcLobby">
+    <header class="arcLobbyTop">
+      <div class="arcIdentity">
+        <button class="arcIdentityButton" data-action="profile"><span class="arcIdentityAvatar">${escapeHtml(currentUserName().slice(0,1).toUpperCase())}</span><span class="arcIdentityText"><small>PERFIL ARCANO</small><strong>${escapeHtml(currentUserName())}</strong></span></button>
+        <button class="arcCloudButton" data-action="account" data-state="${accountState}">${identity?'â˜ ONLINE':'â˜ SAVE LOCAL'}</button>
+      </div>
+      <div class="arcLobbyBrand"><b>ARCANA<em>CLASH</em></b><small>LOBBY ARCANO</small></div>
+      <div class="arcTopActions"><button class="arcIconButton" data-action="news" aria-label="Novidades">â—ˆ</button><button class="arcIconButton" data-action="settings" aria-label="ConfiguraÃ§Ãµes">âš™</button></div>
+    </header>
+    <div class="arcLobbyGrid">
+      <main class="arcLobbyMain">
+        <section class="arcLobbyCard arcPlayCard" style="--mode-tone:${MODE_COLORS[mode.tone]||MODE_COLORS.cyan}">
+          <p class="arcPlayEyebrow">${escapeHtml(mode.subtitle||'MODO SELECIONADO')} Â· ${escapeHtml(mode.players||'')}</p>
+          <h1>${mode.icon||'âœ¦'} ${escapeHtml(mode.name||'Jornada')}</h1>
+          <p class="arcPlayDescription">${escapeHtml(mode.description||'Prepare seu Arcano e comece uma nova partida.')}</p>
+          <div class="arcPlayMeta"><span>${CLASSES[activeClassId]?.icon||'âœ¦'} ${escapeHtml(CLASSES[activeClassId]?.name||'Classe Arcana')}</span><span>${DOCTRINES[s.doctrine]?.icon||'âš–ï¸'} ${escapeHtml(DOCTRINES[s.doctrine]?.name||'EquilÃ­brio')}</span><span>${mode.online?'CROSSPLAY ONLINE':`${deckCount}/30 Â· DECK DE CLASSE`}</span></div>
+          <div class="arcPlayActions"><button class="arcPlayPrimary" data-action="play">JOGAR AGORA</button><button class="arcPlaySecondary" data-action="rules">COMO JOGAR</button></div>
+        </section>
+        ${renderWorldMap()}
+        <section class="arcFeatureGrid">
+          <button class="arcFeature" data-action="decks" style="--feature-tone:#63e7ff"><span class="arcFeatureIcon">â–¤</span><b>Forja de Deck</b><small>${deckCount}/30 no deck Â· ${classPool||32} opÃ§Ãµes da classe</small><span class="arcFeatureBadge">172</span></button>
+          <button class="arcFeature" data-action="collection100" style="--feature-tone:#58cfff"><span class="arcFeatureIcon">ğŸ’</span><b>ColeÃ§Ã£o & Crafting</b><small>CÃ³pias, favoritos, criaÃ§Ã£o e desmontagem</small><span class="arcFeatureBadge">1.0</span></button>
+          <button class="arcFeature" data-action="mastery100" style="--feature-tone:#a783ff"><span class="arcFeatureIcon">âœ¥</span><b>Maestria de Classe</b><small>Ãrvore permanente das oito classes</small><span class="arcFeatureBadge">NOVO</span></button>
+          <button class="arcFeature" data-action="replays100" style="--feature-tone:#ff7aae"><span class="arcFeatureIcon">â³</span><b>HistÃ³rico & Replays</b><small>Ãšltimas partidas e aÃ§Ãµes turno a turno</small></button>
+          <button class="arcFeature" data-action="events100" style="--feature-tone:#72e79f"><span class="arcFeatureIcon">ğŸŒŒ</span><b>Eventos</b><small>RotaÃ§Ã£o semanal e desafios especiais</small></button>
+          <button class="arcFeature" data-action="market" style="--feature-tone:#ffd36b"><span class="arcFeatureIcon">âœ¦</span><b>Mercado Arcano</b><small>Use ${Number(s.coins||0)} Ouro e ${Number(s.essence||0)} EssÃªncias</small><span class="arcFeatureBadge">NOVO</span></button>
+          <button class="arcFeature" data-action="missions" style="--feature-tone:#9f80ff"><span class="arcFeatureIcon">ğŸ“œ</span><b>MissÃµes</b><small>DiÃ¡rias e semanais</small></button>
+          <button class="arcFeature" data-action="season" style="--feature-tone:#ffd36b"><span class="arcFeatureIcon">ğŸ†</span><b>Temporada</b><small>NÃ­vel ${seasonLevel} Â· recompensas</small></button>
+          <button class="arcFeature" data-action="friends" style="--feature-tone:#72e79f"><span class="arcFeatureIcon">â™Ÿ</span><b>Amigos</b><small>${friends} ${friends===1?'amigo salvo':'amigos salvos'}</small></button>
+          <button class="arcFeature" data-action="ranking" style="--feature-tone:#ff76bd"><span class="arcFeatureIcon">${rank[0]}</span><b>Ranking</b><small>${rank[1]} Â· ${Number(s.rankedPoints||0)} RP</small></button>
+          <button class="arcFeature" data-action="account" style="--feature-tone:#75a7ff"><span class="arcFeatureIcon">â˜</span><b>Conta Arcana</b><small>${identity?'Conectada e sincronizÃ¡vel':'Entre para usar cloud save'}</small></button>
+          <button class="arcFeature" data-action="history" style="--feature-tone:#ffbd66"><span class="arcFeatureIcon">â†º</span><b>HistÃ³rico de Updates</b><small>Da v0.7.0 Ã  versÃ£o atual</small><span class="arcFeatureBadge">NOVO</span></button>
+          <button class="arcFeature" data-action="settings" style="--feature-tone:#a8b7d4"><span class="arcFeatureIcon">âš™</span><b>ConfiguraÃ§Ãµes</b><small>Som, visual e jogabilidade</small></button>
+          ${adminFeature}
+        </section>
+      </main>
+      <aside class="arcLobbySide">
+        <section class="arcLobbyCard arcProfileCard">
+          <div class="arcProfileSummary"><div class="arcProfileOrb">${rank[0]}</div><div><small>${escapeHtml(s.selectedTitle||'INICIADO')}</small><b>${escapeHtml(currentUserName())}</b><span>${rank[1]} Â· ${Number(s.rankedPoints||0)} RP</span></div></div>
+          <div class="arcStats"><div class="arcStat"><b>${Number(stats.matches||s.matches||0)}</b><small>PARTIDAS</small></div><div class="arcStat"><b>${Number(stats.wins||s.wins||0)}</b><small>VITÃ“RIAS</small></div><div class="arcStat"><b>${Number(p.level||1)}</b><small>NÃVEL</small></div></div>
+          <button class="arcSideLink" data-action="profile">ABRIR PERFIL COMPLETO</button>
+        </section>
+        <section class="arcLobbyCard arcProgressCard">
+          <div class="arcProgressHead"><div><small>TEMPORADA ATUAL</small><b>AscensÃ£o</b></div><span>NÃVEL ${seasonLevel}</span></div>
+          <div class="arcProgressTrack"><i style="width:${seasonPct}%"></i></div>
+          <div class="arcRewardPreview"><span><b>ğŸª™ ${Number(s.coins||0)}</b>OURO</span><span><b>âœ¦ ${Number(s.essence||0)}</b>ESSÃŠNCIA</span></div>
+          <button class="arcSideLink" data-action="market">ABRIR MERCADO ARCANO</button>
+        </section>
+        <section class="arcLobbyCard arcMissionCard">
+          <div class="arcProgressHead"><div><small>OBJETIVOS ATIVOS</small><b>MissÃµes</b></div><span>${(s.missions?.items||[]).filter(x=>x.progress>=x.goal&&!x.claimed).length} prontas</span></div>
+          <div class="arcMissionList">${missionPreview(s)}</div>
+          <button class="arcSideLink" data-action="missions">ABRIR TODAS</button>
+        </section>
+      </aside>
+    </div>
+    <footer class="arcLobbyFooter"><span>ARCANACLASH WEB v${LOBBY_VERSION} Â· CLOUD SAVE OPCIONAL</span><nav><button data-action="rules">Regras</button><button data-action="news">Notas da versÃ£o</button><button data-action="history">HistÃ³rico</button><button data-action="settings">Acessibilidade</button></nav></footer>
+  </div>`;
+}
+
+function installLobby(){
+  const home=byId('home');
+  if(!home||byId('arcLobbyRoot'))return;
+  const legacy=document.createElement('div');legacy.id='arcLegacyBridge';legacy.className='arcLegacyBridge';
+  while(home.firstChild)legacy.appendChild(home.firstChild);
+  home.appendChild(legacy);
+  const root=document.createElement('div');root.id='arcLobbyRoot';root.innerHTML=lobbyMarkup();home.appendChild(root);
+  home.classList.add('arcLobbyHome');
+  const version=byId('appVersion');if(version)version.textContent=LOBBY_VERSION;
+  bindLobby();
+}
+
+function syncLobbyVisibility(){
+  const home=byId('home');
+  document.body.classList.toggle('arcLobbyActive',!!home&&!home.classList.contains('hidden'));
+}
+
+function forceCoreScreen(id){
+  const screens=['home','modeSetup','roomScreen','joinScreen','heroScreen','chestScreen','updateScreen','rulesScreen','aboutScreen','gameover'];
+  screens.forEach(screen=>byId(screen)?.classList.toggle('hidden',screen!==id));
+}
+
+function installNavigationFallbacks(){
+  const routes={backModes:'home',closeRules:'home',closeAbout:'home',skipUpdate:'home',returnHome:'home',backJoin:'modeSetup',leaveRoom:'modeSetup'};
+  Object.entries(routes).forEach(([buttonId,target])=>{
+    const button=byId(buttonId);if(!button)return;
+    const original=button.onclick;
+    button.onclick=event=>{
+      try{original?.call(button,event)}finally{forceCoreScreen(target)}
+    };
+  });
+  document.addEventListener('click',event=>{
+    const button=event.target.closest?.('button');
+    if(!button||!['backModes','closeRules','closeAbout','skipUpdate'].includes(button.id))return;
+    event.preventDefault();event.stopImmediatePropagation();forceCoreScreen('home');
+  },true);
+  const panel=document.querySelector('#modeSetup .modeSetupPanel');
+  if(panel&&!byId('arcReturnLobby')){
+    const back=document.createElement('button');back.id='arcReturnLobby';back.className='arcReturnLobby';back.textContent='â€¹ LOBBY';back.onclick=()=>forceCoreScreen('home');panel.prepend(back);
+  }
+}
+
+function bindLobby(){
+  const root=byId('arcLobbyRoot');if(!root)return;
+  root.querySelectorAll('[data-mode-choice]').forEach(button=>button.addEventListener('click',()=>{
+    selectedMode=button.dataset.modeChoice;localStorage.setItem(MODE_KEY,selectedMode);refreshLobby(true);
+  }));
+  root.querySelectorAll('[data-action]').forEach(button=>button.addEventListener('click',()=>runAction(button.dataset.action)));
+}
+
+function runAction(action){
+  if(action==='play')openMode();
+  else if(action==='profile')coreProfileButton('profile');
+  else if(action==='account')globalThis.ArcanaOnline?.open?.();
+  else if(action==='missions')strategyTab('missions');
+  else if(action==='season')strategyTab('season');
+  else if(action==='ranking')strategyTab('profile');
+  else if(action==='collection100')globalThis.ArcanaOne?.open?.('collection');
+  else if(action==='mastery100')globalThis.ArcanaOne?.open?.('mastery');
+  else if(action==='replays100')globalThis.ArcanaOne?.open?.('replays');
+  else if(action==='events100')globalThis.ArcanaOne?.open?.('events');
+  else if(action==='decks'){
+    if(globalThis.ArcanaEvolution?.openDeckBuilder)globalThis.ArcanaEvolution.openDeckBuilder();
+    else openModal('decks');
+  }
+  else if(action==='market')globalThis.ArcanaMarket?.open?.();
+  else if(action==='friends')openModal('friends');
+  else if(action==='settings')openModal('settings');
+  else if(action==='admin')openModal('admin');
+  else if(action==='rules')byId('openRules')?.click();
+  else if(action==='news')showNews();
+  else if(action==='history')renderUpdateHistory();
+}
+
+function refreshLobby(force=false){
+  const root=byId('arcLobbyRoot');if(!root)return;
+  const p=profile(),s=strategy();
+  const signature=JSON.stringify([selectedMode,p.name,p.level,p.classId,p.discovered?.length,p.social?.friends?.length,p.stats?.matches,p.stats?.wins,s.doctrine,s.rankedPoints,s.seasonXp,s.seasonLevel,s.coins,s.essence,s.market?.owned?.length,s.market?.equipped,s.missions?.items?.map(x=>[x.id,x.progress,x.claimed]),identity?.id,isAdmin,securityState?.adminReady]);
+  if(!force&&signature===lastRenderSignature)return;
+  lastRenderSignature=signature;
+  root.innerHTML=lobbyMarkup();bindLobby();
+  const version=byId('appVersion');if(version)version.textContent=LOBBY_VERSION;
+}
+
+function modalShell(title,subtitle,content){
+  let modal=byId('arcLobbyModal');
+  if(!modal){modal=document.createElement('section');modal.id='arcLobbyModal';modal.className='arcLobbyModal hidden';document.body.appendChild(modal)}
+  modal.innerHTML=`<div class="arcLobbyModalPanel" role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}"><header class="arcLobbyModalHead"><div><small>${escapeHtml(subtitle)}</small><h2>${escapeHtml(title)}</h2></div><button class="arcModalClose" aria-label="Fechar">Ã—</button></header><div class="arcLobbyModalBody">${content}</div></div>`;
+  modal.classList.remove('hidden');modal.querySelector('.arcModalClose').onclick=closeModal;modal.onclick=event=>{if(event.target===modal)closeModal()};
+  modalType=title;
+  return modal;
+}
+
+function closeModal(){byId('arcLobbyModal')?.classList.add('hidden');modalType=''}
+
+function openModal(type){
+  if(type==='friends')renderFriends();
+  else if(type==='decks')renderDecks();
+  else if(type==='settings')renderSettings();
+  else if(type==='admin')renderAdmin();
+}
+
+function renderFriends(){
+  const p=profile(),friends=p.social?.friends||[];
+  const rows=friends.length?friends.map((friend,index)=>`<div class="arcFriendRow"><div class="arcFriendAvatar">${escapeHtml(friend.name.slice(0,1).toUpperCase())}</div><div class="arcFriendName"><b>${escapeHtml(friend.name)}</b><small>Salvo na sua Conta Arcana</small></div><div class="arcFriendActions"><button data-challenge="${index}">DESAFIAR</button><button class="danger" data-remove-friend="${index}">REMOVER</button></div></div>`).join(''):'<div class="arcEmpty"><b>Sua lista estÃ¡ vazia</b><span>Adicione um nome para organizar seus desafios.</span></div>';
+  const modal=modalShell('Amigos','SOCIAL & DESAFIOS',`<p class="arcModalLead">A lista de amigos fica no seu perfil e acompanha o cloud save. Ao desafiar, o ArcanaClash cria uma sala PvP para vocÃª compartilhar o cÃ³digo.</p><div class="arcFriendForm"><input id="arcFriendInput" maxlength="24" placeholder="Nome do amigo"><button id="arcAddFriend" class="arcModalButton primary">ADICIONAR</button></div><div class="arcFriendList">${rows}</div>`);
+  const add=()=>{const input=byId('arcFriendInput'),name=input?.value.trim();if(!name)return toast('Digite o nome do amigo.');const next=profile(),social={...(next.social||{})},list=[...(social.friends||[])];if(list.some(x=>x.name.toLowerCase()===name.toLowerCase()))return toast('Esse amigo jÃ¡ estÃ¡ na lista.');list.push({name,addedAt:Date.now()});social.friends=list;next.social=social;saveProfile(next);renderFriends();toast('Amigo adicionado ao perfil.')};
+  byId('arcAddFriend').onclick=add;byId('arcFriendInput').onkeydown=event=>{if(event.key==='Enter')add()};
+  modal.querySelectorAll('[data-remove-friend]').forEach(button=>button.onclick=()=>{const next=profile(),list=[...(next.social?.friends||[])];list.splice(Number(button.dataset.removeFriend),1);next.social={...(next.social||{}),friends:list};saveProfile(next);renderFriends()});
+  modal.querySelectorAll('[data-challenge]').forEach(button=>button.onclick=()=>{const friend=friends[Number(button.dataset.challenge)];closeModal();toast(`Criando sala para desafiar ${friend?.name||'seu amigo'}...`);openMode('duel',true)});
+}
+
+function normalizeLoadouts(p){
+  const current={name:'Loadout atual',classId:p.classId||'vanguard',doctrine:strategy().doctrine||'balanced'};
+  const saved=Array.isArray(p.loadouts)?p.loadouts.slice(0,3):[];
+  while(saved.length<3)saved.push(null);
+  return {current,saved};
+}
+
+function classOptions(selected){return Object.entries(CLASSES).map(([id,item])=>`<option value="${id}" ${id===selected?'selected':''}>${item.icon} ${item.name}</option>`).join('')}
+function doctrineOptions(selected){return Object.entries(DOCTRINES).map(([id,item])=>`<option value="${id}" ${id===selected?'selected':''}>${item.icon} ${item.name}</option>`).join('')}
+
+function renderDecks(){
+  const p=profile(),{current,saved}=normalizeLoadouts(p);
+  const catalog=globalThis.__ARCANA?.cards||[],legal=catalog.filter(card=>globalThis.ArcanaEvolution?.allowedForClass?.(card,current.classId)).length;
+  const rows=saved.map((loadout,index)=>loadout?`<div class="arcLoadoutRow"><input class="arcLoadoutName" data-loadout-name="${index}" maxlength="24" value="${escapeHtml(loadout.name||`Loadout ${index+1}`)}"><div class="arcLoadoutInfo"><b>${CLASSES[loadout.classId]?.icon||'âœ¦'} ${escapeHtml(CLASSES[loadout.classId]?.name||'Classe Arcana')}</b><small>${DOCTRINES[loadout.doctrine]?.icon||'âš–ï¸'} Doutrina ${escapeHtml(DOCTRINES[loadout.doctrine]?.name||'EquilÃ­brio')}</small></div><div class="arcFriendActions"><button data-equip-loadout="${index}">EQUIPAR</button><button class="danger" data-delete-loadout="${index}">APAGAR</button></div></div>`:`<div class="arcLoadoutRow"><div class="arcLoadoutInfo"><b>EspaÃ§o ${index+1}</b><small>Nenhum loadout salvo.</small></div><span></span><div class="arcFriendActions"><button data-save-loadout="${index}">SALVAR ATUAL</button></div></div>`).join('');
+  const modal=modalShell('ColeÃ§Ã£o & Decks','LOADOUTS QUE ALTERAM A PARTIDA',`<p class="arcModalLead">Cada loadout combina uma Classe Arcana com uma Doutrina. A classe define passiva e habilidade; a doutrina reorganiza a Reserva e aplica o bÃ´nus tÃ¡tico no comeÃ§o da partida.</p><div class="arcLoadoutCurrent"><label>CLASSE<select id="arcCurrentClass">${classOptions(current.classId)}</select></label><label>DOUTRINA<select id="arcCurrentDoctrine">${doctrineOptions(current.doctrine)}</select></label><button id="arcApplyCurrent" class="arcModalButton primary">EQUIPAR</button></div><div class="arcLoadoutList">${rows}</div><div class="arcCollectionSummary"><div><b>${catalog.length} cartas no Arsenal Â· ${legal} vÃ¡lidas para esta classe</b><small>${Number(p.discovered?.length||0)} descobertas no Perfil Arcano. Cada classe possui 20 exclusivas e 12 Neutras.</small></div><button id="arcOpenCollection" class="arcModalButton">ABRIR COLEÃ‡ÃƒO</button></div>`);
+  const equip=(classId,doctrine)=>{const next=profile();next.classId=classId;saveProfile(next);const state=strategy();state.doctrine=doctrine;saveStrategy(state);toast('Loadout equipado para a prÃ³xima partida.')};
+  byId('arcApplyCurrent').onclick=()=>{equip(byId('arcCurrentClass').value,byId('arcCurrentDoctrine').value);renderDecks()};
+  byId('arcOpenCollection').onclick=()=>{closeModal();coreProfileButton('collection')};
+  modal.querySelectorAll('[data-save-loadout]').forEach(button=>button.onclick=()=>{const next=profile(),data=normalizeLoadouts(next).saved,index=Number(button.dataset.saveLoadout);data[index]={name:`Loadout ${index+1}`,classId:next.classId||'vanguard',doctrine:strategy().doctrine||'balanced'};next.loadouts=data;saveProfile(next);renderDecks()});
+  modal.querySelectorAll('[data-equip-loadout]').forEach(button=>button.onclick=()=>{const item=saved[Number(button.dataset.equipLoadout)];if(item)equip(item.classId,item.doctrine);renderDecks()});
+  modal.querySelectorAll('[data-delete-loadout]').forEach(button=>button.onclick=()=>{const next=profile(),data=normalizeLoadouts(next).saved;data[Number(button.dataset.deleteLoadout)]=null;next.loadouts=data;saveProfile(next);renderDecks()});
+  modal.querySelectorAll('[data-loadout-name]').forEach(input=>input.onchange=()=>{const next=profile(),data=normalizeLoadouts(next).saved,index=Number(input.dataset.loadoutName);if(data[index])data[index].name=input.value.trim()||`Loadout ${index+1}`;next.loadouts=data;saveProfile(next)});
+}
+
+function renderSettings(){
+  const value=settings();
+  const toggle=(key,label,help)=>`<label class="arcSetting"><div><b>${label}</b><small>${help}</small></div><input type="checkbox" data-setting="${key}" ${value[key]?'checked':''}></label>`;
+  const modal=modalShell('ConfiguraÃ§Ãµes','INTERFACE, SOM & ACESSIBILIDADE',`<div class="arcSettingList"><label class="arcSetting"><div><b>Volume da interface</b><small>Feedback sonoro dos botÃµes do lobby.</small></div><input type="range" min="0" max="100" value="${value.volume}" data-setting-range="volume"></label>${toggle('sound','Efeitos sonoros','Ativa o som de confirmaÃ§Ã£o dos controles.')}${toggle('vibration','VibraÃ§Ã£o','Feedback tÃ¡til em aparelhos compatÃ­veis.')}${toggle('confirmTurn','Confirmar fim do turno','Evita encerrar o turno por toque acidental.')}${toggle('compactCards','Cartas compactas','Mostra mais cartas na mÃ£o durante a batalha.')}${toggle('largeUi','Interface ampliada','Aumenta textos e Ã¡reas de interaÃ§Ã£o.')}${toggle('highContrast','Alto contraste','ReforÃ§a bordas e legibilidade.')}${toggle('reducedMotion','Reduzir movimento','Remove transiÃ§Ãµes e animaÃ§Ãµes nÃ£o essenciais.')}${toggle('performance','Modo desempenho','Simplifica brilhos, sombras e desfoques.')}</div><div class="arcSettingsActions"><button id="arcFullscreen" class="arcModalButton primary">TELA CHEIA</button><button id="arcResetSettings" class="arcModalButton">RESTAURAR PADRÃ•ES</button></div>`);
+  modal.querySelectorAll('[data-setting]').forEach(input=>input.onchange=()=>{const next=settings();next[input.dataset.setting]=input.checked;saveSettings(next)});
+  modal.querySelectorAll('[data-setting-range]').forEach(input=>input.oninput=()=>{const next=settings();next[input.dataset.settingRange]=Number(input.value);saveSettings(next)});
+  byId('arcFullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch{toast('Tela cheia nÃ£o estÃ¡ disponÃ­vel neste navegador.')}};
+  byId('arcResetSettings').onclick=()=>{saveSettings(DEFAULT_SETTINGS);renderSettings();toast('ConfiguraÃ§Ãµes restauradas.')};
+}
+
+function renderAdmin(){
+  if(!isAdmin)return toast('Esta conta nÃ£o possui permissÃ£o administrativa.');
+  if(!securityState?.adminReady){
+    modalShell('AdministraÃ§Ã£o bloqueada','MFA OBRIGATÃ“RIO',`<div class="arcAdminLock"><span>ğŸ”</span><h3>Confirme sua identidade para continuar</h3><p>O papel ADM foi localizado no banco, mas nenhuma operaÃ§Ã£o administrativa serÃ¡ aceita sem um cÃ³digo do seu aplicativo autenticador. Isso protege todas as contas mesmo se uma sessÃ£o comum for roubada.</p><button id="arcAdminOpenMfa" class="arcModalButton primary">ABRIR CONTA ARCANA E VERIFICAR</button></div>`);
+    byId('arcAdminOpenMfa').onclick=()=>{closeModal();globalThis.ArcanaOnline?.open?.()};
+    return;
+  }
+  const trusted=securityState?.trusted||{};
+  modalShell('AdministraÃ§Ã£o segura','BANCO PRIVADO Â· MFA Â· AUDITORIA',`<p class="arcModalLead">As alteraÃ§Ãµes abaixo acontecem no servidor, exigem MFA e registram administrador, alvo, motivo e valores anteriores. O painel nÃ£o altera mais dinheiro pelo navegador.</p><div class="arcAdminIdentity"><span>ğŸ›¡ï¸</span><div><small>CONTA ADMINISTRADORA VERIFICADA</small><b>${escapeHtml(identity?.email||'Conta Arcana')}</b><code>${escapeHtml(identity?.id||'ID indisponÃ­vel')}</code></div><button id="arcAdminCopyId">COPIAR MEU ID</button></div><div class="arcAdminTrusted"><span><small>OURO CONFIÃVEL</small><b>${Number(trusted.coins||0)}</b></span><span><small>ESSÃŠNCIA CONFIÃVEL</small><b>${Number(trusted.essence||0)}</b></span><span><small>SESSÃƒO</small><b>${escapeHtml(String(securityState?.aal||'aal2').toUpperCase())}</b></span></div><div class="arcAdminForm"><label class="wide">ID DA CONTA ALVO<input id="arcAdminTarget" maxlength="36" spellcheck="false" value="${escapeHtml(identity?.id||'')}"></label><label>AJUSTE DE OURO<input id="arcAdminCoins" type="number" min="-100000" max="100000" step="1" value="0"></label><label>AJUSTE DE ESSÃŠNCIA<input id="arcAdminEssence" type="number" min="-100000" max="100000" step="1" value="0"></label><label class="wide">MOTIVO OBRIGATÃ“RIO<input id="arcAdminReason" maxlength="200" placeholder="Ex.: correÃ§Ã£o de recompensa nÃ£o recebida"></label><button id="arcAdminGrant" class="arcModalButton primary wide">APLICAR NO SERVIDOR</button><p id="arcAdminStatus" class="arcAdminStatus wide">Limite por operaÃ§Ã£o: Â±100.000. Valores nunca ficam negativos.</p></div><section class="arcAdminAudit"><header><div><small>REGISTRO IMUTÃVEL PARA JOGADORES</small><h3>Ãšltimas operaÃ§Ãµes</h3></div><button id="arcAdminReloadAudit" class="arcModalButton">ATUALIZAR</button></header><div id="arcAdminAuditRows"><p class="arcAdminStatus">Carregando auditoria...</p></div></section>`);
+  byId('arcAdminCopyId').onclick=async()=>{try{await navigator.clipboard.writeText(identity?.id||'');toast('ID da Conta Arcana copiado.')}catch{toast('NÃ£o foi possÃ­vel copiar o ID.')}};
+  const errorText=code=>({mfa_required:'O MFA desta sessÃ£o expirou. Verifique novamente na Conta Arcana.',forbidden:'O servidor recusou a permissÃ£o ADM.',invalid_request:'Confira o ID, os valores e informe um motivo com pelo menos 8 caracteres.',user_not_found:'Nenhuma conta foi encontrada com esse ID.'}[code]||'A operaÃ§Ã£o foi recusada pelo servidor.');
+  const loadAudit=async()=>{
+    const rows=byId('arcAdminAuditRows');if(!rows)return;
+    rows.innerHTML='<p class="arcAdminStatus">Carregando auditoria...</p>';
+    try{
+      const entries=await globalThis.ArcanaOnline.adminAudit(25);
+      rows.innerHTML=entries.length?entries.map(entry=>`<article class="arcAuditRow"><div><b>${escapeHtml(entry.action||'operaÃ§Ã£o')}</b><time>${escapeHtml(new Date(entry.createdAt).toLocaleString('pt-BR'))}</time></div><code>${escapeHtml(entry.targetUserId||'alvo removido')}</code><p>${escapeHtml(entry.reason||'Sem motivo')}</p><small>Ouro: ${Number(entry.before?.coins||0)} â†’ ${Number(entry.after?.coins||0)} Â· EssÃªncia: ${Number(entry.before?.essence||0)} â†’ ${Number(entry.after?.essence||0)}</small></article>`).join(''):'<p class="arcAdminStatus">Nenhuma operaÃ§Ã£o administrativa registrada.</p>';
+    }catch(error){rows.innerHTML=`<p class="arcAdminStatus error">${escapeHtml(errorText(error.code))}</p>`}
+  };
+  byId('arcAdminReloadAudit').onclick=loadAudit;
+  byId('arcAdminGrant').onclick=async()=>{
+    const button=byId('arcAdminGrant'),message=byId('arcAdminStatus');
+    const targetUserId=byId('arcAdminTarget').value.trim(),coinsDelta=Math.trunc(Number(byId('arcAdminCoins').value)||0),essenceDelta=Math.trunc(Number(byId('arcAdminEssence').value)||0),reason=byId('arcAdminReason').value.trim();
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(targetUserId)||Math.abs(coinsDelta)>100000||Math.abs(essenceDelta)>100000||(!coinsDelta&&!essenceDelta)||reason.length<8){message.className='arcAdminStatus wide error';message.textContent=errorText('invalid_request');return}
+    button.disabled=true;message.className='arcAdminStatus wide';message.textContent='Aplicando e registrando auditoria...';
+    try{
+      const result=await globalThis.ArcanaOnline.adminAdjust({targetUserId,coinsDelta,essenceDelta,reason});
+      securityState=await globalThis.ArcanaOnline.context();
+      message.className='arcAdminStatus wide ok';message.textContent=`OperaÃ§Ã£o concluÃ­da. Saldo confiÃ¡vel: ${Number(result.trusted?.coins||0)} Ouro e ${Number(result.trusted?.essence||0)} EssÃªncias.`;
+      byId('arcAdminCoins').value='0';byId('arcAdminEssence').value='0';byId('arcAdminReason').value='';
+      await loadAudit();
+    }catch(error){message.className='arcAdminStatus wide error';message.textContent=errorText(error.code)}finally{button.disabled=false}
+  };
+  loadAudit();
+}
+
+function showNews(){
+  byId('openAbout')?.click();
+  requestAnimationFrame(()=>{
+    const eyebrow=document.querySelector('#aboutScreen .eyebrow'),title=document.querySelector('#aboutScreen h2'),rules=document.querySelector('#aboutScreen .rules');
+    if(eyebrow)eyebrow.textContent=`ARCANACLASH ${LOBBY_VERSION} WEB`;
+    if(title)title.textContent='ConvergÃªncia 1.0';
+    if(rules)rules.innerHTML='<p><b>â™Ÿ EstratÃ©gia completa:</b> deck construÃ­do, mulligan, Reserva conhecida, objetivos de rota e vitÃ³ria alternativa por DomÃ­nio.</p><p><b>ğŸ’ ColeÃ§Ã£o & Crafting:</b> cÃ³pias agora tÃªm funÃ§Ã£o real; crie, desmonte, favorite e use atÃ© trÃªs iguais para aumentar a consistÃªncia.</p><p><b>âœ¥ Maestria:</b> as oito classes ganharam Ã¡rvores prÃ³prias com progressÃ£o permanente para PvE.</p><p><b>â³ Controle da partida:</b> desfazer antes de encerrar, confirmaÃ§Ã£o de fim perigoso, Ãºltimas aÃ§Ãµes e replays locais.</p><p><b>ğŸŒŒ Mundo vivo:</b> eventos semanais, temporada, missÃµes, conquistas e recompensas de coleÃ§Ã£o.</p><p><b>ğŸ›¡ï¸ AdministraÃ§Ã£o real:</b> jogadores online, IDs, espectador, banimentos, economia e auditoria protegidos por MFA.</p><p><b>ğŸ“± Definitiva na Web:</b> migraÃ§Ã£o automÃ¡tica, cloud save, cache offline e interface responsiva para PC e celular.</p>';
+  });
+}
+
+function renderUpdateHistory(){
+  const entries=UPDATE_HISTORY.map((release,index)=>`<article class="arcUpdateEntry ${index===0?'current':''}" style="--update-tone:${release.tone}"><div class="arcUpdateRail"><i></i></div><div class="arcUpdateCard"><header><div><small>${escapeHtml(release.date)}</small><h3>v${escapeHtml(release.version)} Â· ${escapeHtml(release.title)}</h3></div><span>${escapeHtml(release.tag)}</span></header><ul>${release.notes.map(note=>`<li>${escapeHtml(note)}</li>`).join('')}</ul></div></article>`).join('');
+  modalShell('HistÃ³rico de Updates','A JORNADA DA VERSÃƒO 1.0',`<p class="arcModalLead">Aqui ficam registradas as mudanÃ§as reais de cada versÃ£o pÃºblica. A linha 1.0 agora recebe micro-updates de correÃ§Ã£o sem apagar o histÃ³rico do lanÃ§amento.</p><div class="arcUpdateTimeline">${entries}</div><div class="arcUpdateFuture"><span>VERSÃƒO ATUAL</span><b>1.0.2 Â· Carregamento Restaurado</b><small>Lobby e motor restaurados, mantendo a mÃ£o navegÃ¡vel no PC e no celular.</small></div>`);
+}
+
+function applySettings(value=settings()){
+  const classes={arcReducedMotion:value.reducedMotion,arcPerformance:value.performance,arcLargeUi:value.largeUi,arcHighContrast:value.highContrast,arcCompactCards:value.compactCards};
+  Object.entries(classes).forEach(([name,on])=>document.body.classList.toggle(name,!!on));
+}
+
+function clickFeedback(event){
+  if(!event.target.closest('button'))return;
+  const value=settings();
+  if(value.vibration)try{navigator.vibrate?.(12)}catch{}
+  if(!value.sound||value.volume<=0)return;
+  try{
+    const Context=window.AudioContext||window.webkitAudioContext;if(!Context)return;
+    clickFeedback.ctx=clickFeedback.ctx||new Context();
+    const oscillator=clickFeedback.ctx.createOscillator(),gain=clickFeedback.ctx.createGain(),now=clickFeedback.ctx.currentTime;
+    oscillator.type='sine';oscillator.frequency.setValueAtTime(410,now);oscillator.frequency.exponentialRampToValueAtTime(620,now+.045);gain.gain.setValueAtTime(Math.max(.001,value.volume/1000),now);gain.gain.exponentialRampToValueAtTime(.001,now+.055);oscillator.connect(gain).connect(clickFeedback.ctx.destination);oscillator.start(now);oscillator.stop(now+.06);
+  }catch{}
+}
+
+function installConfirmTurn(){
+  byId('endTurn')?.addEventListener('click',event=>{
+    if(!settings().confirmTurn)return;
+    if(!window.confirm('Encerrar seu turno agora?')){event.preventDefault();event.stopImmediatePropagation()}
+  },true);
+}
+
+async function refreshIdentity(){
+  const previousId=identity?.id||null,previousAdmin=isAdmin,previousReady=securityState?.adminReady;
+  try{
+    identity=await globalThis.ArcanaOnline?.user?.()||null;
+    securityState=identity?await globalThis.ArcanaOnline?.context?.()||null:null;
+    isAdmin=securityState?.role==='admin';
+  }catch{identity=null;securityState=null;isAdmin=false}
+  if(previousId!==(identity?.id||null)||previousAdmin!==isAdmin||previousReady!==securityState?.adminReady)refreshLobby(true);
+}
+
+function install(){
+  applySettings();
+  installLobby();
+  installNavigationFallbacks();
+  syncLobbyVisibility();
+  const home=byId('home');
+  if(home)new MutationObserver(syncLobbyVisibility).observe(home,{attributes:true,attributeFilter:['class']});
+  installConfirmTurn();
+  document.addEventListener('click',clickFeedback,{passive:true});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&modalType)closeModal()});
+  window.addEventListener('arcana:profile',()=>refreshLobby(true));
+  window.addEventListener('arcana:economy',()=>refreshLobby(true));
+  window.addEventListener('arcana:identity',refreshIdentity);
+  window.addEventListener('arcana:security',refreshIdentity);
+  window.addEventListener('arcana:match',()=>refreshLobby(true));
+  window.addEventListener('storage',()=>refreshLobby(true));
+  setTimeout(refreshIdentity,250);
+  setInterval(()=>{refreshLobby();const cloud=byId('arcCloudMini')?.textContent||'';if(!identity||/LOCAL/.test(cloud))refreshIdentity()},2200);
+}
+
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',install,{once:true}):install();
+
+globalThis.ArcanaLobby={version:LOBBY_VERSION,refresh:()=>refreshLobby(true),openSettings:()=>openModal('settings'),openFriends:()=>openModal('friends')};
