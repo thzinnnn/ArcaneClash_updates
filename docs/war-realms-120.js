@@ -1,10 +1,11 @@
 (()=>{
 'use strict';
 
-const VERSION='1.2.0';
+const VERSION='1.2.1';
 const PROFILE_KEY='arcana_profile_v2';
 const WAR_KEY='arcana_war_realms_v1';
 const SETTINGS_KEY='arcana_lobby_settings_v1';
+const MODE_META={solo:['🤖','Jornada','Campanha contra a IA'],duel:['⚔️','Duelo','1v1 competitivo'],duo:['🤝','Confronto','2v2 em equipe'],raidcoop:['🐲','Raid Coop','Chefes para 2–4 jogadores'],blitz:['⚡','Blitz','Partida rápida'],chaos:['🎲','Caos','Regras mutantes'],survival:['🏹','Sobrevivência','Resista a ondas'],raid:['👹','Raid Solo','Chefes desafiadores'],draft:['🎁','Draft','Construa durante a jornada']};
 const CLASS_IDS=['vanguard','pyromancer','necromancer','druid','cryomancer','assassin','summoner','chronomancer'];
 const CLASS_INFO={vanguard:['🛡️','Guerreiro Arcano'],pyromancer:['🔥','Piromante'],necromancer:['💀','Necromante'],druid:['🌿','Druida'],cryomancer:['❄️','Criomante'],assassin:['🗡️','Assassino'],summoner:['🌀','Invocador'],chronomancer:['⏳','Cronomante']};
 const parse=(text,fallback={})=>{try{return JSON.parse(text)||fallback}catch{return fallback}};
@@ -52,6 +53,14 @@ const NODES=[
 ];
 
 const NODE_MAP=Object.fromEntries(NODES.map((node,index)=>[node.id,{...node,index}]));
+const MAP_POSITIONS={
+  auroraGate:[18,28],emberChoice:[25,32],sunForge:[32,28],mirrorHall:[38,35],oathShrine:[32,42],lionKing:[22,39],
+  verdantEdge:[43,52],beastChoice:[37,59],sporeMarket:[28,65],ancientRoots:[21,72],sapShrine:[31,79],wildHeart:[42,69],
+  frozenPass:[50,45],memoryChoice:[56,37],clockworkCamp:[63,31],frozenLibrary:[71,25],timeShrine:[81,31],iceQueen:[75,42],
+  voidBreach:[53,56],crownChoice:[61,61],lastMerchant:[69,68],impossibleCity:[80,62],starShrine:[82,77],architect:[70,79]
+};
+const MAP_REALM_LABELS={aurora:[18,16],verdant:[18,57],frost:[70,15],void:[76,52]};
+const MAP_CONNECTIONS=NODES.flatMap((node,index)=>index&&index%6!==0?[[NODES[index-1].id,node.id]]:index?[[NODES[index-1].id,node.id]]:[]);
 const DEFAULT_WAR={schema:1,current:'auroraGate',completed:[],unlocked:['auroraGate'],choices:{},gold:0,breath:3,relics:[],scars:[],awaiting:null,xp:0,level:1,claimed:[],bestiary:{},battleLog:[],ending:null,daily:{date:'',wins:0,cards:0,claimed:[]}};
 function state(){const p=profile();return {...clone(DEFAULT_WAR),...parse(localStorage.getItem(WAR_KEY),{}),...(p.war120||{})}}
 function save(value){value.level=Math.max(1,1+Math.floor(Number(value.xp||0)/180));localStorage.setItem(WAR_KEY,JSON.stringify(value));const p=profile();p.war120=clone(value);saveProfile(p)}
@@ -66,9 +75,11 @@ function overlay(id,title,subtitle,html){let root=document.getElementById(id);if
 
 function renderWar(){
   const value=state(),active=NODE_MAP[value.current]||NODE_MAP.auroraGate;
-  const realms=Object.entries(REALMS).map(([id,realm])=>{const nodes=NODES.filter(node=>node.realm===id),done=nodes.filter(node=>value.completed.includes(node.id)).length;return `<section class="arcRealm" style="--realm:${realm.tone};--realm-sky:${realm.sky}"><header><span>${realm.icon}</span><div><small>${done}/${nodes.length} CONCLUÍDOS</small><h3>${realm.name}</h3><p>${realm.lore}</p></div></header><div class="arcRealmPath">${nodes.map(node=>`<button data-war-node="${node.id}" class="arcWarNode ${node.id===active.id?'active':''} ${value.completed.includes(node.id)?'done':''}" ${!value.unlocked.includes(node.id)?'disabled':''}><span>${node.icon}</span><b>${node.name}</b><small>${value.completed.includes(node.id)?'CONCLUÍDO':node.type.toUpperCase()}</small></button>`).join('')}</div></section>`}).join('');
+  const lines=MAP_CONNECTIONS.map(([from,to])=>{const a=MAP_POSITIONS[from],b=MAP_POSITIONS[to],lit=value.unlocked.includes(to)||value.completed.includes(from);return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" class="${lit?'lit':''}"/>`}).join('');
+  const labels=Object.entries(MAP_REALM_LABELS).map(([id,pos])=>{const realm=REALMS[id],done=NODES.filter(node=>node.realm===id&&value.completed.includes(node.id)).length;return `<div class="arcMapRealmLabel" style="--x:${pos[0]}%;--y:${pos[1]}%;--realm:${realm.tone}"><span>${realm.icon}</span><b>${realm.name}</b><small>${done}/6</small></div>`}).join('');
+  const mapNodes=NODES.map((node,index)=>{const pos=MAP_POSITIONS[node.id],unlocked=value.unlocked.includes(node.id),done=value.completed.includes(node.id);return `<button data-war-node="${node.id}" aria-label="${esc(node.name)}" class="arcMapNode ${node.id===active.id?'active':''} ${done?'done':''} ${node.type==='boss'?'boss':''}" style="--x:${pos[0]}%;--y:${pos[1]}%;--realm:${REALMS[node.realm].tone}" ${!unlocked?'disabled':''}><span class="arcMapPulse"></span><i>${done?'✓':node.icon}</i><em>${index+1}</em><b>${esc(node.name)}</b><small>${done?'CONCLUÍDO':unlocked?node.type.toUpperCase():'BLOQUEADO'}</small></button>`}).join('');
   const enemy=active.enemy,buttons=active.type==='battle'||active.type==='boss'?`<button id="arcWarBattle" class="primary">${active.type==='boss'?'ENFRENTAR CHEFE':'INICIAR ENCONTRO'}</button>`:active.type==='event'?`<div class="arcWarChoices">${active.choices.map(([label,effect])=>`<button data-war-choice="${effect}">${label}</button>`).join('')}</div>`:active.type==='shop'?'<button id="arcWarShop">COMPRAR RELÍQUIA · 120 OURO</button>':'<div class="arcWarChoices"><button data-war-shrine="heal">RECUPERAR FÔLEGO</button><button data-war-shrine="power">PREPARAR BÊNÇÃO</button></div>';
-  const root=overlay('arcWarCampaign','Guerra dos Reinos','CAMPANHA 1.2 · ESCOLHAS · CHEFES EM FASES',`<div class="arcWarStatus"><span>🪙 <b>${value.gold}</b><small>OURO DA GUERRA</small></span><span>💚 <b>${value.breath}/3</b><small>FÔLEGO</small></span><span>✦ <b>${value.relics.length}</b><small>RELÍQUIAS</small></span><span>⚔️ <b>${value.level}</b><small>NÍVEL DE GUERRA</small></span></div><div class="arcWarRealms">${realms}</div><section class="arcWarBrief" style="--realm:${REALMS[active.realm].tone}"><span>${active.icon}</span><div><small>${REALMS[active.realm].name} · ${active.type.toUpperCase()}</small><h3>${active.name}</h3><p>${active.text}</p>${enemy?`<div class="arcEnemyPreview"><b>${enemy[1]} ${enemy[0]}</b><span>IA ${styleName(enemy[2])} · ${modifierName(active.modifier)}</span></div>`:''}</div>${buttons}</section>`);
+  const root=overlay('arcWarCampaign','Guerra dos Reinos','MAPA JOGÁVEL · 24 DESTINOS · QUATRO REINOS',`<div class="arcWarMapToolbar"><div class="arcWarStatus"><span>🪙 <b>${value.gold}</b><small>OURO</small></span><span>💚 <b>${value.breath}/3</b><small>FÔLEGO</small></span><span>✦ <b>${value.relics.length}</b><small>RELÍQUIAS</small></span><span>⚔️ <b>${value.level}</b><small>NÍVEL</small></span></div><div class="arcMapHint"><b>ARRASTE PARA EXPLORAR</b><small>Escolha um destino iluminado no próprio mapa</small></div></div><div class="arcWorldScroller"><div class="arcWorldMap"><svg class="arcMapRoutes" viewBox="0 0 100 100" preserveAspectRatio="none">${lines}</svg>${labels}${mapNodes}<div class="arcMapCompass"><i>N</i><span>✦</span></div></div></div><section class="arcWarBrief arcWarMapBrief" style="--realm:${REALMS[active.realm].tone}"><span>${active.icon}</span><div><small>${REALMS[active.realm].name} · ${active.type.toUpperCase()}</small><h3>${active.name}</h3><p>${active.text}</p>${enemy?`<div class="arcEnemyPreview"><b>${enemy[1]} ${enemy[0]}</b><span>IA ${styleName(enemy[2])} · ${modifierName(active.modifier)}</span></div>`:''}</div>${buttons}</section>`);
   root.querySelectorAll('[data-war-node]').forEach(button=>button.onclick=()=>{const next=state();next.current=button.dataset.warNode;save(next);renderWar()});
   root.querySelector('#arcWarBattle')?.addEventListener('click',()=>startEncounter(active));
   root.querySelectorAll('[data-war-choice]').forEach(button=>button.onclick=()=>resolveChoice(active,button.dataset.warChoice));
@@ -164,8 +175,40 @@ function claimTrack(level){const value=state(),item=TRACK[level-1];if(!item||lev
 
 function renderBestiary(){const value=state(),cards=NODES.filter(node=>node.enemy).map(node=>{const record=value.bestiary[node.id]||{},known=record.seen>0||value.unlocked.includes(node.id);return `<article class="${known?'known':'unknown'}" style="--realm:${REALMS[node.realm].tone}"><span>${known?node.enemy[1]:'?'}</span><div><small>${REALMS[node.realm].name}</small><h3>${known?node.enemy[0]:'Adversário desconhecido'}</h3><p>${known?`${styleName(node.enemy[2])} · ${modifierName(node.modifier)}`:'Encontre este comandante na campanha.'}</p></div><em>${record.wins||0} VITÓRIAS</em></article>`}).join('');overlay('arcWarBestiary','Bestiário dos Reinos','COMANDANTES · CHEFES · MECÂNICAS',`<div class="arcBestiary">${cards}</div>`)}
 
-function injectLobby(){const grid=document.querySelector('#arcLobbyRoot .arcFeatureGrid');if(!grid)return;const campaign=grid.querySelector('[data-asc-action="campaign"]');if(campaign){campaign.querySelector('b').textContent='Guerra dos Reinos';campaign.querySelector('small').textContent='24 encontros · chefes em fases';campaign.querySelector('.arcFeatureBadge').textContent='1.2'}if(grid.querySelector('[data-war-action]'))return;for(const feature of [['vault','🗄️','Cofre de Decks','5 espaços por classe · estatísticas'],['codex','⚔️','Códice da Guerra','30 níveis · conquistas e recompensas'],['bestiary','🐉','Bestiário','Comandantes, chefes e mecânicas']]){const button=document.createElement('button');button.className='arcFeature arcWarFeature';button.dataset.warAction=feature[0];button.innerHTML=`<span class="arcFeatureIcon">${feature[1]}</span><b>${feature[2]}</b><small>${feature[3]}</small><span class="arcFeatureBadge">NOVO</span>`;grid.appendChild(button)}}
-function actions(event){const campaign=event.target.closest?.('[data-asc-action="campaign"]');if(campaign){event.preventDefault();event.stopImmediatePropagation();renderWar();return}const action=event.target.closest?.('[data-war-action]')?.dataset.warAction;if(action==='vault')renderVault();if(action==='codex')renderCodex();if(action==='bestiary')renderBestiary()}
+function featureByText(text){return [...document.querySelectorAll('#arcLobbyRoot .arcFeatureGrid > button')].find(button=>(button.textContent||'').toLocaleLowerCase('pt-BR').includes(text))}
+function renderModes(){
+  const cards=[...document.querySelectorAll('#arcLobbyRoot .arcWorldMapCard [data-mode-choice]')];
+  const active=localStorage.getItem('arcana_lobby_mode_v1')||'solo';
+  const html=cards.map((card,index)=>{const id=card.dataset.modeChoice,meta=MODE_META[id]||['✦',id,'Modo de jogo'];return `<button data-mode-proxy="${index}" class="${id===active?'active':''}"><span>${meta[0]}</span><div><b>${meta[1]}</b><small>${meta[2]}</small></div><i>${id===active?'ATUAL':'›'}</i></button>`}).join('');
+  const root=overlay('arcWarModes','Escolha o modo','NOVE MODOS · UMA ÚNICA TELA',`<div class="arcModePicker">${html}</div>`);
+  root.querySelectorAll('[data-mode-proxy]').forEach(button=>button.onclick=()=>{cards[Number(button.dataset.modeProxy)]?.click();root.classList.add('hidden');toast(`${MODE_META[cards[Number(button.dataset.modeProxy)]?.dataset.modeChoice]?.[1]||'Modo'} selecionado.`,'ok')});
+}
+function renderHub(){
+  const grid=document.querySelector('#arcLobbyRoot .arcFeatureGrid');if(!grid)return;
+  const buttons=[...grid.children].filter(button=>button.matches('button'));
+  const groups={
+    'JOGAR E COMPETIR':[],
+    'COLEÇÃO E PROGRESSO':[],
+    'CONTA E SISTEMA':[]
+  };
+  buttons.forEach((button,index)=>{const text=(button.textContent||'').toLocaleLowerCase('pt-BR');if(text.includes('guerra dos reinos'))return;const group=/ranking|evento|amigo|replay/.test(text)?'JOGAR E COMPETIR':/conta|configura|histórico de update|acessibilidade/.test(text)?'CONTA E SISTEMA':'COLEÇÃO E PROGRESSO';const icon=button.querySelector('.arcFeatureIcon')?.textContent||'✦',title=button.querySelector('b')?.textContent||'Recurso',description=button.querySelector('small')?.textContent||'';groups[group].push(`<button data-war-proxy="${index}"><span>${icon}</span><div><b>${esc(title)}</b><small>${esc(description)}</small></div><i>›</i></button>`)});
+  const html=Object.entries(groups).map(([name,items])=>items.length?`<section class="arcHubGroup"><h3>${name}</h3><div>${items.join('')}</div></section>`:'').join('');
+  const root=overlay('arcWarHub','Centro Arcano','TODOS OS RECURSOS · ORGANIZADOS EM UM SÓ LUGAR',`<div class="arcHubIntro"><span>✦</span><div><b>Menos botões. Mais clareza.</b><small>Use o Centro Arcano quando precisar de um recurso secundário.</small></div></div><div class="arcHubGroups">${html}</div>`);
+  root.querySelectorAll('[data-war-proxy]').forEach(button=>button.onclick=()=>{root.classList.add('hidden');buttons[Number(button.dataset.warProxy)]?.click()});
+}
+function injectLobby(){
+  const root=document.querySelector('#arcLobbyRoot'),grid=root?.querySelector('.arcFeatureGrid');if(!grid)return;
+  const campaign=grid.querySelector('[data-asc-action="campaign"]');if(campaign){campaign.querySelector('b').textContent='Guerra dos Reinos';campaign.querySelector('small').textContent='Explore o mapa vivo · 24 destinos';campaign.querySelector('.arcFeatureBadge').textContent='1.2.1'}
+  if(!grid.querySelector('[data-war-action]'))for(const feature of [['vault','🗄️','Cofre de Decks','5 espaços por classe · estatísticas'],['codex','⚔️','Códice da Guerra','30 níveis · conquistas e recompensas'],['bestiary','🐉','Bestiário','Comandantes, chefes e mecânicas']]){const button=document.createElement('button');button.className='arcFeature arcWarFeature';button.dataset.warAction=feature[0];button.innerHTML=`<span class="arcFeatureIcon">${feature[1]}</span><b>${feature[2]}</b><small>${feature[3]}</small><span class="arcFeatureBadge">NOVO</span>`;grid.appendChild(button)}
+  grid.classList.add('arcWarLegacyFeatures');root.classList.add('arcWarLobbyLite');
+  const currentMode=localStorage.getItem('arcana_lobby_mode_v1')||'solo',meta=MODE_META[currentMode]||MODE_META.solo;let modeBar=root.querySelector('.arcWarModeBar');if(!modeBar){modeBar=document.createElement('section');modeBar.className='arcWarModeBar';grid.before(modeBar)}modeBar.innerHTML=`<div><span>${meta[0]}</span><p><small>MODO SELECIONADO</small><b>${meta[1]}</b><em>${meta[2]}</em></p></div><button data-war-main="modes">TROCAR MODO <i>›</i></button>`;
+  if(!root.querySelector('.arcWarMainNav')){const nav=document.createElement('section');nav.className='arcWarMainNav';nav.innerHTML=`<button data-war-main="campaign" class="primary"><span>🗺️</span><div><small>AVENTURA PRINCIPAL</small><b>Guerra dos Reinos</b><em>Mapa vivo · 24 destinos</em></div><i>JOGAR ›</i></button><button data-war-main="forge"><span>▤</span><div><small>PREPARAÇÃO</small><b>Meus Decks</b><em>Monte e salve estratégias</em></div></button><button data-war-main="collection"><span>💎</span><div><small>ACERVO</small><b>Coleção</b><em>Cartas, raridades e crafting</em></div></button><button data-war-main="hub"><span>✦</span><div><small>MAIS</small><b>Centro Arcano</b><em>Missões, ranking, conta e opções</em></div></button>`;grid.before(nav)}
+}
+function actions(event){
+  const campaign=event.target.closest?.('[data-asc-action="campaign"]');if(campaign){event.preventDefault();event.stopImmediatePropagation();renderWar();return}
+  const main=event.target.closest?.('[data-war-main]')?.dataset.warMain;if(main){event.preventDefault();if(main==='campaign')renderWar();if(main==='modes')renderModes();if(main==='forge')featureByText('forja de deck')?.click();if(main==='collection')featureByText('coleção & crafting')?.click();if(main==='hub')renderHub();return}
+  const action=event.target.closest?.('[data-war-action]')?.dataset.warAction;if(action==='vault')renderVault();if(action==='codex')renderCodex();if(action==='bestiary')renderBestiary()
+}
 function migrate(){const p=profile(),old=p.campaign110||{};if(!p.war120){const value=clone(DEFAULT_WAR);if((old.completed||[]).length){value.gold=Number(old.gold||0);value.breath=Number(old.breath??3);value.relics=[...(old.relics||[])];value.xp=(old.completed||[]).length*70;value.unlocked=['auroraGate'];}p.war120=value}p.schemaVersion=Math.max(7,Number(p.schemaVersion||0));p.release120={version:VERSION,migratedAt:p.release120?.migratedAt||Date.now()};saveProfile(p)}
 function install(){migrate();if(globalThis.__ARCANA)globalThis.__ARCANA.version=VERSION;document.addEventListener('click',actions,true);window.addEventListener('arcana:match',event=>finishEncounter(event.detail||{}));setInterval(()=>{injectLobby();pollBattle()},280);document.addEventListener('keydown',event=>{if(event.key==='Escape')document.querySelectorAll('.arcWarOverlay:not(.hidden)').forEach(root=>root.classList.add('hidden'))})}
 

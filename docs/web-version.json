@@ -1,12 +1,12 @@
 {
-  "publishedAt": "2026-08-24T15:00:00-03:00",
+  "publishedAt": "2026-08-24T18:30:00-03:00",
   "source": "ArcanaClash Web",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "channel": "web",
-  "title": "Guerra dos Reinos",
+  "title": "Mapa Vivo",
   "notes": [
-    "Campanha reconstruida com 24 encontros e quatro reinos",
-    "Chefes em fases, IA por estilo e campos com modificadores",
-    "Cofre de Decks, Codice, conquistas e Bestiario"
+    "Mapa ilustrado navegavel com 24 destinos",
+    "Rotas e progresso integrados ao cenario",
+    "Lobby simplificado com Centro Arcano"
   ]
 }

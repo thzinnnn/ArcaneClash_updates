@@ -1,19 +1,19 @@
 {
-  "version": "1.2.0",
-  "build": 1200,
+  "version": "1.2.1",
+  "build": 1210,
   "channel": "web",
   "minSupported": "1.0.0",
   "required": true,
-  "title": "ArcanaClash Web 1.2.0 - Guerra dos Reinos",
+  "title": "ArcanaClash Web 1.2.1 - Mapa Vivo",
   "notes": [
-    "Campanha reconstruida com 24 encontros e quatro reinos",
-    "Chefes em tres fases, comandantes e modificadores ambientais",
-    "Cofre de Decks, Codice de 30 niveis, conquistas e Bestiario"
+    "Mapa ilustrado jogavel com 24 destinos sobre o mundo",
+    "Rotas, bloqueios, chefes e progresso visiveis no cenario",
+    "Lobby simplificado e recursos agrupados no Centro Arcano"
   ],
-  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-120",
-  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-120",
+  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-121",
+  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-121",
   "android": {
-    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-120",
+    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-121",
     "playUrl": ""
   },
   "ios": {
