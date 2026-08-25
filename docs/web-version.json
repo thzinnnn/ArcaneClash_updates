@@ -1,12 +1,12 @@
 {
   "publishedAt": "2026-08-24T15:00:00-03:00",
   "source": "ArcanaClash Web",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "channel": "web",
-  "title": "Cronicas da Ascensao",
+  "title": "Guerra dos Reinos",
   "notes": [
-    "Campanha persistente com 15 destinos e chefes",
-    "Academia, recompensas recorrentes e Laboratorio de Deck",
-    "Catalogo ampliado de 172 para 252 cartas"
+    "Campanha reconstruida com 24 encontros e quatro reinos",
+    "Chefes em fases, IA por estilo e campos com modificadores",
+    "Cofre de Decks, Codice, conquistas e Bestiario"
   ]
 }

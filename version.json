@@ -1,19 +1,19 @@
 {
-  "version": "1.1.0",
-  "build": 1100,
+  "version": "1.2.0",
+  "build": 1200,
   "channel": "web",
   "minSupported": "1.0.0",
   "required": true,
-  "title": "ArcanaClash Web 1.1.0 - Cronicas da Ascensao",
+  "title": "ArcanaClash Web 1.2.0 - Guerra dos Reinos",
   "notes": [
-    "Campanha com 15 destinos, escolhas, chefes e progressao persistente",
-    "Academia Arcana, recompensas recorrentes e Laboratorio de Deck",
-    "80 cartas exclusivas novas elevam o catalogo para 252 cartas"
+    "Campanha reconstruida com 24 encontros e quatro reinos",
+    "Chefes em tres fases, comandantes e modificadores ambientais",
+    "Cofre de Decks, Codice de 30 niveis, conquistas e Bestiario"
   ],
-  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-110",
-  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-110",
+  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-120",
+  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-120",
   "android": {
-    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-110",
+    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-120",
     "playUrl": ""
   },
   "ios": {
