@@ -1,19 +1,19 @@
 {
-  "version": "1.3.0",
-  "build": 1300,
+  "version": "1.3.1",
+  "build": 1310,
   "channel": "web",
   "minSupported": "1.0.0",
   "required": true,
-  "title": "ArcanaClash Web 1.3.0 - Reforja",
+  "title": "ArcanaClash Web 1.3.1 - Campo Refeito",
   "notes": [
-    "Objetivos diferentes transformam as tres rotas em territorio estrategico",
-    "Conquista Territorial cria uma nova condicao de vitoria",
-    "Fusao Arcana e Doutrinas tornam decks e classes mais distintos"
+    "Conquista e Doutrina agora ficam integradas ao campo",
+    "Objetivos nao cobrem mais as rotas ou criaturas",
+    "Cenario recebeu mais contraste e profundidade visual"
   ],
-  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-130",
-  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-130",
+  "webUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-131",
+  "downloadUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-131",
   "android": {
-    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-130",
+    "apkUrl": "https://thzinnnn.github.io/ArcaneClash_updates/?from=release-131",
     "playUrl": ""
   },
   "ios": {

@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.3.0';
+const VERSION='1.3.1';
 const PROFILE_KEY='arcana_profile_v2';
 const CLASS_INFO={
   vanguard:{icon:'🛡️',name:'Guerreiro Arcano',doctrine:'Muralha Viva',bonus:'Comece com +3 de vida máxima.'},
@@ -100,10 +100,17 @@ function processRound(game,masteryNodes=new Set()){
 }
 
 function renderBattleUi(){
-  const game=globalThis.__ARCANA?.state?.(),active=game?.id&&!game.over&&!document.getElementById('game')?.classList.contains('hidden');let hud=document.getElementById('arcReforgeBattleHud');if(!active){hud?.classList.add('hidden');return}objectiveSet(game);if(!hud){hud=document.createElement('section');hud.id='arcReforgeBattleHud';document.body.appendChild(hud)}
-  const current=Math.max(0,(Number(game.round||1)-2)%3),conquest=game.reforged130.conquest||[0,0],needed=Number(game.reforged130.needed||3);hud.innerHTML=`<div class="arcConquest"><span>VOCÊ</span><i><em style="width:${Math.min(100,conquest[0]/needed*100)}%"></em></i><b>${conquest[0]}/${needed}</b><small>CONQUISTA</small><b>${conquest[1]}/${needed}</b><i><em class="enemy" style="width:${Math.min(100,conquest[1]/needed*100)}%"></em></i><span>RIVAL</span></div>`;hud.classList.remove('hidden');
+  const game=globalThis.__ARCANA?.state?.(),board=document.getElementById('board'),active=game?.id&&!game.over&&!document.getElementById('game')?.classList.contains('hidden');let hud=document.getElementById('arcReforgeBattleHud');
+  if(!active||!board){hud?.classList.add('hidden');return}
+  objectiveSet(game);
+  if(!hud){hud=document.createElement('section');hud.id='arcReforgeBattleHud'}
+  if(hud.nextElementSibling!==board)board.parentNode?.insertBefore(hud,board);
+  const director=document.getElementById('arcWarBattleDirector');if(director&&!director.classList.contains('hidden')&&director.nextElementSibling!==hud)hud.parentNode?.insertBefore(director,hud);
+  const current=Math.max(0,(Number(game.round||1)-2)%3),conquest=game.reforged130.conquest||[0,0],needed=Number(game.reforged130.needed||3),me=game.p?.[0],info=CLASS_INFO[me?.classId];
+  const pips=score=>Array.from({length:needed},(_,index)=>`<i class="${index<score?'filled':''}"></i>`).join('');
+  hud.innerHTML=`<div class="arcDoctrineInline"><span>${info?.icon||'✦'}</span><div><small>DOUTRINA</small><b>${esc(me?.reforgedDoctrine||info?.doctrine||'Identidade Arcana')}</b></div></div><div class="arcConquest"><div class="arcConquestSide player"><span>VOCÊ</span><em>${pips(conquest[0])}</em><b>${conquest[0]}/${needed}</b></div><div class="arcConquestCore"><small>CONQUISTA TERRITORIAL</small><strong>Domine 2 rotas</strong></div><div class="arcConquestSide enemy"><b>${conquest[1]}/${needed}</b><em>${pips(conquest[1])}</em><span>RIVAL</span></div></div><div class="arcReforgeRule"><small>${me?.fusion130?'FUSÃO EQUIPADA':'VITÓRIA ALTERNATIVA'}</small><b>${me?.fusion130?`✦ ${esc(me.fusion130)}`:`2 rotas · ${needed} rodadas`}</b></div>`;
+  hud.classList.remove('hidden');document.getElementById('arcDoctrineBadge')?.remove();
   document.querySelectorAll('#board .lane').forEach((lane,index)=>{const mid=lane.querySelector('.mid'),objective=OBJECTIVES.find(item=>item.id===game.reforged130.objectives[index]);if(!mid||!objective)return;let badge=mid.querySelector('.arcRouteObjective');if(!badge){badge=document.createElement('span');badge.className='arcRouteObjective';mid.appendChild(badge)}badge.classList.toggle('active',index===current&&game.round>=2);badge.innerHTML=`<i>${objective.icon}</i><b>${objective.name}</b><small>${objective.text}</small>`;const a=laneStrength(game.p[0],index),b=laneStrength(game.p[1],index);lane.dataset.control=a===b?'tie':a>b?'player':'enemy'});
-  let doctrine=document.getElementById('arcDoctrineBadge');if(!doctrine){doctrine=document.createElement('div');doctrine.id='arcDoctrineBadge';document.body.appendChild(doctrine)}const me=game.p?.[0],info=CLASS_INFO[me?.classId];doctrine.innerHTML=`<span>${info?.icon||'✦'}</span><div><small>DOUTRINA ATIVA</small><b>${esc(me?.reforgedDoctrine||info?.doctrine||'Identidade Arcana')}</b>${me?.fusion130?`<em>✦ ${esc(me.fusion130)}</em>`:''}</div>`;doctrine.classList.remove('hidden');
 }
 
 function injectLobby(){
