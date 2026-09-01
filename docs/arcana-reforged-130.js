@@ -39,7 +39,7 @@ function overlay(id,title,subtitle,html){
 }
 
 let fusionSelection=[];
-function activeDeck(){const p=profile(),classId=p.classId||'vanguard',deck=p.classDecks?.[classId];return {p,classId,deck,catalog:globalThis.__ARCANA?.cards||[]}}
+function activeDeck(){const p=profile(),classId=p.classId||'vanguard',catalog=globalThis.__ARCANA?.cards||[];let deck=p.classDecks?.[classId];if(!deck){const names=globalThis.ArcanaEvolution?.autoDeckNames?.(classId,catalog)||[];deck={name:`${CLASS_INFO[classId]?.name||'Arcano'} Essencial`,cards:names}}return {p,classId,deck,catalog}}
 function fusionName(a,b){const first=String(a.name).split(' ')[0],last=String(b.name).split(' ').slice(-1)[0];return `${first} ${last} Reforjado`.slice(0,30)}
 function fusionDefinition(recipe,catalog){
   const a=catalog.find(card=>card.name===recipe.a),b=catalog.find(card=>card.name===recipe.b);if(!a||!b||a.type!=='unit'||b.type!=='unit')return null;
