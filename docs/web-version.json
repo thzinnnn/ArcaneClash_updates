@@ -1,12 +1,12 @@
 {
-  "publishedAt": "2026-08-24T18:30:00-03:00",
+  "publishedAt": "2026-09-01T12:00:00-03:00",
   "source": "ArcanaClash Web",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "channel": "web",
-  "title": "Mapa Vivo",
+  "title": "Reforja",
   "notes": [
-    "Mapa ilustrado navegavel com 24 destinos",
-    "Rotas e progresso integrados ao cenario",
-    "Lobby simplificado com Centro Arcano"
+    "Objetivos de rota e Conquista Territorial",
+    "Fusao Arcana funcional dentro das partidas",
+    "Doutrinas reforcam a identidade das oito classes"
   ]
 }

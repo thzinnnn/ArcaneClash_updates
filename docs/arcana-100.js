@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='1.2.1';
+const VERSION='1.3.0';
 const PROFILE_KEY='arcana_profile_v2';
 const STRATEGY_KEY='arcana_strategy_pack_v1';
 const META_KEY='arcana_release_100_v1';
@@ -331,6 +331,7 @@ function applyMasteryAndRoutes(value){
     api()?.refresh?.();
   }
   const roundKey=`${value.id}:${value.round}`;if(lastAppliedRound===roundKey||value.round<2||value.cur!==0)return;lastAppliedRound=roundKey;
+  if(globalThis.ArcanaReforged?.processRound?.(value,nodes)){api()?.refresh?.();return}
   value.arcanaDomination=value.arcanaDomination||[0,0];const lane=(value.round-1)%3;
   const strength=side=>(value.p?.[side]?.lanes?.[lane]||[]).reduce((sum,unit)=>sum+Number(unit.atk||0),0);
   const a=strength(0),b=strength(1);

@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#080b18">
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://omhokhrpddahfowdkklb.supabase.co https://raw.githubusercontent.com https://0.peerjs.com wss://0.peerjs.com; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests">
-  <title>ArcanaClash 1.2.1 - Mapa Vivo</title>
+  <title>ArcanaClash 1.3.0 - Reforja</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="modes.css">
   <link rel="stylesheet" href="ui-fixes.css">
@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="social-100.css?v=102">
   <link rel="stylesheet" href="ascension-110.css?v=110">
   <link rel="stylesheet" href="war-realms-120.css?v=121">
+  <link rel="stylesheet" href="arcana-reforged-130.css?v=130">
 </head>
 <body>
   <main id="app">
@@ -48,7 +49,7 @@
 
   <section id="home" class="screen">
     <div class="panel homePanel">
-      <div class="homeTop"><div><div class="logo">ARCANA<br><em>CLASH</em></div><p class="eyebrow">MOBILE · CROSSPLAY</p></div><button id="checkUpdate" class="versionPill">v<span id="appVersion">1.2.1</span><small>VERIFICAR</small></button></div>
+      <div class="homeTop"><div><div class="logo">ARCANA<br><em>CLASH</em></div><p class="eyebrow">MOBILE · CROSSPLAY</p></div><button id="checkUpdate" class="versionPill">v<span id="appVersion">1.3.0</span><small>VERIFICAR</small></button></div>
       <p class="lead">Escolha como lutar. Evolua seu Arcano, domine classes e transforme cada eliminação em novas possibilidades.</p>
       <div id="modeGrid" class="modeCatalog"></div>
       <div class="homeActions"><button id="openRules" class="ghost">COMO JOGAR</button><button id="openAbout" class="ghost">NOVIDADES</button></div>
@@ -75,7 +76,7 @@
 
   <section id="rulesScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">REGRAS 1.0</p><h2>Rápido de aprender, difícil de dominar</h2><div class="rules"><p><b>▤ Deck:</b> a partida começa com exatamente 30 cartas da sua classe; você pode usar até 3 cópias iguais.</p><p><b>♻ Mulligan:</b> antes da primeira jogada, troque até 2 cartas sem perder recursos.</p><p><b>⌛ Reserva:</b> consulte as próximas compras para planejar; Baús e Espólios podem adicionar novas cartas durante a partida.</p><p><b>🎁 Baú:</b> todo turno oferece 2 opções complementares e possui proteção contra sequências ruins.</p><p><b>🧙 Classe Arcana:</b> classe define cartas permitidas, identidade, passiva, habilidade e Maestria PvE.</p><p><b>⚔️ Rotas:</b> cada rodada destaca um objetivo. Controle as três rotas por tempo suficiente para vencer por Domínio.</p><p><b>↶ Desfazer:</b> no PvE, reverta jogadas enquanto o turno ainda não foi encerrado.</p><p><b>☷ Histórico:</b> consulte ações recentes durante a luta e reveja partidas salvas depois.</p><p><b>🏆 Vitória:</b> reduza a vida rival a zero ou cumpra a condição de Domínio.</p></div><button id="closeRules" class="primary">Entendi</button></div></section>
 
-  <section id="aboutScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">ARCANACLASH 1.2.1 WEB</p><h2>Mapa Vivo</h2><div class="rules"><p>🗺️ Mapa ilustrado e navegável com 24 destinos posicionados no mundo.</p><p>✨ Rotas, bloqueios, chefes e progresso aparecem diretamente no cenário.</p><p>🧭 Lobby simplificado com quatro acessos principais e um Centro Arcano.</p><p>🐉 Guerra dos Reinos, chefes em fases, Códice e Cofre de Decks preservados.</p><p>📱 Exploração adaptada para mouse, toque, PC e celular.</p></div><button id="closeAbout" class="primary">Voltar</button></div></section>
+  <section id="aboutScreen" class="screen hidden"><div class="panel compact"><p class="eyebrow">ARCANACLASH 1.3.0 WEB</p><h2>Reforja</h2><div class="rules"><p>⚔️ Cada rota recebe um objetivo próprio com recompensa tática real.</p><p>🏰 Controle duas rotas por três rodadas para vencer por Conquista.</p><p>✦ Fusão Arcana combina duas criaturas e transforma uma carta durante a batalha.</p><p>🧙 Doutrinas recompensam decks fiéis à identidade das oito classes.</p><p>🗺️ Guerra dos Reinos, mapa vivo, contas e cloud save foram preservados.</p></div><button id="closeAbout" class="primary">Voltar</button></div></section>
 
   <section id="gameover" class="screen hidden"><div class="panel compact"><p class="eyebrow" id="gameoverMode">FIM DO DUELO</p><div id="resultTitle" class="result">VITÓRIA</div><p id="resultText" class="lead"></p><div id="runStats" class="runStats"></div><div class="buttons"><button id="rematch" class="primary">JOGAR DE NOVO</button><button id="returnHome" class="ghost">MODOS</button></div></div></section>
 
@@ -84,21 +85,22 @@
 
   <script src="vendor/peerjs.min.js"></script>
   <script src="evolution-pack.js?v=102"></script>
-  <script src="app.min.js?v=121"></script>
+  <script src="app.min.js?v=130"></script>
   <script src="armory-expansion.js?v=102"></script>
   <script src="card-remake-092.js?v=102"></script>
   <script src="secret-cards.js?v=102"></script>
   <script src="rarity-signals.js?v=102"></script>
   <script src="party.min.js?v=102"></script>
   <script src="inspector.min.js?v=102"></script>
-  <script src="web.min.js?v=121"></script>
-  <script src="lobby.js?v=121"></script>
+  <script src="web.min.js?v=130"></script>
+  <script src="lobby.js?v=130"></script>
   <script src="arcane-market.js?v=102"></script>
   <script src="combat-reborn-094.js?v=102"></script>
-  <script src="arcana-100.js?v=121"></script>
+  <script src="arcana-100.js?v=130"></script>
   <script src="admin-live.js?v=102"></script>
   <script src="social-100.js?v=102"></script>
   <script src="ascension-110.js?v=110"></script>
-  <script src="war-realms-120.js?v=121"></script>
+  <script src="war-realms-120.js?v=130"></script>
+  <script src="arcana-reforged-130.js?v=130"></script>
 </body>
 </html>
